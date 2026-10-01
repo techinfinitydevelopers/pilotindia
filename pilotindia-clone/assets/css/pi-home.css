@@ -1,0 +1,1056 @@
+/* ==========================================================================
+   Pilot India — home page
+   Every colour, font and radius comes from theme/theme.css. Nothing is
+   hardcoded here that the theme should own.
+   Eight sections, eight different layout families:
+     hero (full-bleed) · stats (dark band) · products (asymmetric bento)
+     about (split) · capability (divided rows) · industries (pill field)
+     insights (numbered editorial list) · closing (centred band)
+   ========================================================================== */
+
+.pi-home {
+  --h-ink: var(--pi-ink, #0a0a0a);
+  --h-accent: var(--pi-accent, #f58634);
+  --h-paper: #ffffff;
+  --h-mute: #f4f4f5;
+  --h-body: #55575c;
+  --h-rule: #e4e4e7;
+  --h-shell: var(--pi-radius-shell, 15px);
+  --h-control: var(--pi-radius-control, 10px);
+
+  font-family: var(--pi-font-body, "Open Sans", system-ui, sans-serif);
+  color: var(--h-ink);
+  background: var(--h-paper);
+}
+
+.pi-home * { box-sizing: border-box; }
+
+.pi-home__wrap {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.pi-home__eyebrow {
+  margin: 0 0 14px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--h-accent);
+}
+
+.pi-home__h2 {
+  margin: 0 0 18px;
+  font-family: var(--pi-font-heading, Roboto, system-ui, sans-serif);
+  font-size: clamp(28px, 3.6vw, 44px);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--h-ink);
+}
+
+.pi-home__lead {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 16.5px;
+  line-height: 1.75;
+  color: var(--h-body);
+}
+
+/* Reveal on scroll, driven by IntersectionObserver rather than a scroll handler.
+   The hidden start state is gated behind [data-pi-js], which the inline head script sets.
+   Without JS nothing is ever hidden, so the content cannot disappear. */
+.pi-reveal {
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-pi-js] .pi-reveal { opacity: 0; transform: translateY(18px); }
+[data-pi-js] .pi-reveal.is-in { opacity: 1; transform: none; }
+
+/* ============================ 1. hero ============================ */
+
+.pi-hero {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: min(76vh, 680px);
+  margin: 0 18px;
+  border-radius: var(--h-shell);
+  overflow: hidden;
+  isolation: isolate;
+  background: #141414;
+}
+
+.pi-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pi-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(8, 8, 8, 0.93) 0%, rgba(8, 8, 8, 0.78) 42%, rgba(8, 8, 8, 0.25) 75%, rgba(8, 8, 8, 0.1) 100%),
+    linear-gradient(0deg, rgba(8, 8, 8, 0.7) 0%, rgba(8, 8, 8, 0) 45%);
+}
+
+.pi-hero__inner {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 88px 24px 56px;
+}
+
+.pi-hero__title {
+  margin: 0 0 20px;
+  max-width: 17ch;
+  font-family: var(--pi-font-heading, Roboto, system-ui, sans-serif);
+  font-size: clamp(34px, 5.4vw, 66px);
+  font-weight: 800;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+.pi-hero__title em {
+  font-style: normal;
+  color: var(--h-accent);
+}
+
+.pi-hero__sub {
+  margin: 0 0 32px;
+  max-width: 52ch;
+  font-size: clamp(15px, 1.5vw, 18px);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.pi-hero__cta { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.pi-home a.pi-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 14px 26px;
+  border: 1px solid var(--h-accent);
+  border-radius: var(--pi-radius-pill, 999px);
+  background: var(--h-accent);
+  color: #0a0a0a;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.pi-home a.pi-btn:hover { background: transparent; color: var(--h-accent); }
+.pi-home a.pi-btn:active { transform: translateY(1px); }
+
+.pi-home a.pi-btn--ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+}
+.pi-home a.pi-btn--ghost:hover {
+  background: #fff;
+  border-color: #fff;
+  color: #0a0a0a;
+}
+
+.pi-btn svg { width: 15px; height: 15px; fill: currentColor; }
+
+/* ============================ 2. stats band ============================ */
+
+.pi-stats {
+  margin: 18px;
+  padding: 44px 0;
+  border-radius: var(--h-shell);
+  background: var(--h-ink);
+}
+
+.pi-stats__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.pi-stat { border-left: 2px solid var(--h-accent); padding-left: 18px; }
+
+.pi-stat__n {
+  display: block;
+  font-family: var(--pi-font-heading, Roboto, system-ui, sans-serif);
+  font-size: clamp(30px, 3.4vw, 44px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.pi-stat__l {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9a9a9a;
+}
+
+/* ============================ 3. products (expanding panels) ============================ */
+/* Compact vertical columns that expand on hover to reveal the title, a line of
+   copy and the link, over full-bleed imagery with a dark scrim. Collapsed columns
+   carry the title turned on its side; expanding cross-fades that for the full
+   block of copy. Built from scratch for Pilot: own markup, own CSS, own content. */
+
+.pi-sec { padding: 96px 0; }
+.pi-sec--tight { padding: 72px 0; }
+
+.pi-sec__head { margin-bottom: 40px; }
+
+/* Geometry and timing matched to the reference component: 400px tall, 10px gap,
+   non-hovered panels collapsing to 10% width. Its motion is a spring with
+   stiffness 160, damping 30, mass 1 - a damping ratio of about 1.19, so it is
+   overdamped and settles with no bounce in roughly half a second. The easing
+   below is the closest CSS equivalent. */
+.pi-exp {
+  display: flex;
+  gap: 10px;
+  height: 400px;
+}
+
+.pi-exp__card {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: var(--h-shell);
+  background: #1a1a1a;
+  text-decoration: none;
+  transition: flex 0.5s cubic-bezier(0.25, 1, 0.3, 1);
+}
+
+/* the theme ships a:-webkit-any-link{text-decoration:underline} at (0,1,1),
+   which outranks a bare class, so the panel anchor needs the extra weight */
+.pi-home a.pi-exp__card,
+.pi-home a.pi-exp__card:hover { text-decoration: none; }
+
+/* The expansion. While any panel is hovered or focused the rest collapse to 10%
+   and the active one takes the remainder, which is how the reference sizes them.
+   :has() carries this; the flex-grow rule underneath is the fallback for browsers
+   without it. */
+.pi-exp__card:hover,
+.pi-exp__card:focus-visible,
+.pi-exp__card:focus-within { flex-grow: 3.4; }
+
+.pi-exp:has(.pi-exp__card:hover) .pi-exp__card,
+.pi-exp:has(.pi-exp__card:focus-visible) .pi-exp__card {
+  flex: 0 0 10%;
+}
+
+.pi-exp:has(.pi-exp__card:hover) .pi-exp__card:hover,
+.pi-exp:has(.pi-exp__card:focus-visible) .pi-exp__card:focus-visible {
+  flex: 1 1 auto;
+}
+
+.pi-exp__img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.06);
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.3, 1);
+}
+
+.pi-exp__card:hover .pi-exp__img,
+.pi-exp__card:focus-within .pi-exp__img { transform: scale(1); }
+
+/* scrim: heavy while collapsed so the vertical title reads, lighter once open
+   so the photograph can actually be seen */
+.pi-exp__card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(0deg, rgba(8, 8, 8, 0.92) 0%, rgba(8, 8, 8, 0.6) 45%, rgba(8, 8, 8, 0.45) 100%);
+  transition: background 0.5s cubic-bezier(0.25, 1, 0.3, 1);
+}
+
+.pi-exp__card:hover::after,
+.pi-exp__card:focus-within::after {
+  background: linear-gradient(0deg, rgba(8, 8, 8, 0.93) 6%, rgba(8, 8, 8, 0.42) 55%, rgba(8, 8, 8, 0.08) 100%);
+}
+
+/* ---- collapsed: title on its side ---- */
+
+.pi-exp__rail {
+  position: absolute;
+  left: 0;
+  bottom: 24px;
+  display: block;
+  padding-left: 22px;
+  max-height: calc(100% - 96px);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: var(--pi-font-heading, Roboto, system-ui, sans-serif);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.35s ease;
+}
+
+.pi-exp__card:hover .pi-exp__rail,
+.pi-exp__card:focus-within .pi-exp__rail { opacity: 0; transition-duration: 0.2s; }
+
+/* ---- expanded: the full block ---- */
+
+.pi-exp__body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 26px 26px 24px;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.35s ease 0.1s, transform 0.45s cubic-bezier(0.25, 1, 0.3, 1) 0.1s;
+}
+
+.pi-exp__card:hover .pi-exp__body,
+.pi-exp__card:focus-within .pi-exp__body { opacity: 1; transform: none; }
+
+.pi-exp__t {
+  display: block;
+  margin-bottom: 8px;
+  font-family: var(--pi-font-heading, Roboto, system-ui, sans-serif);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.pi-exp__d {
+  display: block;
+  margin-bottom: 14px;
+  max-width: 38ch;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.pi-exp__go {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--h-accent);
+  white-space: nowrap;
+}
+
+.pi-exp__go svg { width: 13px; height: 13px; fill: currentColor; transition: transform 0.25s ease; }
+.pi-exp__card:hover .pi-exp__go svg { transform: translateX(4px); }
+
+.pi-exp__tag {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 1;
+  padding: 4px 10px;
+  border-radius: var(--pi-radius-pill, 999px);
+  background: var(--h-accent);
+  color: #0a0a0a;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+/* ---- responsive ----
+   Hover-to-expand cannot work without a pointer, so on touch and on narrow
+   screens the panels stack and every one shows its copy outright. */
+
+@media (max-width: 1100px) {
+  .pi-exp { height: 360px; }
+  .pi-exp__d { font-size: 14px; }
+}
+
+@media (hover: none), (max-width: 900px) {
+  .pi-exp {
+    flex-direction: column;
+    height: auto;
+    gap: 14px;
+  }
+  .pi-exp__card,
+  .pi-exp__card:hover,
+  .pi-exp__card:focus-within { flex: 0 0 auto; min-height: 220px; }
+  .pi-exp__img { transform: scale(1); }
+  .pi-exp__rail { display: none; }
+  .pi-exp__body { position: static; opacity: 1; transform: none; padding: 150px 22px 22px; }
+  .pi-exp__t { white-space: normal; }
+  .pi-exp__card::after {
+    background: linear-gradient(0deg, rgba(8, 8, 8, 0.92) 8%, rgba(8, 8, 8, 0.45) 60%, rgba(8, 8, 8, 0.15) 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pi-exp__card,
+  .pi-exp__img,
+  .pi-exp__rail,
+  .pi-exp__body,
+  .pi-exp__card::after { transition: none !important; }
+}
+
+/* ============================ 4. about (split) ============================ */
+
+.pi-about { background: var(--h-mute); }
+
+.pi-about__grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 56px;
+  align-items: center;
+}
+
+.pi-about__copy p + p { margin-top: 16px; }
+
+.pi-about__quote {
+  margin: 28px 0 0;
+  padding: 18px 0 18px 22px;
+  border-left: 3px solid var(--h-accent);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--h-ink);
+}
+
+.pi-about__media {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.pi-about__media figure { margin: 0; }
+.pi-about__media figure:first-child { grid-column: 1 / -1; }
+.pi-about__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 150px;
+  max-height: 260px;
+  object-fit: cover;
+  border-radius: var(--h-control);
+}
+.pi-about__media figcaption {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: #71717a;
+}
+
+/* Lead facility shot: the caption becomes an orange strip fused to the RIGHT edge of
+   the image. The strip is taken out of flow and pinned top-to-bottom, so the image
+   alone sets the height and the strip simply matches it - rather than the vertical
+   text stretching the figure taller than the photo. Padding on the figure reserves
+   the strip's width so the two sit side by side instead of overlapping.
+   Still a <figcaption>, so it remains a caption. */
+.pi-about__media .pi-about__shot:not(.pi-about__shot--below) {
+  position: relative;
+  padding-right: 58px;
+  border-radius: var(--h-control);
+  overflow: hidden;
+}
+
+.pi-about__media .pi-about__shot:not(.pi-about__shot--below) img {
+  display: block;
+  width: 100%;
+  border-radius: 0;
+}
+
+.pi-about__media .pi-about__shot:not(.pi-about__shot--below) figcaption {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 58px;
+  margin: 0;
+  padding: 18px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--h-accent);
+  color: var(--h-ink);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  /* reads top-to-bottom, the natural direction for a strip on the right */
+  writing-mode: vertical-rl;
+}
+
+/* The two supporting shots: same black caption strip, but laid along the bottom
+   edge instead of the side, so the text sits horizontally. Image and strip share
+   one rounded, clipped box. */
+.pi-about__media .pi-about__shot--below {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--h-control);
+  overflow: hidden;
+}
+
+.pi-about__media .pi-about__shot--below img {
+  display: block;
+  width: 100%;
+  height: 200px;
+  min-height: 0;
+  max-height: none;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+.pi-about__media .pi-about__shot--below figcaption {
+  margin: 0;
+  padding: 13px 16px;
+  background: var(--h-accent);
+  color: var(--h-ink);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+/* ============================ 5. capability (expand-on-hover list) ============================ */
+/* Reference behaviour: https://expand-on-hover-list.framer.website/ - a stack of hairline
+   separated rows. The row under the pointer (or the scroll-active one) grows: its name
+   goes from ghost grey to full ink, a line of copy unfolds beneath it and an illustration
+   slides in on the right. Measured off the reference: 49px collapsed band, 200px open,
+   275x179 artwork, 40px number, 30px name, 16px copy, ghost #acacac.
+
+   Revamp pass: the interaction stayed, the feel changed. A soft accent wash now bleeds in
+   behind the open row (so it reads as a lifted card, not just recolored text), a left
+   accent bar grows in alongside it, and every property moves on one shared expo-out curve
+   so nothing in the row arrives or leaves out of step with everything else. Opening
+   staggers text -> artwork -> button by ~60-80ms so the row reveals like a small sequence
+   rather than a single flat cut; closing drops every delay so it snaps shut immediately -
+   a row should feel eager to open and quick to let go.
+
+   Rebuilt from scratch for Pilot - own copy, own palette, own markup, own artwork. Only the
+   interaction pattern and its proportions come from the reference. */
+
+.pi-cap-sec { overflow: hidden; }
+
+.pi-cap__list {
+  margin: 0 auto;
+  max-width: 1100px;
+  padding: 0 24px;
+}
+
+.pi-cap {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  column-gap: 34px;
+  align-items: start;
+  border-radius: 18px;
+  outline: none;
+}
+
+/* the accent wash: a soft card that bleeds behind the open row, left-weighted and
+   clipped to the row's own rounded corners so it reads as "this row lifted", not a
+   flat color swap */
+.pi-cap::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -6px -20px;
+  border-radius: 20px;
+  background: linear-gradient(100deg, rgba(245, 134, 52, 0.09) 0%, rgba(245, 134, 52, 0.015) 70%);
+  opacity: 0;
+  transform: scaleX(0.97);
+  transform-origin: left center;
+  transition: opacity 0.6s cubic-bezier(0.19, 1, 0.22, 1), transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* the accent bar: grows from the vertical centre, full height once open */
+.pi-cap::after {
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  width: 3px;
+  height: 0;
+  border-radius: 999px;
+  background: var(--h-accent);
+  transform: translateY(-50%);
+  transition: height 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.pi-cap.is-active::before,
+.pi-cap:hover::before,
+.pi-cap:focus-within::before { opacity: 1; transform: scaleX(1); }
+
+.pi-cap.is-active::after,
+.pi-cap:hover::after,
+.pi-cap:focus-within::after { height: calc(100% + 12px); }
+
+/* the index sits outside the ruled block, as on the reference */
+.pi-cap__no {
+  padding-top: 24px;
+  font-family: var(--pi-font-heading, Roboto, system-ui, sans-serif);
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #acacac;
+  transition: color 0.45s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* ruled block: hairline above every row, plus one under the last to close the stack */
+.pi-cap__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 40px;
+  column-gap: 28px;
+  align-items: start;
+  padding: 22px 0 24px;
+  border-top: 1px solid var(--h-rule);
+  transition: padding 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.pi-cap:last-child .pi-cap__body { border-bottom: 1px solid var(--h-rule); }
+
+.pi-cap.is-active .pi-cap__body,
+.pi-cap:hover .pi-cap__body,
+.pi-cap:focus-within .pi-cap__body { padding-top: 26px; padding-bottom: 28px; }
+
+.pi-cap__text { min-width: 0; }
+
+.pi-cap__t {
+  margin: 0;
+  font-family: var(--pi-font-heading, Roboto, system-ui, sans-serif);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #acacac;
+  transition: color 0.45s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* 0fr -> 1fr is the one height animation that works on auto-sized content */
+.pi-cap__d {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.55s cubic-bezier(0.19, 1, 0.22, 1),
+              opacity 0.4s ease;
+}
+
+.pi-cap.is-active .pi-cap__d,
+.pi-cap:hover .pi-cap__d,
+.pi-cap:focus-within .pi-cap__d { transition-delay: 0.02s, 0.06s; }
+
+.pi-cap__d > p {
+  overflow: hidden;
+  margin: 0;
+  max-width: 42ch;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--h-muted, #6b6b73);
+}
+
+/* the artwork: collapsed to nothing, so the row's height is 49px of band */
+.pi-cap__shot {
+  width: 275px;
+  height: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  opacity: 0;
+  transform: translateX(22px) scale(0.94);
+  transition: height 0.6s cubic-bezier(0.19, 1, 0.22, 1),
+              opacity 0.45s ease,
+              transform 0.6s cubic-bezier(0.19, 1, 0.22, 1),
+              box-shadow 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.pi-cap.is-active .pi-cap__shot,
+.pi-cap:hover .pi-cap__shot,
+.pi-cap:focus-within .pi-cap__shot { transition-delay: 0.08s; }
+
+.pi-cap__shot img { display: block; width: 275px; height: 179px; object-fit: cover; }
+
+.pi-cap__go {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--pi-radius-pill, 999px);
+  background: var(--h-ink, #0e0e0e);
+  transform: scale(1);
+  transition: background 0.45s cubic-bezier(0.19, 1, 0.22, 1),
+              transform 0.5s cubic-bezier(0.19, 1, 0.22, 1),
+              box-shadow 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.pi-cap.is-active .pi-cap__go,
+.pi-cap:hover .pi-cap__go,
+.pi-cap:focus-within .pi-cap__go { transition-delay: 0.12s; }
+
+.pi-cap__go svg { width: 18px; height: 18px; fill: #fff; transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1); }
+
+/* ---- open state: pointer, keyboard, or the scroll-spy ---- */
+
+.pi-cap.is-active .pi-cap__no,
+.pi-cap:hover .pi-cap__no,
+.pi-cap:focus-within .pi-cap__no { color: var(--h-ink, #0e0e0e); }
+
+.pi-cap.is-active .pi-cap__t,
+.pi-cap:hover .pi-cap__t,
+.pi-cap:focus-within .pi-cap__t { color: var(--h-accent); }
+
+.pi-cap.is-active .pi-cap__d,
+.pi-cap:hover .pi-cap__d,
+.pi-cap:focus-within .pi-cap__d { grid-template-rows: 1fr; opacity: 1; }
+
+.pi-cap.is-active .pi-cap__shot,
+.pi-cap:hover .pi-cap__shot,
+.pi-cap:focus-within .pi-cap__shot {
+  height: 179px;
+  opacity: 1;
+  transform: none;
+  box-shadow: 0 18px 32px -16px rgba(17, 17, 17, 0.28);
+}
+
+.pi-cap.is-active .pi-cap__go,
+.pi-cap:hover .pi-cap__go,
+.pi-cap:focus-within .pi-cap__go {
+  background: var(--h-accent);
+  transform: scale(1.08) translateX(4px);
+  box-shadow: 0 10px 20px -8px rgba(245, 134, 52, 0.55);
+}
+
+.pi-cap.is-active .pi-cap__go svg,
+.pi-cap:hover .pi-cap__go svg,
+.pi-cap:focus-within .pi-cap__go svg { transform: rotate(-45deg); }
+
+/* hovering any row hands the open state to it alone - the scroll-active row steps back,
+   and immediately: a row that loses focus should snap shut, not linger on the way out */
+
+.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within)::before,
+.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within)::after {
+  transition-duration: 0.3s;
+}
+
+.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within)::before { opacity: 0; transform: scaleX(0.97); }
+.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within)::after { height: 0; }
+
+.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within) .pi-cap__no,
+.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within) .pi-cap__t {
+  color: #acacac;
+  transition-duration: 0.3s;
+}
+
+.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within) .pi-cap__body {
+  padding-top: 22px;
+  padding-bottom: 24px;
+  transition-duration: 0.3s;
+}
+
+.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within) .pi-cap__d {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition-duration: 0.3s, 0.2s;
+  transition-delay: 0s;
+}
+
+.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within) .pi-cap__shot {
+  height: 0;
+  opacity: 0;
+  transform: translateX(22px) scale(0.94);
+  box-shadow: none;
+  transition-duration: 0.35s, 0.25s, 0.35s, 0.25s;
+  transition-delay: 0s;
+}
+
+.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within) .pi-cap__go {
+  background: var(--h-ink, #0e0e0e);
+  transform: scale(1) translateX(0);
+  box-shadow: none;
+  transition-duration: 0.3s;
+  transition-delay: 0s;
+}
+
+.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within) .pi-cap__go svg { transform: none; }
+
+/* without JS nothing is scroll-active, so every row shows its copy outright */
+html:not([data-pi-js]) .pi-cap__d { grid-template-rows: 1fr; opacity: 1; }
+html:not([data-pi-js]) .pi-cap__t { color: var(--h-ink, #0e0e0e); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pi-cap,
+  .pi-cap::before,
+  .pi-cap::after,
+  .pi-cap__no,
+  .pi-cap__body,
+  .pi-cap__t,
+  .pi-cap__d,
+  .pi-cap__shot,
+  .pi-cap__go,
+  .pi-cap__go svg { transition: none !important; }
+}
+
+
+/* ============================ 6. industries (pill field) ============================ */
+
+.pi-ind { background: var(--h-ink); }
+.pi-ind .pi-home__h2 { color: #fff; }
+.pi-ind .pi-home__lead { color: #a1a1aa; }
+
+.pi-ind__field {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 34px;
+}
+
+.pi-ind__pill {
+  padding: 10px 18px;
+  border: 1px solid #2a2a2a;
+  border-radius: var(--pi-radius-pill, 999px);
+  background: #141414;
+  font-size: 14px;
+  color: #d4d4d8;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+.pi-ind__pill:hover {
+  border-color: var(--h-accent);
+  background: rgba(245, 134, 52, 0.1);
+  color: #fff;
+}
+
+/* ============================ 7. insights (editorial list) ============================ */
+
+.pi-ins__list { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--h-rule); }
+.pi-ins__list li { margin: 0; list-style: none; }
+
+.pi-home a.pi-ins__row {
+  display: grid;
+  grid-template-columns: 54px 1fr auto;
+  gap: 24px;
+  align-items: center;
+  padding: 26px 8px 26px 0;
+  border-bottom: 1px solid var(--h-rule);
+  text-decoration: none;
+  color: var(--h-ink);
+  transition: padding-left 0.25s ease, background 0.25s ease;
+}
+.pi-home a.pi-ins__row:hover { padding-left: 14px; background: rgba(245, 134, 52, 0.05); }
+
+.pi-ins__n { font-size: 12.5px; font-weight: 700; letter-spacing: 0.1em; color: #a1a1aa; }
+
+.pi-ins__t {
+  font-family: var(--pi-font-heading, Roboto, system-ui, sans-serif);
+  font-size: clamp(16px, 1.7vw, 20px);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+.pi-home a.pi-ins__row:hover .pi-ins__t { color: var(--h-accent); }
+
+.pi-ins__go { width: 16px; height: 16px; fill: #a1a1aa; flex: 0 0 auto; }
+.pi-home a.pi-ins__row:hover .pi-ins__go { fill: var(--h-accent); }
+
+/* ============================ 8. closing band ============================ */
+/* Revamp pass: the flat black card gained depth without gaining new copy. Two soft
+   accent glows + a faint grid texture give it atmosphere; a giant ghost "70" (the
+   headline's own word, drawn rather than invented) sits behind the copy as a single
+   graphic anchor; "Est. 1953" comes straight from the site's own schema data (Pilot
+   was founded in 1953), not a guess. Fades up on scroll like the sections above it. */
+
+.pi-close {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin: 0 18px 18px;
+  padding: 88px 24px;
+  border-radius: var(--h-shell);
+  background: var(--h-ink);
+  text-align: center;
+}
+
+/* two soft glows, opposite corners, so the card reads as lit rather than flat */
+.pi-close::before {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background:
+    radial-gradient(640px circle at 88% -8%, rgba(245, 134, 52, 0.22), transparent 60%),
+    radial-gradient(520px circle at 6% 112%, rgba(245, 134, 52, 0.14), transparent 65%);
+}
+
+/* faint blueprint grid - the engineering-shop texture this brand earns to use */
+.pi-close::after {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(90% 90% at 50% 40%, #000 35%, transparent 85%);
+}
+
+/* the "70" from the headline, drawn huge and nearly invisible behind the copy */
+.pi-close__70 {
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -54%);
+  font-family: var(--pi-font-heading, Roboto, system-ui, sans-serif);
+  font-size: clamp(220px, 34vw, 460px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.07);
+  user-select: none;
+  pointer-events: none;
+}
+
+.pi-close__inner { position: relative; max-width: 640px; margin: 0 auto; }
+
+.pi-close__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 18px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--h-accent);
+}
+.pi-close__eyebrow::before,
+.pi-close__eyebrow::after { content: ""; width: 22px; height: 1px; background: currentColor; opacity: 0.6; }
+
+.pi-close h2 {
+  margin: 0 auto 14px;
+  max-width: 20ch;
+  font-family: var(--pi-font-heading, Roboto, system-ui, sans-serif);
+  font-size: clamp(26px, 3.2vw, 40px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.pi-close p { margin: 0 auto 32px; max-width: 46ch; font-size: 16px; line-height: 1.7; color: #a1a1aa; }
+.pi-close__cta { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+
+/* a little more presence on the button here than the hero's version of the same class:
+   it lifts and glows, the icon nudges down as if the download is already underway */
+.pi-close a.pi-btn {
+  box-shadow: 0 0 0 0 rgba(245, 134, 52, 0);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.3s cubic-bezier(0.19, 1, 0.22, 1),
+              box-shadow 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.pi-close a.pi-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px -12px rgba(245, 134, 52, 0.55);
+}
+.pi-close a.pi-btn:active { transform: translateY(-1px); }
+.pi-close a.pi-btn svg { transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1); }
+.pi-close a.pi-btn:hover svg { transform: translateY(3px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pi-close a.pi-btn,
+  .pi-close a.pi-btn svg { transition: none !important; }
+}
+
+
+/* ============================ responsive ============================ */
+
+@media (max-width: 1024px) {
+  .pi-bento { grid-template-columns: repeat(4, 1fr); }
+  .pi-card:nth-child(1),
+  .pi-card:nth-child(2) { grid-column: span 2; min-height: 320px; }
+  .pi-card:nth-child(3),
+  .pi-card:nth-child(4) { grid-column: span 2; }
+  .pi-card:nth-child(5) { grid-column: span 4; }
+  .pi-about__grid { grid-template-columns: 1fr; gap: 36px; }
+  .pi-stats__grid { grid-template-columns: repeat(2, 1fr); gap: 28px; }
+  .pi-cap__shot, .pi-cap__shot img { width: 220px; }
+  .pi-cap__shot img { height: 143px; }
+  .pi-cap.is-active .pi-cap__shot,
+  .pi-cap:hover .pi-cap__shot,
+  .pi-cap:focus-within .pi-cap__shot { height: 143px; }
+}
+
+@media (max-width: 680px) {
+  .pi-sec { padding: 64px 0; }
+  .pi-hero { margin: 0 12px; min-height: 0; }
+  .pi-hero__inner { padding: 64px 20px 40px; }
+  .pi-stats, .pi-close { margin: 12px; }
+  .pi-close { padding: 64px 20px; }
+  .pi-close__70 { font-size: clamp(160px, 60vw, 260px); }
+  .pi-close__eyebrow { letter-spacing: 0.16em; }
+  .pi-bento { grid-template-columns: 1fr; }
+  .pi-card:nth-child(n) { grid-column: span 1; min-height: 240px; }
+  .pi-about__media { grid-template-columns: 1fr; }
+  .pi-about__media .pi-about__shot:not(.pi-about__shot--below) { padding-right: 44px; }
+  .pi-about__media .pi-about__shot:not(.pi-about__shot--below) figcaption { width: 44px; font-size: 10.5px; }
+  .pi-cap__list { padding: 0 16px; }
+  .pi-cap { grid-template-columns: 48px minmax(0, 1fr); column-gap: 16px; }
+  .pi-cap__no { font-size: 28px; padding-top: 20px; }
+  .pi-cap__t { font-size: 22px; white-space: normal; }
+  .pi-home a.pi-ins__row { grid-template-columns: 40px 1fr auto; gap: 14px; }
+  .pi-home a.pi-btn { width: 100%; justify-content: center; }
+  .pi-hero__cta, .pi-close__cta { width: 100%; }
+}
+
+/* no pointer means no hover, so every row of the capability list opens outright */
+@media (hover: none), (max-width: 680px) {
+  .pi-cap__body { grid-template-columns: minmax(0, 1fr) 40px; row-gap: 16px; }
+  .pi-cap__go { grid-column: 2; grid-row: 1; }
+  .pi-cap__shot,
+  .pi-cap.is-active .pi-cap__shot,
+  .pi-cap:hover .pi-cap__shot,
+  .pi-cap:focus-within .pi-cap__shot {
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    opacity: 1;
+    transform: none;
+  }
+  .pi-cap__shot img { width: 100%; height: auto; aspect-ratio: 275 / 179; }
+  .pi-cap__d { grid-template-rows: 1fr; opacity: 1; }
+  .pi-cap__t { color: var(--h-ink, #0e0e0e); }
+  .pi-cap.is-active .pi-cap__t { color: var(--h-accent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pi-home *, .pi-reveal { transition: none !important; }
+  .pi-reveal { opacity: 1; transform: none; }
+}

@@ -1,0 +1,187 @@
+/* ==========================================================================
+   Pilot India — home page footer (variant 2)
+   Same palette as the rest of the site, deliberately different structure and
+   voice from assets/css/pi-footer.css:
+     v1  floating slab, brand column on the left, sans headings with an
+         orange underline, pill CTA button
+     v2  full-bleed, a statement prow across the top, four equal link columns
+         each capped by its own orange rule, slab-serif headings, and a wide
+         base row carrying the mark
+   Colours and radii still come from theme/theme.css.
+   ========================================================================== */
+
+.pi-f2 {
+  --f-ink: var(--pi-ink, #0a0a0a);
+  --f-accent: var(--pi-accent, #f58634);
+  --f-line: #232323;
+  --f-text: #9c9ca1;
+  --f-strong: #ffffff;
+
+  position: relative;
+  background: var(--f-ink);
+  color: var(--f-text);
+  font-family: var(--pi-font-body, "Open Sans", system-ui, sans-serif);
+  font-size: 15px;
+  line-height: 1.7;
+  overflow: hidden;
+}
+
+/* a single warm wash rising from the base, instead of v1's top gradient rule */
+.pi-f2::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -320px;
+  width: 900px;
+  height: 640px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(245, 134, 52, 0.13) 0%, rgba(245, 134, 52, 0) 68%);
+  pointer-events: none;
+}
+
+.pi-f2__wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---------- statement prow ---------- */
+
+.pi-f2__prow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 62px 0 42px;
+}
+
+.pi-f2__say {
+  margin: 0;
+  max-width: 19ch;
+  font-family: var(--pi-font-accent, "Roboto Slab", Georgia, serif);
+  font-size: clamp(24px, 3vw, 38px);
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.015em;
+  color: var(--f-strong);
+}
+
+.pi-f2__say b { color: var(--f-accent); font-weight: 700; }
+
+.pi-f2__reach { display: flex; flex-direction: column; gap: 6px; text-align: right; }
+
+.pi-f2 .pi-f2__reach a {
+  font-family: var(--pi-font-accent, "Roboto Slab", Georgia, serif);
+  font-size: clamp(17px, 1.8vw, 22px);
+  font-weight: 600;
+  color: var(--f-strong);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.pi-f2 .pi-f2__reach a:hover { color: var(--f-accent); }
+.pi-f2__reach span { font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase; color: #6b6b70; }
+
+/* ---------- link columns ---------- */
+
+.pi-f2__cols {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 36px;
+  padding: 0 0 54px;
+}
+
+.pi-f2__col { border-top: 2px solid var(--f-accent); padding-top: 18px; }
+
+.pi-f2__h {
+  margin: 0 0 16px;
+  font-family: var(--pi-font-accent, "Roboto Slab", Georgia, serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--f-strong);
+}
+
+.pi-f2__list { margin: 0; padding: 0; list-style: none; }
+.pi-f2__list li { margin: 0 0 9px; list-style: none; }
+
+.pi-f2 .pi-f2__list a {
+  font-size: 14.5px;
+  color: var(--f-text);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.pi-f2 .pi-f2__list a:hover { color: var(--f-accent); }
+
+.pi-f2__tag {
+  margin-left: 7px;
+  padding: 1px 7px;
+  border-radius: var(--pi-radius-pill, 999px);
+  background: var(--f-accent);
+  color: #0a0a0a;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.pi-f2__addr { font-style: normal; font-size: 14.5px; color: var(--f-text); }
+
+/* ---------- base row ---------- */
+
+.pi-f2__base {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 24px 0 30px;
+  border-top: 1px solid var(--f-line);
+}
+
+.pi-f2__mark { display: flex; align-items: center; gap: 16px; }
+.pi-f2__mark img { display: block; width: auto; height: 26px; }
+.pi-f2__copy { margin: 0; font-size: 13px; color: #6b6b70; }
+
+.pi-f2__ends { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+
+.pi-f2__legal { display: flex; gap: 18px; margin: 0; padding: 0; list-style: none; }
+.pi-f2__legal li { margin: 0; list-style: none; }
+.pi-f2 .pi-f2__legal a { font-size: 13px; color: #6b6b70; text-decoration: none; transition: color 0.2s ease; }
+.pi-f2 .pi-f2__legal a:hover { color: var(--f-accent); }
+
+.pi-f2__social { display: flex; gap: 8px; }
+.pi-f2 .pi-f2__social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--f-line);
+  border-radius: var(--pi-radius-control, 10px);
+  color: var(--f-text);
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.pi-f2 .pi-f2__social a:hover { background: var(--f-accent); border-color: var(--f-accent); color: #0a0a0a; }
+.pi-f2__social svg { width: 15px; height: 15px; fill: currentColor; }
+
+.pi-f2 a:focus-visible { outline: 2px solid var(--f-accent); outline-offset: 3px; }
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 900px) {
+  .pi-f2__cols { grid-template-columns: repeat(2, 1fr); gap: 30px; }
+  .pi-f2__prow { padding: 48px 0 34px; }
+  .pi-f2__reach { text-align: left; }
+}
+
+@media (max-width: 560px) {
+  .pi-f2__wrap { padding: 0 20px; }
+  .pi-f2__cols { grid-template-columns: 1fr; }
+  .pi-f2__base { flex-direction: column; align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pi-f2 * { transition: none !important; }
+}

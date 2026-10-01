@@ -1,0 +1,17 @@
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# editor/tool leftovers
+.vscode/
+.idea/
+.kilo/
+.claude/
+
+# node
+node_modules/
+
+# logs
+*.log
+npm-debug.log*

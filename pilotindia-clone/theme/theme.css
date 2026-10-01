@@ -1,0 +1,105 @@
+/* ==========================================================================
+   PILOT INDIA - THEME
+   This is the only file you need to edit to restyle the whole site.
+   Change a value here, save, reload the browser. No build step, no rebuild.
+   ========================================================================== */
+
+:root {
+
+  /* ---------- BRAND COLOURS ---------------------------------------------
+     --pi-accent        the main brand orange (taken from the logo)
+     --pi-accent-strong a darker orange, used for gradients and hovers
+     --pi-accent-legacy the orange the original WordPress theme shipped with
+                        (links, hovers and buttons on the older pages)
+
+     TIP: to make the ENTIRE site use one single orange, change the
+     --pi-accent-legacy line to:     --pi-accent-legacy: var(--pi-accent);
+     -------------------------------------------------------------------- */
+
+  --pi-accent:              #f58634;   /* logo orange: new nav + footer      */
+  --pi-accent-strong:       #d9701f;   /* darker, for gradients and hovers   */
+  --pi-accent-legacy:       #e09900;   /* original theme orange: links etc.  */
+  --pi-accent-legacy-dark:  #d39000;   /* its hover shade                    */
+  --pi-accent-heading:      #ee833e;   /* Divi section headings              */
+  --pi-accent-warm:         #ce8742;   /* mobile menu bar                    */
+  --pi-accent-bright:       #ff6900;   /* block-editor bright orange         */
+
+  /* ---------- NEUTRALS -------------------------------------------------- */
+
+  --pi-ink:            #0a0a0a;   /* page chrome background (nav, footer)   */
+  --pi-ink-soft:       #131313;   /* raised panels, dropdowns, tiles        */
+  --pi-line:           #242424;   /* hairlines and borders on dark          */
+  --pi-text:           #9a9a9a;   /* body text on dark                      */
+  --pi-text-strong:    #ffffff;   /* headings on dark                       */
+  --pi-nav-text:       #cfcfcf;   /* nav links (slightly brighter than body)*/
+
+  /* ---------- internal aliases - do not edit ----------------------------
+     The nav and footer each declare their own --pi-ink / --pi-text, which
+     would shadow the names above and create a self-reference. They read
+     these aliases instead, so you only ever edit the block above.
+     -------------------------------------------------------------------- */
+
+  --pi-ink-token:         var(--pi-ink);
+  --pi-line-token:        var(--pi-line);
+  --pi-text-token:        var(--pi-text);
+  --pi-text-strong-token: var(--pi-text-strong);
+
+  /* ---------- FONTS -----------------------------------------------------
+     Only text fonts are themed. Icon fonts (Font Awesome, ETmodules) are
+     deliberately left alone - swapping those would replace icons with
+     letters.  Any font already loaded by the site can be named here; to use
+     a brand-new font you must also add its @font-face or <link> yourself.
+     -------------------------------------------------------------------- */
+
+  --pi-font-body:    'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --pi-font-heading: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --pi-font-accent:  'Roboto Slab', Georgia, 'Times New Roman', serif;
+
+  /* Elementor reads these for its own global typography */
+  --e-global-typography-text-font-family:      var(--pi-font-body);
+  --e-global-typography-primary-font-family:   var(--pi-font-heading);
+  --e-global-typography-secondary-font-family: var(--pi-font-heading);
+
+  /* ---------- SHAPE ------------------------------------------------------
+     One radius scale for the whole page.
+     shells = nav bar, dropdown, mobile drawer, footer slab
+     control = hover pills, icon tiles
+     pill = action buttons and tags
+     -------------------------------------------------------------------- */
+
+  --pi-radius-shell:   15px;
+  --pi-radius-control: 10px;
+  --pi-radius-pill:    999px;
+}
+
+/* --------------------------------------------------------------------------
+   PRESETS - uncomment one block to try a different look in one move.
+   -------------------------------------------------------------------------- */
+
+/* Single unified orange everywhere
+:root {
+  --pi-accent-legacy:      var(--pi-accent);
+  --pi-accent-legacy-dark: var(--pi-accent-strong);
+  --pi-accent-heading:     var(--pi-accent);
+  --pi-accent-warm:        var(--pi-accent);
+  --pi-accent-bright:      var(--pi-accent);
+}
+*/
+
+/* Cooler, steel-industrial palette
+:root {
+  --pi-accent:        #2f81f7;
+  --pi-accent-strong: #1f5fbf;
+  --pi-accent-legacy: var(--pi-accent);
+  --pi-accent-warm:   var(--pi-accent);
+  --pi-accent-bright: var(--pi-accent);
+}
+*/
+
+/* Squared-off corners
+:root {
+  --pi-radius-shell:   0px;
+  --pi-radius-control: 0px;
+  --pi-radius-pill:    0px;
+}
+*/

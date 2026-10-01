@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 364" width="560" height="364" role="img" aria-label="Distribution">
+  <defs>
+    <linearGradient id="dCard" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f6f0e8"/><stop offset="1" stop-color="#eae1d4"/>
+    </linearGradient>
+    <clipPath id="dClip"><rect width="560" height="364" rx="24"/></clipPath>
+  </defs>
+  <rect width="560" height="364" rx="24" fill="url(#dCard)"/>
+  <g clip-path="url(#dClip)">
+    <g fill="none" stroke="#dcd1c0" stroke-width="2">
+      <circle cx="280" cy="182" r="62"/><circle cx="280" cy="182" r="108"/><circle cx="280" cy="182" r="154"/>
+    </g>
+    <g fill="none" stroke="#23262b" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 12">
+      <path d="M280 182L96 78"/><path d="M280 182L470 82"/><path d="M280 182L58 200"/>
+      <path d="M280 182L506 206"/><path d="M280 182L128 314"/><path d="M280 182L438 320"/>
+      <path d="M280 182L286 34"/><path d="M280 182L272 332"/>
+    </g>
+    <g fill="#23262b">
+      <circle cx="96" cy="78" r="11"/><circle cx="470" cy="82" r="11"/><circle cx="58" cy="200" r="11"/>
+      <circle cx="506" cy="206" r="11"/><circle cx="128" cy="314" r="11"/><circle cx="438" cy="320" r="11"/>
+      <circle cx="286" cy="34" r="11"/><circle cx="272" cy="332" r="11"/>
+    </g>
+    <g fill="#f58634">
+      <circle cx="470" cy="82" r="5"/><circle cx="58" cy="200" r="5"/>
+      <circle cx="128" cy="314" r="5"/><circle cx="286" cy="34" r="5"/>
+    </g>
+    <g fill="#c2b6a3">
+      <circle cx="170" cy="120" r="5"/><circle cx="392" cy="112" r="5"/><circle cx="148" cy="238" r="5"/>
+      <circle cx="414" cy="244" r="5"/><circle cx="216" cy="300" r="5"/><circle cx="352" cy="62" r="5"/>
+      <circle cx="220" cy="66" r="5"/><circle cx="348" cy="298" r="5"/>
+    </g>
+    <g transform="translate(280 182)">
+      <circle r="52" fill="#f6f0e8"/>
+      <circle r="44" fill="#f58634"/>
+      <g fill="none" stroke="#23262b" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M0-26l25 13v26L0 26l-25-13v-26z"/>
+        <path d="M-25-13L0 0l25-13M0 0v26"/>
+      </g>
+    </g>
+  </g>
+</svg>

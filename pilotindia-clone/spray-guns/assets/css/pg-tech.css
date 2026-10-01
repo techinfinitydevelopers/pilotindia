@@ -1,0 +1,276 @@
+/* ==========================================================================
+   Pilot Spray Guns — "Technical Excellence" panel
+
+   Was the one section on this page still running stock Elementor icon-box
+   widgets (white rounded-square tiles, default spacing, no motion) - the rest
+   of the page (marquee / pg-feat / luboss) had already moved off that. Same
+   four capabilities, same four icons, same product-carousel widget; the cards
+   move into a 2x2 grid beside the carousel instead of flanking it two-and-two,
+   and pick up the icon-chip + reveal-on-scroll language pg-feat already uses.
+
+   Sits on white, between pg-feat's #e2e2e2 band above and whatever follows, so
+   the page keeps alternating rather than running two grey sections together.
+   ========================================================================== */
+
+.pg-tech {
+  --t-ink: #111114;
+  --t-body: #55575e;
+  --t-rule: rgba(17, 17, 17, 0.1);
+  --t-chip: rgba(245, 134, 52, 0.12);
+
+  background: #fff;
+  padding: 92px 0;
+  overflow: hidden;
+}
+
+.pg-tech__wrap {
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.pg-tech__head {
+  max-width: 640px;
+  margin: 0 0 56px;
+}
+
+.pg-tech__eyebrow {
+  display: block;
+  margin: 0 0 14px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--pi-accent, #f58634);
+}
+
+.pg-tech__h2 {
+  margin: 0 0 16px;
+  font-family: var(--pi-font-heading, Roboto, system-ui, sans-serif);
+  font-size: clamp(28px, 3.4vw, 42px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--t-ink);
+}
+
+.pg-tech__lead {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--t-body);
+}
+
+/* ---- layout: cards left, carousel right ---- */
+
+.pg-tech__grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+
+.pg-tech__cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.pg-tech__card {
+  position: relative;
+  padding: 28px 24px 26px;
+  border: 1px solid var(--t-rule);
+  border-radius: var(--pi-radius-shell, 15px);
+  background: #fff;
+  outline: none;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.35s ease;
+}
+
+.pg-tech__card:hover,
+.pg-tech__card:focus-visible {
+  transform: translateY(-6px);
+  border-color: transparent;
+  box-shadow: 0 22px 40px -20px rgba(17, 17, 17, 0.28);
+}
+
+.pg-tech__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 0 20px;
+  border-radius: var(--pi-radius-control, 10px);
+  background: var(--t-chip);
+  color: var(--pi-accent, #f58634);
+  transition: background 0.35s ease, color 0.35s ease;
+}
+
+.pg-tech__icon svg { width: 28px; height: 28px; }
+.pg-tech__icon svg path { fill: currentColor !important; }
+
+.pg-tech__card:hover .pg-tech__icon,
+.pg-tech__card:focus-visible .pg-tech__icon {
+  background: var(--pi-accent, #f58634);
+  color: #fff;
+}
+
+.pg-tech__title {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--t-ink);
+}
+
+.pg-tech__desc {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--t-body);
+}
+
+/* ---- visual: the untouched Elementor carousel widget, in a themed frame ---- */
+
+.pg-tech__visual {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  padding: 28px;
+  border-radius: var(--pi-radius-shell, 15px);
+  background: linear-gradient(155deg, #f6f0e8 0%, #eae1d4 100%);
+}
+
+/* the grid track this sits in must not size itself off the carousel's own
+   JS-measured width - without min-width:0 on both, Swiper and the grid track
+   feed each other's measurements and the slide width blows up to garbage */
+.pg-tech__grid { min-width: 0; }
+.pg-tech__cards { min-width: 0; }
+
+.pg-tech__visual .elementor-image-carousel-wrapper,
+.pg-tech__visual .swiper-slide-image {
+  border-radius: calc(var(--pi-radius-shell, 15px) - 6px);
+}
+
+.pg-tech__visual .swiper-slide-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: #fff;
+}
+
+/* Elementor's own nav arrows, re-skinned to the site's pill-button language
+   rather than the default bare Font Awesome glyphs */
+.pg-tech__visual .elementor-swiper-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--pi-radius-pill, 999px);
+  background: #fff;
+  box-shadow: 0 8px 20px -8px rgba(17, 17, 17, 0.35);
+  opacity: 1;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.pg-tech__visual .elementor-swiper-button i { color: var(--t-ink); font-size: 16px; transition: color 0.3s ease; }
+
+.pg-tech__visual .elementor-swiper-button:hover {
+  background: var(--pi-accent, #f58634);
+  transform: translateY(-2px);
+}
+
+.pg-tech__visual .elementor-swiper-button:hover i { color: #fff; }
+
+.pg-tech__visual .elementor-swiper-button-prev { left: 12px; }
+.pg-tech__visual .elementor-swiper-button-next { right: 12px; }
+
+/* ---------- scroll reveal ----------
+   Same values and same [data-pg-js] gate as pg-feat: transition fallback for
+   every browser, animation-timeline: view() layered on top where supported. */
+
+.pg-tech__card,
+.pg-tech__visual {
+  transition:
+    opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-pg-js] .pg-tech__card,
+[data-pg-js] .pg-tech__visual {
+  opacity: 0;
+  transform: translateY(48px);
+}
+
+[data-pg-js] .pg-tech__card.is-in,
+[data-pg-js] .pg-tech__visual.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+.pg-tech__cards .pg-tech__card:nth-child(1) { transition-delay: 0.05s; }
+.pg-tech__cards .pg-tech__card:nth-child(2) { transition-delay: 0.15s; }
+.pg-tech__cards .pg-tech__card:nth-child(3) { transition-delay: 0.25s; }
+.pg-tech__cards .pg-tech__card:nth-child(4) { transition-delay: 0.35s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-tech__card,
+  .pg-tech__visual { transition: none !important; }
+  [data-pg-js] .pg-tech__card,
+  [data-pg-js] .pg-tech__visual { opacity: 1; transform: none; }
+}
+
+@supports (animation-timeline: view()) {
+  body { overflow-x: clip; }
+
+  @keyframes pg-tech-rise {
+    from { opacity: 0; transform: translateY(48px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  [data-pg-js] .pg-tech__card,
+  [data-pg-js] .pg-tech__visual {
+    transition: none;
+    transition-delay: 0s;
+    opacity: 1;
+    transform: none;
+    animation-name: pg-tech-rise;
+    animation-duration: auto;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: view();
+    animation-range: cover 8% cover 30%;
+  }
+
+  [data-pg-js] .pg-tech__cards .pg-tech__card:nth-child(2) { animation-range: cover 12% cover 34%; }
+  [data-pg-js] .pg-tech__cards .pg-tech__card:nth-child(3) { animation-range: cover 16% cover 38%; }
+  [data-pg-js] .pg-tech__cards .pg-tech__card:nth-child(4) { animation-range: cover 20% cover 42%; }
+  [data-pg-js] .pg-tech__visual { animation-range: cover 10% cover 40%; }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-pg-js] .pg-tech__card,
+    [data-pg-js] .pg-tech__visual { animation: none; opacity: 1; transform: none; }
+  }
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 1100px) {
+  .pg-tech { padding: 72px 0; }
+  .pg-tech__wrap { padding: 0 28px; }
+  .pg-tech__grid { grid-template-columns: 1fr; gap: 40px; }
+  .pg-tech__visual { order: -1; }
+}
+
+@media (max-width: 640px) {
+  .pg-tech__head { margin-bottom: 40px; }
+  .pg-tech__cards { grid-template-columns: 1fr; gap: 14px; }
+  .pg-tech__card:hover,
+  .pg-tech__card:focus-visible { transform: none; }
+  .pg-tech__visual { padding: 18px; }
+}

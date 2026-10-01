@@ -1,0 +1,239 @@
+/* ==========================================================================
+   Pilot Spray Guns — "Enhance Your Craft" feature panel
+
+   Layout and motion modelled on the features block at vectrfl.com. The motion
+   there is not a fade or a slide: the panel is stuck to the viewport with
+   `position: sticky; top: 0; height: 100vh` and simply holds while the page
+   scrolls past it. Same idea here. The outer element supplies the scroll
+   runway; the inner panel pins.
+
+   Background is #E2E2E2, the colour the original Elementor section used, so the
+   block stays part of the same band rather than floating on white.
+   ========================================================================== */
+
+.pg-feat {
+  --f-bg: #e2e2e2;
+  --f-rule: rgba(17, 17, 17, 0.16);
+  --f-ink: #111114;
+  --f-body: #4f5157;
+
+  background: var(--f-bg);
+}
+
+/* Normal flow, not pinned. A sticky 100vh panel needs a tall scroll runway to
+   stick against, and that runway showed up as a big empty band of background
+   once the panel released. The scroll reveal below carries the motion instead. */
+.pg-feat__pin {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--f-bg);
+  padding: 84px 0 92px;
+}
+
+.pg-feat__wrap {
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.pg-feat__title {
+  margin: 0 0 64px;
+  text-align: center;
+  font-size: clamp(28px, 3.4vw, 44px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--f-ink);
+}
+
+.pg-feat__grid {
+  display: flex;
+  gap: 0;
+  width: 100%;
+}
+
+.pg-feat__item {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0 28px;
+  border-left: 1px solid var(--f-rule);
+}
+
+/* separators between columns, not a box around each one */
+.pg-feat__grid .pg-feat__item:first-child { border-left: 0; }
+
+.pg-feat__icon {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 84px;
+  height: 84px;
+  margin: 0 0 34px;
+}
+
+.pg-feat__icon img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.pg-feat__t {
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--f-ink);
+}
+
+.pg-feat__d {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--f-body);
+}
+
+/* ---------- scroll reveal ----------
+   Motion values taken from the reference site's own reveals (its sub-hero and
+   sub-section blocks): a long 1s cubic-bezier(.16,1,.3,1) with a 60px rise, not
+   a short subtle fade. The columns stagger 0.1s apart, the same increment the
+   reference uses between its own staggered elements.
+
+   Gated behind [data-pg-js] so the copy is never hidden when scripting is off.
+   An attribute rather than a class, because the theme assigns
+   documentElement.className and would wipe a class. */
+
+.pg-feat__item {
+  transition:
+    opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-pg-js] .pg-feat__item {
+  opacity: 0;
+  transform: translateY(60px);
+}
+
+[data-pg-js] .pg-feat__item.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+[data-pg-js] .pg-feat__title {
+  opacity: 0;
+  transform: translateY(60px);
+  transition:
+    opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-pg-js] .pg-feat__title.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+.pg-feat__item:nth-child(1) { transition-delay: 0.10s; }
+.pg-feat__item:nth-child(2) { transition-delay: 0.20s; }
+.pg-feat__item:nth-child(3) { transition-delay: 0.30s; }
+.pg-feat__item:nth-child(4) { transition-delay: 0.40s; }
+.pg-feat__item:nth-child(5) { transition-delay: 0.50s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-feat__item,
+  .pg-feat__title { transition: none !important; }
+  [data-pg-js] .pg-feat__item,
+  [data-pg-js] .pg-feat__title { opacity: 1; transform: none; }
+}
+
+/* Scroll-linked cascade.
+   The five columns sit at the same height, so they enter the viewport together
+   and a time-based stagger only makes them ripple on arrival. Tying each column
+   to its own slice of scroll progress instead makes them arrive genuinely one
+   after another as you scroll.
+
+   The transition-based reveal above stays as the fallback for browsers without
+   scroll-driven animation support. */
+
+@keyframes pg-rise {
+  from { opacity: 0; transform: translateY(60px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@supports (animation-timeline: view()) {
+  /* The theme sets overflow-x:hidden on <body>, which turns body into a scroll
+     container and hijacks view() - the timeline resolves against a box that never
+     scrolls, so every animation reports "finished" immediately. `clip` prevents
+     horizontal overflow exactly the same way without creating a scroll container. */
+  body { overflow-x: clip; }
+
+  [data-pg-js] .pg-feat__title,
+  [data-pg-js] .pg-feat__item {
+    /* hand control to the scroll timeline; the JS class no longer drives these */
+    transition: none;
+    transition-delay: 0s;
+    opacity: 1;
+    transform: none;
+    animation-name: pg-rise;
+    animation-duration: auto;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: view();
+  }
+
+  /* One column at a time. Every column shares the same geometry, so they share the
+     same timeline progress; giving each a short, non-overlapping slice of that
+     progress makes them arrive in turn. The gaps between slices are the stretches
+     of scrolling where nothing moves, which is what reads as a sequence rather
+     than one arrival. Measured across `cover`, the element's whole pass through
+     the viewport, so the steps are spread over real scroll distance. */
+  [data-pg-js] .pg-feat__title             { animation-range: cover 10% cover 16%; }
+  [data-pg-js] .pg-feat__item:nth-child(1) { animation-range: cover 20% cover 26%; }
+  [data-pg-js] .pg-feat__item:nth-child(2) { animation-range: cover 30% cover 36%; }
+  [data-pg-js] .pg-feat__item:nth-child(3) { animation-range: cover 40% cover 46%; }
+  [data-pg-js] .pg-feat__item:nth-child(4) { animation-range: cover 50% cover 56%; }
+  [data-pg-js] .pg-feat__item:nth-child(5) { animation-range: cover 60% cover 66%; }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-pg-js] .pg-feat__title,
+    [data-pg-js] .pg-feat__item {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/* ---------- responsive ----------
+   Pinning a full-height panel on a short screen traps the reader, so below the
+   desktop breakpoint the panel goes back to normal flow, exactly as the
+   reference does at its own breakpoints. */
+
+@media (max-width: 1100px) {
+  .pg-feat__pin { padding: 72px 0 80px; }
+  .pg-feat__wrap { padding: 0 28px; }
+  .pg-feat__title { margin-bottom: 48px; }
+  .pg-feat__grid { flex-wrap: wrap; gap: 44px 0; }
+  .pg-feat__item { flex: 1 1 calc(33.333% - 1px); }
+  .pg-feat__grid .pg-feat__item:nth-child(3n + 1) { border-left: 0; }
+}
+
+@media (max-width: 760px) {
+  .pg-feat__item { flex: 1 1 calc(50% - 1px); padding: 0 20px; }
+  .pg-feat__grid .pg-feat__item:nth-child(3n + 1) { border-left: 1px solid var(--f-rule); }
+  .pg-feat__grid .pg-feat__item:nth-child(2n + 1) { border-left: 0; }
+}
+
+@media (max-width: 520px) {
+  .pg-feat__pin { padding: 64px 0; }
+  .pg-feat__wrap { padding: 0 22px; }
+  .pg-feat__grid { flex-direction: column; gap: 0; }
+  /* one column: a horizontal rule reads better than a vertical one */
+  .pg-feat__item { flex: 1 1 100%; padding: 30px 0; border-left: 0 !important; }
+  .pg-feat__item + .pg-feat__item { border-top: 1px solid var(--f-rule); }
+  .pg-feat__icon { margin-bottom: 22px; }
+}

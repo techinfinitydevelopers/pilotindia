@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 364" width="560" height="364" role="img" aria-label="Exports">
+  <defs>
+    <linearGradient id="eCard" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f6f0e8"/><stop offset="1" stop-color="#eae1d4"/>
+    </linearGradient>
+    <clipPath id="eClip"><rect width="560" height="364" rx="24"/></clipPath>
+    <clipPath id="eGlobe"><circle cx="280" cy="188" r="124"/></clipPath>
+  </defs>
+  <rect width="560" height="364" rx="24" fill="url(#eCard)"/>
+  <g clip-path="url(#eClip)">
+    <circle cx="280" cy="188" r="124" fill="#23262b"/>
+    <g clip-path="url(#eGlobe)" fill="none" stroke="#4b515a" stroke-width="2.5">
+      <path d="M156 132h248M156 188h248M156 244h248M172 96h216M172 280h216"/>
+      <ellipse cx="280" cy="188" rx="41" ry="124"/>
+      <ellipse cx="280" cy="188" rx="82" ry="124"/>
+      <path d="M280 64v248"/>
+    </g>
+    <g clip-path="url(#eGlobe)" fill="#f58634" opacity=".92">
+      <path d="M236 128c18-10 40-6 52 6s34 10 44 2 26 2 22 16-24 14-34 24-6 26-22 30-30-8-44-4-28-4-26-18 0-24-6-32 6-18 14-24z"/>
+      <path d="M188 226c14-6 26 2 34 12s2 24-12 26-30-6-32-18 0-16 10-20z"/>
+      <path d="M344 236c12-4 24 4 24 16s-12 20-24 16-16-12-14-22 6-8 14-10z"/>
+    </g>
+    <circle cx="280" cy="188" r="124" fill="none" stroke="#f58634" stroke-width="5"/>
+    <g fill="none" stroke="#23262b" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="14 11">
+      <path d="M312 92C382 34 470 44 520 96"/>
+      <path d="M250 96C176 42 88 56 42 112"/>
+      <path d="M342 272C414 306 486 292 526 248"/>
+      <path d="M220 276C146 310 76 292 36 250"/>
+    </g>
+    <g fill="#23262b">
+      <path d="M520 62c-13 0-23 10-23 23 0 17 23 39 23 39s23-22 23-39c0-13-10-23-23-23z"/>
+      <path d="M42 78c-13 0-23 10-23 23 0 17 23 39 23 39s23-22 23-39c0-13-10-23-23-23z"/>
+      <path d="M526 214c-13 0-23 10-23 23 0 17 23 39 23 39s23-22 23-39c0-13-10-23-23-23z"/>
+      <path d="M36 216c-13 0-23 10-23 23 0 17 23 39 23 39s23-22 23-39c0-13-10-23-23-23z"/>
+    </g>
+    <g fill="#f58634">
+      <circle cx="520" cy="85" r="9"/><circle cx="42" cy="101" r="9"/>
+      <circle cx="526" cy="237" r="9"/><circle cx="36" cy="239" r="9"/>
+    </g>
+  </g>
+</svg>

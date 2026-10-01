@@ -1,0 +1,372 @@
+/* ==========================================================================
+   FRAMER STEP FLOW COMPONENT
+   Faithful recreation of Framer Step Flow (FrameruozK4gcFF)
+   ========================================================================== */
+
+:root {
+  --stepflow-max-width: 1200px;
+  --stepflow-bg: #f3f4f6;
+  --stepflow-card-bg: #ffffff;
+  --stepflow-indicator-bg: #e5e7eb;
+  --stepflow-text-active: #111827;
+  --stepflow-text-muted: #8c93a0;
+  --stepflow-accent: var(--pi-accent, #f58634);
+  --stepflow-accent-hover: var(--pi-accent-strong, #d9701f);
+  --stepflow-radius-card: 24px;
+  --stepflow-radius-pill: 18px;
+  --stepflow-spring: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.step-flow-section {
+  width: 100%;
+  padding: 40px 24px 60px;
+  background: #fafafa;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.step-flow-wrapper {
+  max-width: var(--stepflow-max-width);
+  margin: 0 auto;
+  position: relative;
+}
+
+.step-flow-container {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 50px;
+  background: #ffffff;
+  border-radius: var(--stepflow-radius-card);
+  padding: 36px 40px;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+/* Left Column: Steps List */
+.step-flow-steps-col {
+  flex: 1 1 48%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  min-height: 480px;
+}
+
+.step-flow-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Sliding Indicator Pill */
+.step-flow-pill-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 72px;
+  background-color: var(--stepflow-indicator-bg);
+  border-radius: var(--stepflow-radius-pill);
+  pointer-events: none;
+  z-index: 1;
+  transition: transform 0.45s var(--stepflow-spring), height 0.3s var(--stepflow-spring), opacity 0.3s ease;
+  will-change: transform, height;
+}
+
+/* Progress line inside indicator */
+.step-flow-pill-indicator::after {
+  content: '';
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 0;
+  height: 2.5px;
+  background: var(--stepflow-accent);
+  border-radius: 999px;
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 5s linear;
+}
+
+.step-flow-section.is-animating .step-flow-pill-indicator::after {
+  transform: scaleX(1);
+}
+
+/* Step Item */
+.step-flow-item {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px 16px 30px;
+  border-radius: var(--stepflow-radius-pill);
+  cursor: pointer;
+  text-decoration: none;
+  user-select: none;
+  transition: padding 0.4s var(--stepflow-spring), color 0.3s ease;
+  outline: none;
+}
+
+.step-flow-item.is-active {
+  padding: 16px 28px 16px 44px;
+}
+
+.step-flow-item-content {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  flex: 1;
+}
+
+.step-flow-serial {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--stepflow-text-muted);
+  transition: color 0.35s ease, transform 0.35s var(--stepflow-spring);
+  min-width: 26px;
+}
+
+.step-flow-item.is-active .step-flow-serial {
+  color: var(--stepflow-accent);
+  transform: scale(1.08);
+}
+
+.step-flow-title {
+  font-family: 'Myriadpro cond', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--stepflow-text-muted);
+  margin: 0;
+  padding: 0;
+  line-height: 1.15;
+  transition: color 0.35s ease, transform 0.35s var(--stepflow-spring);
+}
+
+.step-flow-item.is-active .step-flow-title {
+  color: var(--stepflow-text-active);
+}
+
+.step-flow-arrow {
+  opacity: 0;
+  transform: translateX(-10px);
+  color: var(--stepflow-accent);
+  transition: opacity 0.35s ease, transform 0.35s var(--stepflow-spring);
+  display: flex;
+  align-items: center;
+}
+
+.step-flow-item.is-active .step-flow-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Right Column: Image Showcase */
+.step-flow-image-col {
+  flex: 1 1 52%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.step-flow-image-frame {
+  width: 100%;
+  height: 520px;
+  border-radius: var(--stepflow-radius-card);
+  position: relative;
+  overflow: hidden;
+  background-color: #111827;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.step-flow-image-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(1.05);
+  filter: blur(10px);
+  transition: opacity 0.65s var(--stepflow-spring), transform 0.65s var(--stepflow-spring), filter 0.65s ease, visibility 0.65s;
+  pointer-events: none;
+}
+
+.step-flow-image-slide.is-active {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+  filter: blur(0px);
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.step-flow-image-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Gradient Overlay & Content on Image */
+.step-flow-image-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(10, 10, 10, 0.8) 0%, rgba(10, 10, 10, 0.3) 40%, rgba(10, 10, 10, 0) 70%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 32px;
+  box-sizing: border-box;
+  color: #ffffff;
+  z-index: 3;
+}
+
+.step-flow-image-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #ffffff;
+  width: fit-content;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.step-flow-image-badge span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--stepflow-accent);
+  display: inline-block;
+}
+
+.step-flow-image-title {
+  font-family: 'Myriadpro cond', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 36px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 14px 0;
+  line-height: 1.1;
+  text-transform: uppercase;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.step-flow-image-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--stepflow-accent);
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: background-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 4px 14px rgba(245, 134, 52, 0.4);
+  width: fit-content;
+}
+
+.step-flow-image-cta:hover {
+  background: var(--stepflow-accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 134, 52, 0.5);
+  color: #ffffff;
+}
+
+/* Tablet & Mobile Responsiveness */
+@media (max-width: 992px) {
+  .step-flow-section {
+    padding: 24px 16px 40px;
+  }
+
+  .step-flow-container {
+    flex-direction: column;
+    padding: 24px 20px;
+    gap: 30px;
+  }
+
+  .step-flow-image-col {
+    order: 0;
+    width: 100%;
+  }
+
+  .step-flow-image-frame {
+    height: 380px;
+  }
+
+  .step-flow-steps-col {
+    order: 1;
+    min-height: auto;
+    width: 100%;
+  }
+
+  .step-flow-title {
+    font-size: 24px;
+  }
+
+  .step-flow-image-title {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 640px) {
+  .step-flow-image-frame {
+    height: 290px;
+  }
+
+  .step-flow-image-overlay {
+    padding: 20px;
+  }
+
+  .step-flow-image-title {
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+
+  .step-flow-image-cta {
+    padding: 9px 18px;
+    font-size: 12px;
+  }
+
+  .step-flow-item {
+    padding: 12px 18px;
+  }
+
+  .step-flow-item.is-active {
+    padding: 12px 18px 12px 28px;
+  }
+
+  .step-flow-title {
+    font-size: 20px;
+  }
+
+  .step-flow-serial {
+    font-size: 14px;
+  }
+}

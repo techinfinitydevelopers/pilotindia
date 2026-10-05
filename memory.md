@@ -229,5 +229,15 @@ hero `margin-top:-74px`), Italiana display-serif h1 (Google Fonts, Georgia fallb
 Hero is a grid (cards in row 3, never absolute - absolute cards overlapped the copy on short windows). Card A notch is a CSS mask, so its arrow button must be a sibling (`.pi-hero__slot`) - a mask
 clips children. The right-hand card is a 4-card animated deck (`.pi-deck`, `data-depth` 0-3, `DECK` array, logic in pi-home.js; `.is-reset` = transition:none jump to the back). Hero is one viewport tall; all vertical sizes are vh-clamped plus a max-height:780px tightening block - user views at 125% scaling (~1536x730 CSS px), test that size. Nav sticky never engages site-wide (Divi `html,body{overflow-x:hidden}`) - pre-existing.
 
+
+### spray-guns series pages (evolution-series revamped 2026-10-05)
+`tools/sprayguns-series.mjs pages/<page>.html` tags the Divi sections and wires `pg-series.css/js` -
+content untouched (text + 200 links verified identical). Divi ships each model TWICE (desktop 3-col +
+mobile stacked, hidden per breakpoint), so style both. Product photos are Divi background images with
+inline padding and inconsistent framing: only `contain` in a fixed-aspect tile works. Divi's
+`.et_pb_row::after` clearfix must stay off for grid cards, so mobile rows need `display:flow-root`.
+Sticky series menu changes page height mid-scroll: chip jumps re-settle using the bar's offsetHeight.
+Only evolution-series is converted; five sibling series pages share the template.
+
 ## Work done
 See `BUILD_LOG.md`.

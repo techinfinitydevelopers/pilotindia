@@ -5,19 +5,29 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const ROOT = process.argv[2] || path.join(process.cwd(), 'pilotindia-clone');
+//   node tools/navbar.mjs [siteDir]                  every page except the satellite sites
+//   node tools/navbar.mjs --only=spray-guns,welding   just those folders, satellites included
+const args = process.argv.slice(2);
+const ONLY = (args.find(a => a.startsWith('--only=')) || '').slice(7).split(',').filter(Boolean);
+const ROOT = args.find(a => !a.startsWith('--')) || path.join(process.cwd(), 'pilotindia-clone');
 
-// the mirrored satellite sites keep their own header/footer exactly as published
+// By default the mirrored satellite sites keep their own header exactly as published.
+// --only= opts a named folder in, so the home page and main-site pages are not rewritten.
 const MIRRORS = ['spray-guns', 'airless', 'welding', 'office'];
+const skipMirrors = ONLY.length === 0;
 
 const files = [];
-(function walk(d) {
+function walk(d) {
   for (const f of fs.readdirSync(path.join(ROOT, d || '.'), { withFileTypes: true })) {
     const rel = d ? d + '/' + f.name : f.name;
-    if (f.isDirectory()) { if (!rel.startsWith('assets') && !MIRRORS.some(m => rel === m || rel.startsWith(m + '/'))) walk(rel); }
-    else if (f.name.endsWith('.html')) files.push(rel);
+    if (f.isDirectory()) {
+      const isAssets = /(^|\/)assets$/.test(rel);
+      const isMirror = skipMirrors && MIRRORS.some(m => rel === m || rel.startsWith(m + '/'));
+      if (!isAssets && !isMirror) walk(rel);
+    } else if (f.name.endsWith('.html')) files.push(rel);
   }
-})('');
+}
+(ONLY.length ? ONLY : ['']).forEach(walk);
 
 const CARET = '<svg class="pi-nav__caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.4 5.6 9l1.4-1.4 5 5 5-5L18.4 9z"/></svg>';
 const PHONE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.4 0 .7-.2 1l-2.2 2.2z"/></svg>';

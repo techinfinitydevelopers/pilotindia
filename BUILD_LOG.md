@@ -1288,3 +1288,38 @@ Not changed, and why: the home page. Its headings ("Five ranges, one manufacture
 were written in earlier sessions and appear nowhere in the original site; the original home
 was only six product tiles and a footer, so there is no original copy to restore without
 reverting the redesign. Left for the user to decide.
+
+# Every page now has the home page's navbar and footer
+
+Request: "make all pages navbar and footer as hero page" (the home page). The home page itself
+was not touched.
+
+Before: only the home and the main-site pages (pages/, blog/, category/) had the new navbar,
+and only the home had footer variant 2. The four product sites (spray-guns, airless, welding,
+office; 585 pages) kept their original Divi "PILOT GROUP / PRODUCTS / CONNECT WITH PILOT" header
+and footer. That was deliberate in the tooling ("mirrored satellite sites keep their own
+header/footer exactly as published"); this overrides it on request.
+
+Navbar: tools/navbar.mjs gained `--only=dir1,dir2` (and now skips any `assets` folder at any
+depth). Ran with `--only=spray-guns,airless,welding,office` so the home and main pages were not
+rewritten: 585 of 585 swapped. Default behaviour is unchanged.
+
+Footer: new tools/footer2.mjs. It lifts the .pi-f2 block verbatim from the generated home page,
+so the two cannot drift: change the footer in home.mjs, regenerate the home, run this. It
+re-roots every relative href/src for the page's depth and never rewrites index.html.
+709 of 709 pages, 0 skipped. `--dry` reports without writing.
+
+Consequence worth knowing: the product sites' own header menu (their series list) is gone;
+they now carry the group-level Products menu like every other page. Series navigation still
+exists in the category strip, the showcase slides and the footer.
+
+Also: pg-hero-fit.css no-JS fallback for the header height moved 65px -> 77px (the new bar).
+
+## Verification
+Site-wide sweep, 710 pages: legacy header 0, legacy footer 0, old v1 footer 0; pi-nav 710,
+footer v2 710, both stylesheets linked on all 710.
+Four deep pages (depths 2 and 3, across three sites): every navbar and footer link requested
+and resolved - 13 internal links each, 0 broken.
+Real page, 1530x696: spray-guns/welding/office/airless heroes still end at 696/696 with the
+77px bar; the bar stays pinned when scrolled.
+375x812 on airless: burger opens the drawer; no horizontal scroll.

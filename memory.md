@@ -105,7 +105,7 @@ performance plugin. Rank Math supplies the sitemaps.
   `assets/js/pi-home.js`. Idempotent: it replaces whatever sits between the nav and the footer.
 - 8 sections, 8 different layout families, all content and imagery taken from Pilot's own pages
   (About Us copy and facility photos, the product slider images, real blog posts).
-- Footer v2 is **home page only**; the other 709 pages still use footer v1.
+- Footer v2 (.pi-f2) is now on ALL pages (tools/footer2.mjs copies it from the generated home page); footer v1 is gone. The four product sites also now use the pi-nav navbar (navbar.mjs --only=...), not their old Divi header.
 - Recurring trap, hit again here: any new anchor style needs specificity above (0,1,1) to beat
   the theme's `a:-webkit-any-link{text-decoration:underline}`. Scope as `.pi-home a.x`.
 - Spans inside an anchor need `display:block` (or a flex-column parent) or they run inline and

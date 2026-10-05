@@ -2,7 +2,7 @@
    Pilot India — product landing heroes fill exactly one screen (landscape)
 
    spray-guns, airless, welding and office each have a hero container with a fixed
-   `--min-height: 650px`. On a laptop window about 700px tall, 650 + the ~65px header
+   `--min-height: 650px`. On a laptop window about 700px tall, 650 + the header
    + the category strip is more than the screen, so the foot of the hero and the
    strip sat below the fold and you had to scroll to see the whole hero.
 
@@ -30,12 +30,12 @@
        floor: on a very short window the hero overflows a little rather than crushing
        the heading against the strip. */
     --pg-floor: 480px;
-    --min-height: max(var(--pg-floor), calc(100vh - var(--pg-top, 65px) - var(--pg-mq, 0px)));
+    --min-height: max(var(--pg-floor), calc(100vh - var(--pg-top, 77px) - var(--pg-mq, 0px)));
   }
 
   @supports (height: 100svh) {
     #select-series-re.e-con {
-      --min-height: max(var(--pg-floor), calc(100svh - var(--pg-top, 65px) - var(--pg-mq, 0px)));
+      --min-height: max(var(--pg-floor), calc(100svh - var(--pg-top, 77px) - var(--pg-mq, 0px)));
     }
   }
 

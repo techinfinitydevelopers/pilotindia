@@ -239,5 +239,23 @@ inline padding and inconsistent framing: only `contain` in a fixed-aspect tile w
 Sticky series menu changes page height mid-scroll: chip jumps re-settle using the bar's offsetHeight.
 Only evolution-series is converted; five sibling series pages share the template.
 
+## Site structure: ONE site (merged 2026-10-05)
+
+The clone used to be five mirrored WordPress sites (pilotindia.com + pilotsprayguns / pilotairless /
+pilotwelding / pilotofficeproducts) and 710 pages. It is now one site: 298 html pages, one blog (185
+posts), one `pages/`, `category/`, `assets/`. spray-guns/ airless/ welding/ office/ hold ONLY their
+`index.html` (section landings). Never again expect `spray-guns/pages/...`, `welding/blog/...` or
+`<site>/assets/...` - they are gone. Page content for a product lives in `pages/<name>.html`.
+
+- Tools: `tools/merge-sites.mjs` (plan | --dry-rewrite | --apply; one-shot, guards against re-run),
+  `tools/verify-refs.mjs` (strict reference check - trust this, not check.mjs).
+- Asset collisions were kept with `-v2`/`-v3` suffixes (e.g. `et-divi-dynamic-7-v2.css`), so a page that
+  references one of those is deliberately pointing at its own site's variant.
+- Archive pages (category/*, pages/author-*) are GENERATED output of the merge, 6 cards (category) and
+  5 (author) per page; to change them regenerate, do not hand-edit each page.
+- 19 pages are unreachable by clicking from the home page (WP leftovers: test, a1, home-copy, ...);
+  they were deliberately NOT deleted - only agreed duplicates were.
+- Footer v2 and the pi-nav navbar are on every page; the product sites no longer have their own header.
+
 ## Work done
 See `BUILD_LOG.md`.

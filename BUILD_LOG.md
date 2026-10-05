@@ -1323,3 +1323,68 @@ and resolved - 13 internal links each, 0 broken.
 Real page, 1530x696: spray-guns/welding/office/airless heroes still end at 696/696 with the
 77px bar; the bar stays pinned when scrolled.
 375x812 on airless: burger opens the drawer; no horizontal scroll.
+
+# The four product sites folded into one site
+
+Request: "so now make it one" -> chosen: fully flatten into one site, and delete the duplicates.
+
+Why it was 710 pages: the clone was five separate mirrored WordPress sites (pilotindia.com,
+pilotsprayguns.com, pilotairless.com, pilotwelding.com, pilotofficeproducts.com), each carrying its
+own blog, archives, policy pages and asset folder, with most blog posts repeated on every site.
+
+New tool: tools/merge-sites.mjs (plan / --dry-rewrite / --apply). New: tools/verify-refs.mjs, a
+strict "does every file reference resolve" check that ignores JavaScript fragments (tools/check.mjs
+raised false alarms on `url(entry.target)` and the like).
+
+## Result
+                       before        after
+  html pages              710          298   (home + 4 section landings + 73 pages + 185 posts + 35 category)
+  asset files           4,011        2,945
+  product folders      4 sites     4 landing pages only (spray-guns/ airless/ welding/ office/ -> index.html)
+
+## Decisions (each one is a judgement call, listed so it can be reversed)
+- Landing pages stay at /spray-guns/ /airless/ /welding/ /office/. The nav, footer and home cards all
+  link there; they are now sections of one site rather than sites.
+- Duplicate pages: copy kept by priority main > spray-guns > airless > welding > office. Of 284 distinct
+  page names, 46 were identical, 34 were the same article with a different byline, 163 existed on one
+  site only. Exact-hash comparison called almost everything "different" (author byline), so overlap of
+  10-word shingles was used instead.
+- Five genuinely different pages: legacy-series, hvlp-technology-2, professional-series,
+  electric-spray-guns -> spray-guns copy (the product's home; richest). home-old (3 different old landing
+  pages, the welding one still holding the original "OUT TO BUILD BIG THINGS" text) are not duplicates:
+  kept as home-old-airless / -office / -welding.
+- Archives (category + author, 181 old pages) were regenerated, not copied: each post's own card was
+  harvested from the old listings (188 distinct posts) and re-paginated, 6 per category page and 5 per
+  author page as the originals had -> 71 pages. Otherwise the one blog would only have listed its own
+  83 posts of 185. Titles, canonical, prev/next and og:url are rewritten per page.
+- Assets: identical files collapsed (1,066 removed); same path with DIFFERENT content kept, later one
+  renamed -v2/-v3 (328), e.g. et-divi-dynamic-7.css, roboto.css, myriadf.ttf.
+- The home page was not touched.
+
+## Method
+References are rewritten as tools/flatten-sites.mjs did: resolve against the OLD location, map, recompute
+relative to the NEW one. Added: only rewrite when the target is a real file (so text that merely looks like
+a path is never corrupted - a depth change would otherwise damage it); generic attribute values (meta
+content=), srcset, css url() incl. &quot;-wrapped, entity-encoded JSON, and escaped / plain asset paths
+inside inline <script>. Dry run in memory first (226 pages, 0 errors), local restore commits before applying.
+
+## Verification
+verify-refs: 150,412 refs / 211 missing targets BEFORE -> 71,502 refs / 30 missing AFTER; all 30 were
+already broken in the baseline (same file names), 0 introduced. Mostly dead `index.html/<slug>/` links
+and a few font-awesome svgs that were never in any pool.
+Real pages loaded in a browser: 4 landings, moved series pages, a satellite-only post, power-tools, the
+regenerated category and author archives (pagination, titles, 6/5 cards) - no failed requests. Spray-guns
+hero + strip still end exactly at 696/696 with the hero-fit files now served from the shared pool.
+
+## Repairs made on the way
+- Landing pages still pointed at the dissolved folders for a few files that existed only in the shared
+  pool (a logo preload on spray-guns, two script paths inside escaped JSON on welding): repointed.
+  They were dead before the merge too.
+- currency-sorters was linked only from the product sites' header menus, which the navbar swap removed
+  earlier today, so it had become unreachable: added to the office category strip as "CURRENCY SORTERS".
+
+## Left for a decision
+19 pages are not reachable by clicking from the home page: WordPress leftovers (test, testing, test-page,
+sample-page, a1, home-2, home-2-old, home-copy, home-old-x3, currency-counters-copy, paper-shredders-copy,
+category/blog x2) plus hvlp-technology, hvlp-technology-2 and professional-series. Nothing was deleted
+beyond the agreed duplicates. Old URLs under /<site>/pages|blog|category|assets now 404 by design.

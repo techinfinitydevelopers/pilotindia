@@ -278,7 +278,7 @@
   position: relative;
   display: grid;
   gap: 4px;
-  height: clamp(168px, 24vh, 212px);
+  min-height: clamp(168px, 24vh, 212px);
   padding: 10px;
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 26px;
@@ -316,7 +316,7 @@
 .pi-hero__card-img {
   width: 100%;
   height: 100%;
-  min-height: 0;
+  min-height: 150px;
   border-radius: 18px;
   object-fit: cover;
   transition: transform 0.8s var(--hero-ease);
@@ -324,7 +324,6 @@
 .pi-hero__card:hover .pi-hero__card-img { transform: scale(1.03); }
 
 .pi-hero__card-body {
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -348,10 +347,7 @@
   font-size: 12.5px;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.68);
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  margin-bottom: 14px;
 }
 
 .pi-home a.pi-hero__pill {
@@ -407,8 +403,11 @@
 /* ---- smaller screens: everything returns to normal flow ---- */
 
 @media (min-width: 961px) and (max-height: 780px) {
+  .pi-hero { padding-top: 96px; }
+  .pi-hero__card { min-height: 148px; }
+  .pi-hero__cards { margin-top: 14px; }
   .pi-hero__card-t { margin-bottom: 6px; font-size: 16px; }
-  .pi-hero__card-d { -webkit-line-clamp: 3; font-size: 12px; }
+  .pi-hero__card-d { font-size: 12px; margin-bottom: 10px; }
   .pi-home a.pi-hero__pill { padding: 9px 24px; }
   .pi-hero__card-body { padding: 12px 12px 6px 14px; }
   .pi-deck__card { padding: 20px 20px 16px; }

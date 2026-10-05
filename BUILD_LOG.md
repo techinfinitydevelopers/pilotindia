@@ -1394,3 +1394,13 @@ beyond the agreed duplicates. Old URLs under /<site>/pages|blog|category|assets 
 - Fixed half-empty look: old scroll cascade ranges (cover 20-66%) replaced with entry ranges so all cards show as the section enters.
 - Gotcha: `.pg-feat__grid .pg-feat__item:nth-child(3n+1)` (0,3,0) beat `nth-child(n+4)` (0,2,0); keep the grid prefix on the span-3 rule.
 - Also: spray-guns/blog links to evolution/legacy-series now point to pages/ copies; blog duplicates removed.
+
+## Fix: hero card buttons overlapping the description (2026-10-05)
+Cause: `.pi-hero__card` had a fixed `height: clamp(168px, 24vh, 212px)` and the description a
+`line-clamp`; when the card text wrapped to 3-4 lines the content was taller than the card and the
+pill (`margin-top:auto`) sat on top of the last line. Fix: `min-height` instead of `height`, no clamp or
+overflow clip on the text, 14px (10px on short windows) gap under the description, image min-height 150px.
+Verified at 1536x730, 1792x900, 1366x650, 1280x620, 1920x1080, 1024x700: no text/pill overlap, every
+description complete. Known limit: windows under ~650px tall scroll by ~50px because the content no longer
+shrinks past its natural height. (The hero frame was reworked on disk by someone else meanwhile - nav above
+the hero, `min-height: calc(100vh - 100px)` - left as found.)

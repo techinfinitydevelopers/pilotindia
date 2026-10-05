@@ -1388,3 +1388,9 @@ hero + strip still end exactly at 696/696 with the hero-fit files now served fro
 sample-page, a1, home-2, home-2-old, home-copy, home-old-x3, currency-counters-copy, paper-shredders-copy,
 category/blog x2) plus hvlp-technology, hvlp-technology-2 and professional-series. Nothing was deleted
 beyond the agreed duplicates. Old URLs under /<site>/pages|blog|category|assets now 404 by design.
+
+## 2026-10-05 — "Enhance Your Craft" feature panel revamp
+- `assets/css/pg-features.css` (appended block): dark #0d0d0f panel, amber grid glow, 5 numbered cards (3+2 bento), amber top-bar + lift on hover, icon tiles. Markup/JS unchanged, so spray-guns, welding, office and pages/power-tools all pick it up.
+- Fixed half-empty look: old scroll cascade ranges (cover 20-66%) replaced with entry ranges so all cards show as the section enters.
+- Gotcha: `.pg-feat__grid .pg-feat__item:nth-child(3n+1)` (0,3,0) beat `nth-child(n+4)` (0,2,0); keep the grid prefix on the span-3 rule.
+- Also: spray-guns/blog links to evolution/legacy-series now point to pages/ copies; blog duplicates removed.

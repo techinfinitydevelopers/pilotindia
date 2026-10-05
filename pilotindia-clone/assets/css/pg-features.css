@@ -237,3 +237,133 @@
   .pg-feat__item + .pg-feat__item { border-top: 1px solid var(--f-rule); }
   .pg-feat__icon { margin-bottom: 22px; }
 }
+
+/* ==========================================================================
+   Revamp: dark numbered cards (site black + amber #e09900)
+   Same markup as before; this block overrides the layout and look only.
+   The old scroll cascade needed 66% of the section to scroll past before the
+   last column appeared, so the panel looked half empty. Reveal now finishes
+   while the section is still entering the viewport.
+   ========================================================================== */
+.pg-feat {
+  --f-bg: #0d0d0f;
+  --f-ink: #fff;
+  --f-body: rgba(255, 255, 255, .66);
+  --f-rule: rgba(255, 255, 255, .1);
+  --f-amber: var(--pi-accent-legacy, #e09900);
+  counter-reset: pgf;
+  position: relative;
+  overflow: hidden;
+}
+.pg-feat::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 50% at 50% 0%, rgba(224, 153, 0, .16), transparent 70%),
+    linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px) 0 0 / 64px 64px,
+    linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px) 0 0 / 64px 64px;
+  -webkit-mask-image: linear-gradient(#000 40%, transparent);
+  mask-image: linear-gradient(#000 40%, transparent);
+  pointer-events: none;
+}
+.pg-feat__pin { position: relative; padding: 96px 0 104px; }
+.pg-feat__wrap { max-width: 1280px; }
+.pg-feat__title { margin-bottom: 56px; color: #fff; }
+.pg-feat__title::after {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 3px;
+  margin: 22px auto 0;
+  background: var(--f-amber);
+  border-radius: 2px;
+}
+
+.pg-feat__grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 18px;
+}
+.pg-feat__item,
+.pg-feat__grid .pg-feat__item:first-child,
+.pg-feat__grid .pg-feat__item:nth-child(3n + 1) {
+  grid-column: span 2;
+  position: relative;
+  padding: 34px 30px 36px;
+  border: 1px solid var(--f-rule);
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .015));
+  overflow: hidden;
+  counter-increment: pgf;
+  transition: transform .45s cubic-bezier(.16, 1, .3, 1), border-color .3s, background .3s, box-shadow .45s;
+}
+.pg-feat__grid .pg-feat__item:nth-child(n + 4) { grid-column: span 3; }
+.pg-feat__item::before {
+  content: "0" counter(pgf);
+  position: absolute;
+  top: 26px;
+  right: 28px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  color: rgba(255, 255, 255, .28);
+}
+.pg-feat__item::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 3px;
+  width: 100%;
+  background: var(--f-amber);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .5s cubic-bezier(.16, 1, .3, 1);
+}
+.pg-feat__item:hover {
+  transform: translateY(-6px);
+  border-color: rgba(224, 153, 0, .55);
+  background: linear-gradient(160deg, rgba(224, 153, 0, .12), rgba(255, 255, 255, .02));
+  box-shadow: 0 24px 50px -24px rgba(224, 153, 0, .35);
+}
+.pg-feat__item:hover::after { transform: scaleX(1); }
+.pg-feat__icon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 26px;
+  padding: 12px;
+  box-sizing: border-box;
+  border-radius: 14px;
+  background: rgba(224, 153, 0, .1);
+  border: 1px solid rgba(224, 153, 0, .28);
+  transition: transform .5s cubic-bezier(.16, 1, .3, 1);
+}
+.pg-feat__item:hover .pg-feat__icon { transform: scale(1.08) rotate(-4deg); }
+.pg-feat__t { font-size: 21px; color: #fff; }
+.pg-feat__d { color: var(--f-body); }
+
+/* reveal: all cards in while the section is still entering */
+@supports (animation-timeline: view()) {
+  [data-pg-js] .pg-feat__title             { animation-range: entry 0% entry 35%; }
+  [data-pg-js] .pg-feat__item:nth-child(1) { animation-range: entry 10% entry 45%; }
+  [data-pg-js] .pg-feat__item:nth-child(2) { animation-range: entry 15% entry 50%; }
+  [data-pg-js] .pg-feat__item:nth-child(3) { animation-range: entry 20% entry 55%; }
+  [data-pg-js] .pg-feat__item:nth-child(4) { animation-range: entry 25% entry 60%; }
+  [data-pg-js] .pg-feat__item:nth-child(5) { animation-range: entry 30% entry 65%; }
+}
+
+@media (max-width: 1100px) {
+  .pg-feat__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .pg-feat__item,
+  .pg-feat__grid .pg-feat__item:nth-child(n + 4),
+  .pg-feat__grid .pg-feat__item:nth-child(3n + 1) { grid-column: auto; flex: none; }
+  .pg-feat__item:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+@media (max-width: 640px) {
+  .pg-feat__pin { padding: 64px 0 72px; }
+  .pg-feat__grid { grid-template-columns: 1fr; }
+  .pg-feat__item,
+  .pg-feat__item + .pg-feat__item { padding: 28px 24px; border: 1px solid var(--f-rule); }
+}
+@media (hover: none) { .pg-feat__item:hover { transform: none; } }

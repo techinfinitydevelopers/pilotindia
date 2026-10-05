@@ -531,7 +531,11 @@
    below is the closest CSS equivalent. */
 .pi-exp {
   display: flex;
-  gap: 10px;
+  /* No flex gap: a gap is a dead zone. Crossing it un-hovers every card, they all
+     snap back to equal width, the layout moves under the cursor, a card re-hovers,
+     and the row flickers. The 10px is carried by each card instead (see the
+     transparent side borders below), so the pointer is always over a card. */
+  gap: 0;
   height: 400px;
 }
 
@@ -541,10 +545,34 @@
   min-width: 0;
   overflow: hidden;
   isolation: isolate;
-  border-radius: var(--h-shell);
-  background: #1a1a1a;
+  /* 5px either side of every card = the old 10px gap, but inside the hit area.
+     background-clip keeps the fill off the border; the image and scrim are inset
+     against the padding box, so the visible card is exactly as wide as before. */
+  border: 0 solid transparent;
+  border-width: 0 5px;
+  background-clip: padding-box;
+  /* outer radius is widened by the border so the INNER (visible) corner stays a
+     true 15px circle rather than a 10x15 ellipse */
+  border-radius: calc(var(--h-shell) + 5px) / var(--h-shell);
+  background-color: #1a1a1a;
   text-decoration: none;
-  transition: flex 0.5s cubic-bezier(0.25, 1, 0.3, 1);
+  /* Only flex-grow animates. The old rule transitioned the whole `flex` shorthand
+     between bases of 0, 10% and auto, and a length cannot interpolate to `auto`, so
+     the basis snapped mid-transition: a visible pop every time hover moved card to
+     card. One constant basis of 0 leaves grow as the only moving part. */
+  transition: flex-grow 0.5s cubic-bezier(0.25, 1, 0.3, 1);
+}
+
+/* the outer ends have no neighbour, so no border and a plain radius on that side */
+.pi-exp__card:first-child {
+  border-left-width: 0;
+  border-top-left-radius: var(--h-shell);
+  border-bottom-left-radius: var(--h-shell);
+}
+.pi-exp__card:last-child {
+  border-right-width: 0;
+  border-top-right-radius: var(--h-shell);
+  border-bottom-right-radius: var(--h-shell);
 }
 
 /* the theme ships a:-webkit-any-link{text-decoration:underline} at (0,1,1),
@@ -552,23 +580,13 @@
 .pi-home a.pi-exp__card,
 .pi-home a.pi-exp__card:hover { text-decoration: none; }
 
-/* The expansion. While any panel is hovered or focused the rest collapse to 10%
-   and the active one takes the remainder, which is how the reference sizes them.
-   :has() carries this; the flex-grow rule underneath is the fallback for browsers
-   without it. */
+/* The expansion. Every card has a basis of 0 and a grow of 1; the active one goes to
+   6. With four siblings at 1 that is 6 / (6 + 4) = 60% for the open card and 10%
+   each for the rest, the reference's proportions, from grow alone - so no :has(),
+   no basis change, and nothing here that cannot interpolate. */
 .pi-exp__card:hover,
 .pi-exp__card:focus-visible,
-.pi-exp__card:focus-within { flex-grow: 3.4; }
-
-.pi-exp:has(.pi-exp__card:hover) .pi-exp__card,
-.pi-exp:has(.pi-exp__card:focus-visible) .pi-exp__card {
-  flex: 0 0 10%;
-}
-
-.pi-exp:has(.pi-exp__card:hover) .pi-exp__card:hover,
-.pi-exp:has(.pi-exp__card:focus-visible) .pi-exp__card:focus-visible {
-  flex: 1 1 auto;
-}
+.pi-exp__card:focus-within { flex-grow: 6; }
 
 .pi-exp__img {
   position: absolute;
@@ -711,6 +729,14 @@
   .pi-exp__card,
   .pi-exp__card:hover,
   .pi-exp__card:focus-within { flex: 0 0 auto; min-height: 220px; }
+  /* stacked, the cards have the 14px column gap and no horizontal neighbours, so the
+     hit-area borders come off and the radius goes back to a plain circle */
+  .pi-exp__card,
+  .pi-exp__card:first-child,
+  .pi-exp__card:last-child {
+    border-width: 0;
+    border-radius: var(--h-shell);
+  }
   .pi-exp__img { transform: scale(1); }
   .pi-exp__rail { display: none; }
   .pi-exp__body { position: static; opacity: 1; transform: none; padding: 150px 22px 22px; }
@@ -1323,12 +1349,17 @@
   align-items: flex-end;
   gap: 2px;
   margin: 0;
-  font-size: 12px;
+  --ind-lab: 12px;
+  font-size: var(--ind-lab);
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: #8a8a93;
   white-space: nowrap;
+  /* Letter-spacing adds space AFTER the last glyph too, so right-aligned the label's
+     ink stops 0.2em short of the edge. The label is a bare text node, so the only
+     way to pull it out is to move this whole box by that amount... */
+  margin-right: calc(var(--ind-lab) * -0.2);
 }
 .pi-ind__num {
   font-family: var(--pi-font-heading, Roboto, system-ui, sans-serif);
@@ -1337,6 +1368,11 @@
   line-height: 0.85;
   letter-spacing: -0.045em;
   color: var(--h-accent);
+  /* ...which would drag the numeral out with it, so it pays that back, and also the
+     0.017em its ink overshoots the box by (tight tracking trims the box while the
+     glyph's side bearing is small; measured with canvas actualBoundingBoxRight, and
+     it scales with the font size, hence em). */
+  margin-right: calc(var(--ind-lab) * 0.2 + 0.017em);
 }
 
 /* ---- the bands ---- */

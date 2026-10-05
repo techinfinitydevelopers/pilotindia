@@ -1179,3 +1179,42 @@ feed tanks share the template).
 tile size, none cropped; tablet collapses the data column under the photo; phone shows all nine with
 photo, features, areas, spec table and both document links. Rail: four jumps (HP 64 N, HVLP 08,
 HP P-70, HVLP 06) all land with the card directly under the bar and the matching chip active.
+
+# Product range hover flicker fixed
+
+Hovering the product range cards sometimes flickered or popped. Two independent causes,
+both in the `.pi-exp` block of pi-home.css:
+
+1. The whole `flex` shorthand was transitioned between bases of 0, 10% and `auto`. A
+   length cannot interpolate to `auto`, so the basis snapped mid-transition - a visible pop
+   every time hover moved from one card to another. Now every card has a constant basis of
+   0 and only `flex-grow` animates (1 -> 6). With four siblings at 1 that gives 6/10 = 60%
+   open and 10% each for the rest, the same proportions as before, and no :has() needed.
+
+2. The 10px flex gap was a dead zone. Crossing it un-hovered every card, they all snapped
+   back to equal width, the layout moved under the cursor, a card re-hovered, and the row
+   flickered. The gap is now carried by each card as 5px transparent side borders with
+   background-clip: padding-box, so the pointer is always over a card. The outer radius is
+   widened by the border (`calc(shell + 5px) / shell`) so the visible inner corner stays a
+   true circle; the first and last cards drop the border and radius on their outer side.
+   Stacked mobile layout removes the borders again.
+
+Verified on the real page: 0 dead pixels across all 1,336 x-positions of the row; entering
+exactly on the old seam opens one card and the layout is identical before and after
+settling (no oscillation); open card 59%, others ~10%, box widths sum to the row width.
+
+# "20 application areas" - right edge alignment
+
+The numeral and its label were right-aligned but their ink edges did not meet (about 6px
+apart on the 1440px layout). Letter-spacing adds space after the LAST glyph too, so:
+  - the label (0.2em tracking) ended 0.2em short of the edge
+  - the numeral (-0.045em tracking) had its box trimmed, so the final 0 poked past the edge
+
+Fixed in pi-home.css by compensating in em so it holds at every size. The label is a bare
+text node and cannot be styled alone, so the whole .pi-ind__count box moves by the label's
+trailing space (`--ind-lab`), and the numeral pays that back plus its own 0.017em overshoot.
+
+Measured ink edges with canvas actualBoundingBoxRight against the wrap's content edge:
+  1024px (76.8px numeral): ink edges 0.42px apart  (was 3.3px)
+  1440px (108px numeral):  ink edges 0.48px apart
+Block bottom also sits on the intro paragraph's bottom (517 / 517).

@@ -1,0 +1,192 @@
+/* ==========================================================================
+   Pilot India — FAQ accordion (product pages)
+
+   Restyles the Elementor nested-accordion widget in place. The markup is native
+   <details>/<summary>, so open/close needs no JavaScript and keyboard and screen
+   reader behaviour already work — this file only changes how it looks.
+
+   What it replaces: every row boxed in its own grey outline, so four questions
+   read as four separate cards stacked with gaps, and the whole block fought the
+   calm of the page. Now one ruled list, the way the rest of the site sets lists.
+
+   Palette is the site's own: accent #f58634 and ink, pulled from theme.css
+   tokens. No new colours.
+
+   Scoped to .elementor-widget-n-accordion, which on these pages is the FAQ and
+   nothing else (verified one accordion widget per page).
+   ========================================================================== */
+
+.elementor-widget.elementor-widget.elementor-widget-n-accordion {
+  --faq-accent: var(--pi-accent, #f58634);
+  --faq-ink: var(--pi-ink, #0a0a0a);
+  --faq-body: #55575c;
+  --faq-rule: rgba(10, 10, 10, 0.12);
+
+  /* the widget's own knobs, set so its base CSS cooperates instead of fighting */
+  --n-accordion-border-width: 0px;
+  --n-accordion-border-style: none;
+  --n-accordion-padding: 0px;
+  --n-accordion-border-radius: 0px;
+  --n-accordion-item-title-space-between: 0px;
+  --n-accordion-item-title-distance-from-content: 0px;
+  /* marker stays on the right, where it was: order 1 puts it last in the flex row
+     and the header grows to push it there */
+  --n-accordion-title-icon-order: 1;
+  --n-accordion-title-normal-color: var(--faq-ink);
+  --n-accordion-title-hover-color: var(--faq-accent);
+  --n-accordion-title-active-color: var(--faq-accent);
+}
+
+/* ---------- the list ---------- */
+
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion {
+  border-top: 1px solid var(--faq-rule);
+}
+
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item {
+  position: relative;
+  border-bottom: 1px solid var(--faq-rule);
+  background: transparent;
+}
+
+/* an accent edge that appears on the open row, so the eye can find its place in
+   a long list without the row needing a box */
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: var(--faq-accent);
+  transform: scaleY(0);
+  transform-origin: 50% 0;
+  transition: transform 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item[open]::before { transform: scaleY(1); }
+
+/* ---------- the question ---------- */
+
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title {
+  gap: 24px;
+  padding: 22px 8px 22px 22px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  transition: background 0.26s ease, padding-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title:hover {
+  background: rgba(245, 134, 52, 0.05);
+  padding-left: 28px;
+}
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item[open] > .e-n-accordion-item-title {
+  background: rgba(245, 134, 52, 0.06);
+  padding-left: 28px;
+}
+
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-header {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-text {
+  font-size: clamp(15.5px, 1.25vw, 18px);
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -0.005em;
+  transition: color 0.24s ease;
+}
+
+/* keyboard users get a real focus ring; the widget ships none */
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title:focus-visible {
+  outline: 2px solid var(--faq-accent);
+  outline-offset: -3px;
+}
+
+/* ---------- the +/- marker ---------- */
+
+/* Elementor swaps a plus span for a minus span. Both are wrapped in a tile here,
+   so the control reads as a button rather than as a stray glyph. */
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--faq-rule);
+  border-radius: 999px;
+  color: var(--faq-ink);
+  transition: background 0.26s ease, border-color 0.26s ease,
+              color 0.26s ease, transform 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-icon span,
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-icon span > i {
+  color: currentColor;
+  font-size: 12px;
+  line-height: 1;
+}
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title:hover .e-n-accordion-item-title-icon {
+  border-color: var(--faq-accent);
+  color: var(--faq-accent);
+}
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item[open] .e-n-accordion-item-title-icon {
+  background: var(--faq-accent);
+  border-color: var(--faq-accent);
+  color: #ffffff;
+  transform: rotate(180deg);
+}
+
+/* ---------- the answer ---------- */
+
+/* Elementor emits a per-element padding rule for this container at (0,3,0), so the
+   selector needs the extra class+attribute weight to win. */
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item > .e-con[role="region"] {
+  --padding-top: 0px;
+  --padding-right: 64px;
+  --padding-bottom: 26px;
+  --padding-left: 28px;
+  padding: 0 64px 26px 28px;
+}
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item > .e-con[role="region"] p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--faq-body);
+}
+
+/* Height animation without JS. ::details-content is the only way to transition a
+   <details> open, and it needs interpolate-size to reach `auto`; both are recent,
+   so this is additive — where it is unsupported the panel simply snaps open, which
+   is the behaviour the page has today. */
+@supports selector(::details-content) {
+  .elementor-widget.elementor-widget.elementor-widget-n-accordion { interpolate-size: allow-keywords; }
+
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item::details-content {
+    block-size: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: block-size 0.42s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.3s ease,
+                content-visibility 0.42s allow-discrete;
+    transition-behavior: allow-discrete;
+  }
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+  }
+}
+
+@media (max-width: 680px) {
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title { gap: 14px; padding: 18px 6px 18px 16px; }
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title:hover,
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item[open] > .e-n-accordion-item-title { padding-left: 20px; }
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item > [role="region"] { padding: 0 16px 22px 20px; }
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-icon { width: 30px; height: 30px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item::before,
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title,
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-icon { transition: none; }
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item[open] .e-n-accordion-item-title-icon { transform: none; }
+}

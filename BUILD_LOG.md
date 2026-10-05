@@ -726,3 +726,403 @@ Headless Chrome over CDP against `localhost:8080`. `.pi-reveal` confirmed `is-in
 scrolling into view. Hover: button border/text flip to accent, glow shadow appears, icon
 visibly shifted down in the screenshot. Mobile at 400px: ghost numeral and eyebrow
 rescale via a new `@media (max-width: 680px)` rule, `scrollWidth == innerWidth`.
+
+---
+
+# Home page: hero rebuilt to an interior-studio comp (2026-10-01)
+
+Layout replicated from a supplied reference (dark framed hero, nav inside the frame,
+display-serif headline, floating white figure card, two glass cards on the bottom edge).
+Content and palette kept Pilot's. Owned by `tools/home.mjs` (section 1 markup + font link)
+and section 1 of `assets/css/pi-home.css`.
+
+## Mapping reference -> Pilot content
+| reference | Pilot |
+|---|---|
+| "Designing Homes That Feel Alive" | existing h1 "India's largest maker of surface coating equipment." (orange on "surface coating") |
+| nav pills + "Let's talk" | existing nav, restyled on home only into logo pill / links pill / orange CTA pill |
+| "70k+ Happy customers" + faces | "700+ Authorised dealers" + four product-range thumbnails + "Plus 7000 sub dealers and ten regional distributors" (About Us figures) |
+| "Calm Spaces to Unwind" card | Spray Guns (PRODUCTS[0] copy + image), "Explore products" pill, arrow to `spray-guns/` |
+| "Where Function Meets Flavor" card | Manufacturing (CAPS[0] copy, Andheri facility photo), "About Pilot" pill |
+
+## Techniques / gotchas
+- Headline font: Google Fonts "Italiana" (link injected by home.mjs), falling back to
+  Cormorant Garamond / Georgia offline. `em` stays upright (Italiana has no italic).
+- Photo desaturated (`saturate(.35) brightness(.62)`) so the comp's near-monochrome mood
+  holds and orange stays the only colour.
+- Card A's concave notch is a CSS `mask: radial-gradient(...)`. A mask clips children, so the
+  round arrow is a **sibling** in `.pi-hero__slot`, not inside the masked card. The slot carries
+  the hover lift so both move together.
+- Nav overlay: `body.home .pi-nav:not(.is-stuck)` (>=961px) goes transparent with glass pills;
+  hero pulls up with `margin-top: -74px` (nav height + border). Other pages untouched.
+- Pre-existing, not changed: the nav's `position: sticky` never engages on any page because
+  Divi sets `html,body{overflow-x:hidden}` (body becomes the scroll container). On home that
+  matches the reference (nav lives in the hero frame). Fix would be `overflow-x: clip`.
+
+## Verification
+CDP render at 1440x900: Italiana loaded (`document.fonts.check`), no horizontal overflow,
+nav sits inside hero frame, figure card 236px at right, cards 430/520px along bottom. Hover:
+arrow turns orange and rotates to 0deg. 420px: everything stacks in normal flow, no overflow.
+
+## Fix: hero cards overlapping the sub-copy on short windows (2026-10-01)
+Cause: `.pi-hero__cards` was `position:absolute; bottom:28px` while the headline flowed from
+the top. Once the hero hit its 700px floor (short laptop windows), the 3-line 92px headline +
+sub-copy ran past the cards' top edge. Fix: hero is now a grid (`1fr auto` x `auto 1fr auto`) -
+headline row 1, figure card col 2 spanning rows 1-2 (aligned to the bottom), cards row 3. No
+element is pinned to the bottom edge, so the hero grows rather than overlaps. Verified at
+1920x780, 1536x700, 1366x650, 1280x720, 1440x900, 1024x700, 420x900: min copy-to-card gap 32px,
+no figure/headline or figure/card collisions, no horizontal overflow.
+
+## Hero figure card -> animated card deck (2026-10-01)
+The single "700+ Authorised dealers" card is now a deck of four (`DECK` in `tools/home.mjs`):
+700 authorised dealers, 7000 sub dealers, 12 countries, 70 years - the About Us figures, each
+with a supporting line from site content (founded 1953 from the about-us schema). CSS section
+"figure deck" in `pi-home.css`; dealing logic appended to `assets/js/pi-home.js`.
+
+- Stack: `data-depth` 0-3. Backs sit 15/28/38px higher, scaled .93/.86/.80, greyer, content hidden;
+  depth 3 is invisible so the card returning to the back fades in on the following deal.
+- Deal every 3.2s: top card gets `.is-dealt` (flicks down-left, tilts -18deg, fades, 0.75s) while the
+  others step up; on `animationend` (1s timeout fallback for background tabs) it jumps to depth 3
+  under `.is-reset` (transition: none) so the move is not animated.
+- Hover/focus fans the backs (-5deg / +6deg) and pauses; click, Enter, Space, ArrowRight deal the
+  next card. Pauses when off screen or tab hidden. Reduced motion: no autoplay, no animation.
+- Every card is the same height: the dealer card's thumbnail row and the other cards' tag pills
+  are both 38px tall.
+
+Verified over CDP: depth order cycles A->B->C->D, dealt card lands at depth 3, previous back card
+rises to depth 2; four distinct cards reached the top; state unchanged across 3.6s of hover
+(paused). 420px: deck sits full-width between the sub-copy and the cards, no overflow.
+
+## Hero fits one screen (2026-10-01)
+Hero is now exactly one viewport tall (`min-height: max(600px, calc(100svh - 28px))`, 14px clear top
+and bottom) and every vertical measure scales with window height: top padding `clamp(100px,16vh,150px)`,
+headline `clamp(42px, min(6.4vw, 11vh), 92px)`, cards `clamp(168px,24vh,212px)`, gaps in `vh`. A
+`(min-width:961px) and (max-height:780px)` block tightens card and deck internals for short laptop
+windows (1920x1080 at 125% scaling is ~1536x730 CSS px). Card A widened to 480px with the notch
+padding moved from the whole text column to the title row only, so its description fits.
+Verified at 1536x730, 1536x864, 1366x650, 1366x768, 1280x720, 1440x800, 1920x950, 1920x1080, 1280x620,
+1024x700: hero bottom inside the window every time, no deck/headline/card collisions, all pills
+inside their cards, every description shows all of its lines. Below ~620px tall the hero grows and scrolls.
+
+# Section 6 "Where Pilot equipment is used" - pill cloud to application index
+
+Twenty equal-weight pills on black: nothing led, nothing was scannable, and the band read
+as keyword stuffing rather than design. Same twenty areas, same heading and lead, rebuilt
+as a two-column layout - sticky intro carrying a large accent count, and the areas as a
+ruled numbered ledger running down two columns. One soft radial accent bloom for depth,
+deliberately lighter than the closing band's glow+grid two sections below.
+
+Owned by `tools/home.mjs` section 6 + section 6 of `assets/css/pi-home.css`;
+rebuilt with `node tools/home.mjs`. The section also gained `id="industries"`.
+
+Notes:
+- Numbers come from a CSS counter, not markup - the <ol> already carries order.
+- Column flow is grid-auto-flow:column with --ind-rows = ceil(len/2) from the generator,
+  so the list reads DOWN each column; plain two columns would fill across.
+- .pi-reveal sits on an inner div because .pi-ind__intro is position:sticky and the
+  reveal's translateY would fight it.
+- "20 application areas" is derived from the data and the existing lead, not invented.
+- Stagger capped at 12 steps; twenty items at the usual 70ms would run 1.4s.
+
+## Verification note
+
+Screenshots came back blank and IntersectionObserver never fired, which looks exactly like
+"the change blanked the page". It was neither: the browser pane was hidden
+(document.visibilityState "hidden"), which freezes rAF and suppresses observer callbacks,
+so every .pi-reveal stayed at opacity 0. Confirmed native IO and an intact DOM, then
+verified the layout numerically (grid tracks, per-column x positions, row pitch, counter
+content, colours) rather than visually. Worth checking visibilityState before suspecting
+the page next time.
+
+# Industries index -> interactive 3D, and the navbar off the hero
+
+## Navbar
+
+The bar was a rounded card inset 14/18px, and on the home page it was pulled over the hero
+photo: the hero carried margin-top:-74px and the nav went transparent, with the logo and
+the links each floating as their own blurred pill. That depended on the photo staying dark
+behind them. Now a solid full-bleed strip pinned flush to the top (top:0, no margin, no
+radius, hairline bottom border); on scroll it deepens and gains a shadow instead of
+shrinking its margins. The hero starts 14px beneath it.
+
+Knock-ons: the hero was sized assuming the nav sat inside it, so min-height now subtracts
+the 72px bar, and the clamp(100px,16vh,150px) top padding that existed only to clear the
+overlay came down to clamp(52px,9vh,92px). Still one screen.
+
+Scope: 125 pages load pi-nav.css and nothing else overrides .pi-nav, so all of them get the
+new bar. Checked power-tools as a non-home case - nav at top, no overlap with content.
+
+## Industries index, now in 3D
+
+.pi-ind__stage owns perspective:1150px; the list carries rotateX/rotateY from --ind-rx and
+--ind-ry, which a pointermove handler in pi-home.js eases toward (+-7/+-9 deg, 0.12 lerp).
+The rAF loop halts once it settles, so idling is free. Rows lift translateZ(52px) on
+hover/focus-within with a shadow, and the label span sits at translateZ(14px) so the lift
+reads as depth and not as a scale. Tint moved to ::after behind the row so it can fade
+independently of the transform. Bypassed under prefers-reduced-motion and on coarse
+pointers.
+
+## Verification
+
+The browser pane is hidden, so rAF is frozen and the easing loop never advances there -
+--ind-rx/--ind-ry stay empty and screenshots are blank. Verified structurally instead:
+perspective 1150px, preserve-3d on list and items, 20 face spans at translateZ(14px), the
+hover rule resolving to translateZ(52px) in the CSSOM, and the tilt producing a real
+matrix3d (not identity) once the vars are set by hand. Live motion and final look still
+want a human eye.
+
+# Industries as marquee bands; navbar given some character
+
+## Industries: out of columns, into motion
+
+The numbered two-column ledger was replaced on request. Twenty short names in a static
+list is a wall of text; the breadth reads as breadth only when it moves. Now three
+full-bleed bands drifting past at 44s / 54s / 38s, alternating direction, on a deck that
+stands at -9deg rotateX and leans further toward the cursor.
+
+- Names are dealt round-robin into the bands (i % 3) so no band collects only the long
+  ones, and each band is doubled in markup so a -50% translate loops with no seam.
+  Measured: tracks are 3382 / 3331 / 3005px against a 1024px viewport, so no gaps.
+- Hovering a band pauses it - without that the names are unreadable, which would make the
+  motion purely decorative.
+- Ends are mask-faded so names enter and leave instead of being clipped.
+- Bands sit at 0 / -26 / -52px Z so the stack has thickness; a word lifts 34px on hover.
+- Under reduced motion the bands stop, the deck flattens, all twenty names stay present.
+
+All 20 names verified present and unique in the DOM; nothing was dropped in the reshuffle.
+
+## Navbar
+
+Three zones. The links are absolutely centred on the bar rather than flex-centred in the
+leftover gap - the logo and the actions are different widths, so flex centring lands them
+visibly off-axis (measured 0px offset after the change, and no overlap with either side).
+Bar is 76px, condensing to 60px with a smaller logo once stuck.
+
+Character and motion:
+- Links lost the grey hover pill and gained an accent rule that wipes in from the left.
+  Two hover signals on one control read as noise, so the pill is gone on desktop and kept
+  for the mobile drawer rows, where an underline would look like a divider.
+- CTA lifts 2px and throws a soft accent shadow instead of only inverting.
+- A reading-progress line runs along the bottom edge, driven by
+  `animation-timeline: scroll(root block)` on `.pi-nav::after`. No JS and no new markup -
+  this file's own rule forbids per-frame scroll handlers, and the nav is shared by 125
+  pages so adding an element would mean regenerating all of them. Guarded by @supports
+  and hidden under reduced motion.
+
+## Verification limits
+
+The browser pane is hidden, so rAF and the compositor are idle there: `is-stuck` never
+fires (it is IntersectionObserver-driven) and the scroll timeline cannot advance, even
+though the page does scroll. Verified structurally instead - rules present in the CSSOM,
+no competing `.pi-nav::after`, both stylesheets parsing to their final rule, underline
+gradient resolving, links centred to 0px. Live motion still needs a human eye.
+
+# Navbar alignment bug, and a footer pass
+
+## The bug in the last navbar change
+
+Absolutely centring the links set `left: 50%` but never `top`, so the box kept its
+static position and sat 20px below the optical centre of the bar - the links hung low
+while the logo, phone and CTA were centred. Fixed with `top: 50%` and
+`translate(-50%, -50%)`. All four elements now measure 0px from centre.
+
+Also found while measuring: the phone was 36px tall against a 49px CTA, two pills of
+different heights sitting side by side. Both are an explicit 44px now with padding on the
+inline axis only, so the right-hand pair reads as a set.
+
+## Navbar, continued
+
+The phone gained an outline and a pill shape. Previously it was loose text next to a
+button; now the right side is two deliberate controls, with the phone quiet (hairline,
+2.5% white) against the CTA's solid accent so the hierarchy still favours the CTA.
+
+## Footer
+
+Structure and copy unchanged - this was a pass on how it reads.
+
+- The four link columns each wore a 2px orange cap, which put four competing horizontals
+  under the single statement line. Each column now carries a hairline with a 34px accent
+  stub that grows to the full column width on hover or focus-within, so the accent marks
+  where you are instead of shouting at rest.
+- Column headings dropped to 12px uppercase with wide tracking and a muted colour. They
+  were competing with the links underneath them at 14px near-white.
+- The two contact lines were right-aligned text reading as overflow from the statement.
+  They are chips now, with a lift and an accent wash on hover - same information, given
+  an edge, and they echo the nav's phone pill.
+- Footer links shift 5px toward their destination on hover; social icons became round
+  38px tiles that fill accent and lift.
+- Mobile: the reach column switched from text-align to align-items, since it is a flex
+  column now and text-align no longer moved it.
+- The existing reduced-motion guard zeroes transitions; extended it to neutralise the new
+  transforms too.
+
+Note this footer (.pi-f2) is the home page only - the other pages still use footer v1.
+
+## Verification
+
+Measured rather than seen, as before: all four nav elements 0px from the bar centre,
+phone and CTA both 44px and sharing a centre line, footer columns on a 1px #232323 rule
+with a 34px accent stub, chips and social tiles at 999px radius, headings uppercase.
+The browser pane is still hidden so hover states and the scroll-driven progress line
+remain unobserved.
+
+# FAQ accordion restyled across the product pages
+
+New shared component `assets/css/pg-faq.css`, copied to spray-guns/ and office/ and
+referenced from pages/power-tools.html as ../assets. Markup untouched: the widget is
+native <details>/<summary>, so open/close, keyboard and screen-reader behaviour already
+worked and only the appearance changed. No copy edited.
+
+Coverage: spray-guns (4), office (5), power-tools (5). airless and welding have no FAQ
+section at all - adding one would mean writing questions, so they were left alone.
+
+What changed: each row was boxed in its own grey outline, so four questions read as four
+stacked cards. Now one ruled list - hairline separators, a 2px accent edge that wipes down
+the open row, the open question in accent on a 6% accent wash, a circular marker tile that
+fills accent and rotates when open, and a real focus ring (the widget shipped none).
+Height animates via ::details-content + interpolate-size behind an @supports guard, so no
+JS; unsupported browsers snap open exactly as before.
+
+## Two specificity traps, both found by measuring
+
+1. Linked after theme.css near the top of <head>, the file lost to Elementor's own widget
+   CSS, which loads later - the marker tile computed to 1.6px wide. Moved to last in
+   <head> on all three pages.
+2. Elementor emits per-element rules at (0,3,0) like
+   `.elementor-21384 .elementor-element.elementor-element-xxxx`. A plain
+   `.elementor-widget-n-accordion .thing` is (0,2,0) and loses. Office showed it first:
+   a 13.7px marker and 20px padding while spray-guns looked right, because only office
+   had a per-element rule for that widget. Every selector now carries
+   `.elementor-widget.elementor-widget-n-accordion`, and the answer panel - an e-con whose
+   padding comes from custom properties - is matched as `.e-con[role="region"]` and sets
+   `--padding-*` as well as `padding`.
+
+Also restored: the marker had migrated to the left of the question, because the widget's
+default `--n-accordion-title-icon-order` is -1. Set to 1 with the header flex-growing, so
+it sits at the right edge as before.
+
+## Verification note
+
+Screenshots of an isolated harness page misled twice. First build copied only <link> tags
+and missed the inline <style> blocks that carry most of the Elementor CSS, so the widget
+rendered unstyled - native disclosure triangles and all. Second build copied the whole
+head and rendered faithfully, but then served stale CSS and showed a fix as not working
+when the real page already had it. Trust the real page: final numbers measured there, all
+three identical - 34px marker on the right, 22/28px title padding, 0 64 26 28 answer
+padding, hairline rule, accent bar scaleY 1 open / 0 closed.
+
+# Marquees redesigned - home bands rebuilt, product strips brought in line
+
+## The 3D plane was a mistake, and seeing it proved it
+
+The application bands were built on a cursor-tilted 3D deck. Rendered, the perspective
+sheared the type into a blurry pseudo-italic and threw the right-hand edge out of focus:
+the depth cost legibility and bought nothing. Worth recording because it was signed off
+on measurements alone - transform matrices and perspective values all read correct while
+the thing looked wrong. Some faults only exist visually.
+
+The plane is gone, along with the pointer-tilt IIFE in pi-home.js that drove it.
+
+## What replaces it
+
+Interest now comes from the type rather than from geometry: alternating solid and
+outlined words (`-webkit-text-stroke` on nth-child(even)), which is a marquee convention
+and gives twenty names rhythm instead of an even grey smear. Also:
+
+- bands contained by hairlines top and bottom, with a lighter rule between each
+- words up to 34px, 700 weight, tight tracking, near-white
+- accent dot separators at 7px / 0.45
+- hover takes the word to accent, outline included; hovering a band still pauses it
+- edges mask-faded; reduced motion stops the tracks
+
+## Product strips
+
+`assets/css/pg-marquee.css`, linked last on spray-guns, office, welding and
+pages/power-tools. The strip itself is defined inline on each of those four pages; rather
+than edit four duplicates, this tunes the shared properties from one file - bigger type,
+wider tracking, the same 7px dot, hairline containment, and hover taking the whole label
+to accent instead of only sliding an underline beneath it.
+
+## Verification
+
+Both rendered and looked at this time, via harness pages carrying the real <head> so the
+inline Elementor and theme CSS come along. Home bands: crisp, alternation reading clearly,
+dots and fades correct. Welding strip: contained, matched dots, legible. Harness files
+deleted afterwards.
+
+# Application bands as chips; home page gutters tightened
+
+## Bands, third attempt
+
+The outlined/solid alternating display type read as hollow and unfinished rather than
+rhythmic, and three rows of 34px words was a wall. Replaced with chips: 15px label, accent
+pip, hairline border on a 2.8% white fill, pill radius - the vocabulary the nav phone,
+footer contacts and FAQ marker already use, so the band belongs to the page instead of
+shouting over it. Hover takes the chip to accent and lifts it; hovering a band still
+pauses it.
+
+Record of the two dead ends, since both were signed off before being seen:
+  1. cursor-tilted 3D plane - perspective sheared the type into a blurry pseudo-italic
+  2. outlined alternation  - read as cheap hollow text
+
+## Loop gap - a real bug the render exposed
+
+Each row was emitted twice, and the track loops on a -50% translate. That only works if
+each half is at least as wide as the viewport. The shortest band (six names) was narrower,
+so through part of the cycle the right edge ran out of content and showed dead space.
+Rows are emitted four times now, making each half two full sets. 80 chips total for 20
+names, verified edge-to-edge across all three bands at 1800px.
+
+## Gutters
+
+`.pi-home__wrap` was max-width 1280 with flat 24px padding, which on a wide monitor left a
+deep empty margin either side. Now max-width 1660 with `padding: 0 clamp(20px, 3vw, 48px)`,
+so the measure tracks the viewport and only caps on very large screens. Two sections
+carried their own narrower measures and were brought in line: the stats grid (1280 -> 1660)
+and the capability list (1100 -> 1400).
+
+Verified by rendering product range and industries together at 1800px.
+
+# "Why choose ..." section restyled on all five product pages
+
+New shared component `assets/css/pg-why.css`, copied beside spray-guns, airless, welding
+and office, referenced as ../assets from pages/power-tools. Covers all five - including
+airless, which has no FAQ and no marquee but does have this section.
+
+Scoping: every page generated a different container id, so there was nothing shared to
+hang off. Each page's section container gained a `pg-why` class - a class attribute only,
+no content or structure touched - and the stylesheet keys off that.
+
+What changed, all of it presentational:
+- feature icons went from loose glyphs at title size to 46px tiles with a hairline and a
+  faint accent fill, which puts every feature title on one optical line instead of letting
+  the four blocks drift out of step
+- checklist items in the dark card gained hairline separators and a 22px accent disc
+  behind each check
+- the call to action was a full-width white slab that read as a disabled field; it is now
+  the accent pill the nav already uses, so the page has one button language
+- body copy set to one measure
+
+## Three faults, two mine
+
+1. Checklist glyphs rendered as hollow squares. Rendering the same fragment with the
+   stylesheet removed showed the squares there too - Font Awesome does not load in the
+   harness, the real page is fine. Worth the extra render before "fixing" something that
+   was never broken.
+2. Mine: I sized the check as a box (width/height on an `<i>`), which clipped an icon-font
+   glyph. Font-size only now, centred by its grid parent.
+3. Mine: a blanket `color` on text-editor paragraphs reached inside the dark card and
+   greyed out its copy - the two columns sit on opposite backgrounds. The rule now sets
+   measure only and leaves colour to the page. Caught by diffing against the control
+   render, not by looking at mine alone.
+
+Specificity, same as pg-faq: Elementor's per-element rules land at (0,3,0), so the button
+needed `.pg-why .elementor-widget .elementor-button.elementor-button-link` to win. Linked
+last in <head> on every page.
+
+## Reverted
+
+The "Why choose ..." restyle above was undone at the user's request. Removed from all five
+pages: the pg-why.css link, the `pg-why` hook class on the section container, and the
+stylesheet files themselves. Those sections are back to their original Elementor styling.
+pg-faq, pg-marquee and pg-features are unaffected and remain in place.

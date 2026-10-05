@@ -1,15 +1,10 @@
 /* ==========================================================================
-   Pilot Spray Guns — "Technical Excellence" panel
+   Pilot Spray Guns — "Technical Excellence" panel (Focus Carousel layout)
 
-   Was the one section on this page still running stock Elementor icon-box
-   widgets (white rounded-square tiles, default spacing, no motion) - the rest
-   of the page (marquee / pg-feat / luboss) had already moved off that. Same
-   four capabilities, same four icons, same product-carousel widget; the cards
-   move into a 2x2 grid beside the carousel instead of flanking it two-and-two,
-   and pick up the icon-chip + reveal-on-scroll language pg-feat already uses.
-
-   Sits on white, between pg-feat's #e2e2e2 band above and whatever follows, so
-   the page keeps alternating rather than running two grey sections together.
+   3-Column Layout:
+   Left: 2 Info Cards (Fine-Tuned Control, Ergonomic and Lightweight)
+   Center: Fast Auto-Sliding Single Wide Image (incoming/outgoing images hidden)
+   Right: 2 Info Cards (High-Quality Precision Components, Versatile Application)
    ========================================================================== */
 
 .pg-tech {
@@ -19,7 +14,7 @@
   --t-chip: rgba(245, 134, 52, 0.12);
 
   background: #fff;
-  padding: 92px 0;
+  padding: 80px 0 72px;
   overflow: hidden;
 }
 
@@ -30,9 +25,12 @@
   padding: 0 40px;
 }
 
+/* ---- header ---- */
+
 .pg-tech__head {
-  max-width: 640px;
-  margin: 0 0 56px;
+  max-width: 720px;
+  margin: 0 auto 44px;
+  text-align: center;
 }
 
 .pg-tech__eyebrow {
@@ -62,24 +60,164 @@
   color: var(--t-body);
 }
 
-/* ---- layout: cards left, carousel right ---- */
+/* ==========================================================================
+   LAYOUT:  3 columns (Cards Left | Carousel Center | Cards Right)
+   ========================================================================== */
 
 .pg-tech__grid {
   display: grid;
-  grid-template-columns: 1.15fr 1fr;
-  gap: 56px;
+  grid-template-columns: minmax(280px, 320px) minmax(360px, 1fr) minmax(280px, 320px);
+  gap: 32px;
   align-items: center;
+  min-width: 0;
 }
 
-.pg-tech__cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+.pg-tech__col {
+  min-width: 0;
 }
+
+.pg-tech__col--left,
+.pg-tech__col--right {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  justify-content: center;
+}
+
+.pg-tech__col--center {
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   FOCUS CAROUSEL  — the `.pg-tech__visual` wrapper
+   ========================================================================== */
+
+.pg-tech__visual {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* Hide old Elementor Swiper */
+.pg-tech__visual .elementor-element,
+.pg-tech__visual .elementor-widget-container,
+.pg-tech__visual .elementor-image-carousel-wrapper,
+.pg-tech__visual .elementor-image-carousel { display: contents; }
+
+/* Hide old Swiper arrows */
+.pg-tech__visual .elementor-swiper-button { display: none !important; }
+
+/* ---- focus carousel track ---- */
+
+.focus-carousel {
+  --slide-w: 420px;
+  position: relative;
+  width: var(--slide-w);
+  max-width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  padding: 10px 0 18px;
+}
+
+.focus-carousel__track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: max-content;
+  gap: 24px;
+  transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.focus-carousel__track.is-dragging {
+  cursor: grabbing;
+  transition: none !important;
+}
+
+/* Wide single-card display: incoming and outgoing images are cleanly outside container boundaries */
+.focus-carousel__slide {
+  flex: 0 0 var(--slide-w);
+  width: var(--slide-w);
+  max-width: 100%;
+  height: 310px;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #ffffff;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+  transform: none;
+  opacity: 1;
+  filter: none;
+}
+
+.focus-carousel__slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  padding: 14px 24px;
+  background: #ffffff;
+  pointer-events: none;
+}
+
+/* ---- active (centre) slide accent ---- */
+.focus-carousel__slide.is-active {
+  border-color: rgba(245, 134, 52, 0.45);
+  box-shadow: 0 12px 32px -6px rgba(17, 17, 17, 0.12), 0 0 0 1px rgba(245, 134, 52, 0.2);
+}
+
+/* ---- dots (pagination) ---- */
+
+.focus-carousel__dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 18px 0 0;
+}
+
+.focus-carousel__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(17, 17, 17, 0.15);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.25s ease, transform 0.25s ease, width 0.25s ease;
+}
+
+.focus-carousel__dot.is-active {
+  background: var(--pi-accent, #f58634);
+  width: 24px;
+  transform: none;
+}
+
+.focus-carousel__dot:hover:not(.is-active) {
+  background: rgba(17, 17, 17, 0.35);
+  transform: scale(1.2);
+}
+
+/* ==========================================================================
+   CARDS  — 2 on left, 2 on right
+   ========================================================================== */
 
 .pg-tech__card {
   position: relative;
-  padding: 28px 24px 26px;
+  padding: 24px 22px 22px;
   border: 1px solid var(--t-rule);
   border-radius: var(--pi-radius-shell, 15px);
   background: #fff;
@@ -91,25 +229,25 @@
 
 .pg-tech__card:hover,
 .pg-tech__card:focus-visible {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
   border-color: transparent;
-  box-shadow: 0 22px 40px -20px rgba(17, 17, 17, 0.28);
+  box-shadow: 0 18px 36px -16px rgba(17, 17, 17, 0.22);
 }
 
 .pg-tech__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
-  margin: 0 0 20px;
+  width: 50px;
+  height: 50px;
+  margin: 0 0 16px;
   border-radius: var(--pi-radius-control, 10px);
   background: var(--t-chip);
   color: var(--pi-accent, #f58634);
   transition: background 0.35s ease, color 0.35s ease;
 }
 
-.pg-tech__icon svg { width: 28px; height: 28px; }
+.pg-tech__icon svg { width: 26px; height: 26px; }
 .pg-tech__icon svg path { fill: currentColor !important; }
 
 .pg-tech__card:hover .pg-tech__icon,
@@ -119,8 +257,8 @@
 }
 
 .pg-tech__title {
-  margin: 0 0 10px;
-  font-size: 18px;
+  margin: 0 0 8px;
+  font-size: 17px;
   font-weight: 700;
   line-height: 1.3;
   letter-spacing: -0.01em;
@@ -129,70 +267,14 @@
 
 .pg-tech__desc {
   margin: 0;
-  font-size: 14px;
-  line-height: 1.65;
+  font-size: 13.5px;
+  line-height: 1.6;
   color: var(--t-body);
 }
 
-/* ---- visual: the untouched Elementor carousel widget, in a themed frame ---- */
-
-.pg-tech__visual {
-  position: relative;
-  min-width: 0;
-  overflow: hidden;
-  padding: 28px;
-  border-radius: var(--pi-radius-shell, 15px);
-  background: linear-gradient(155deg, #f6f0e8 0%, #eae1d4 100%);
-}
-
-/* the grid track this sits in must not size itself off the carousel's own
-   JS-measured width - without min-width:0 on both, Swiper and the grid track
-   feed each other's measurements and the slide width blows up to garbage */
-.pg-tech__grid { min-width: 0; }
-.pg-tech__cards { min-width: 0; }
-
-.pg-tech__visual .elementor-image-carousel-wrapper,
-.pg-tech__visual .swiper-slide-image {
-  border-radius: calc(var(--pi-radius-shell, 15px) - 6px);
-}
-
-.pg-tech__visual .swiper-slide-image {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: contain;
-  background: #fff;
-}
-
-/* Elementor's own nav arrows, re-skinned to the site's pill-button language
-   rather than the default bare Font Awesome glyphs */
-.pg-tech__visual .elementor-swiper-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--pi-radius-pill, 999px);
-  background: #fff;
-  box-shadow: 0 8px 20px -8px rgba(17, 17, 17, 0.35);
-  opacity: 1;
-  transition: background 0.3s ease, transform 0.3s ease;
-}
-
-.pg-tech__visual .elementor-swiper-button i { color: var(--t-ink); font-size: 16px; transition: color 0.3s ease; }
-
-.pg-tech__visual .elementor-swiper-button:hover {
-  background: var(--pi-accent, #f58634);
-  transform: translateY(-2px);
-}
-
-.pg-tech__visual .elementor-swiper-button:hover i { color: #fff; }
-
-.pg-tech__visual .elementor-swiper-button-prev { left: 12px; }
-.pg-tech__visual .elementor-swiper-button-next { right: 12px; }
-
-/* ---------- scroll reveal ----------
-   Same values and same [data-pg-js] gate as pg-feat: transition fallback for
-   every browser, animation-timeline: view() layered on top where supported. */
+/* ==========================================================================
+   SCROLL REVEAL
+   ========================================================================== */
 
 .pg-tech__card,
 .pg-tech__visual {
@@ -204,7 +286,7 @@
 [data-pg-js] .pg-tech__card,
 [data-pg-js] .pg-tech__visual {
   opacity: 0;
-  transform: translateY(48px);
+  transform: translateY(40px);
 }
 
 [data-pg-js] .pg-tech__card.is-in,
@@ -213,10 +295,10 @@
   transform: none;
 }
 
-.pg-tech__cards .pg-tech__card:nth-child(1) { transition-delay: 0.05s; }
-.pg-tech__cards .pg-tech__card:nth-child(2) { transition-delay: 0.15s; }
-.pg-tech__cards .pg-tech__card:nth-child(3) { transition-delay: 0.25s; }
-.pg-tech__cards .pg-tech__card:nth-child(4) { transition-delay: 0.35s; }
+.pg-tech__col--left .pg-tech__card:nth-child(1) { transition-delay: 0.05s; }
+.pg-tech__col--left .pg-tech__card:nth-child(2) { transition-delay: 0.15s; }
+.pg-tech__col--right .pg-tech__card:nth-child(1) { transition-delay: 0.1s; }
+.pg-tech__col--right .pg-tech__card:nth-child(2) { transition-delay: 0.2s; }
 
 @media (prefers-reduced-motion: reduce) {
   .pg-tech__card,
@@ -229,7 +311,7 @@
   body { overflow-x: clip; }
 
   @keyframes pg-tech-rise {
-    from { opacity: 0; transform: translateY(48px); }
+    from { opacity: 0; transform: translateY(40px); }
     to   { opacity: 1; transform: none; }
   }
 
@@ -247,10 +329,10 @@
     animation-range: cover 8% cover 30%;
   }
 
-  [data-pg-js] .pg-tech__cards .pg-tech__card:nth-child(2) { animation-range: cover 12% cover 34%; }
-  [data-pg-js] .pg-tech__cards .pg-tech__card:nth-child(3) { animation-range: cover 16% cover 38%; }
-  [data-pg-js] .pg-tech__cards .pg-tech__card:nth-child(4) { animation-range: cover 20% cover 42%; }
-  [data-pg-js] .pg-tech__visual { animation-range: cover 10% cover 40%; }
+  [data-pg-js] .pg-tech__col--left .pg-tech__card:nth-child(2) { animation-range: cover 12% cover 34%; }
+  [data-pg-js] .pg-tech__col--right .pg-tech__card:nth-child(1) { animation-range: cover 10% cover 32%; }
+  [data-pg-js] .pg-tech__col--right .pg-tech__card:nth-child(2) { animation-range: cover 14% cover 36%; }
+  [data-pg-js] .pg-tech__visual { animation-range: cover 10% cover 35%; }
 
   @media (prefers-reduced-motion: reduce) {
     [data-pg-js] .pg-tech__card,
@@ -258,19 +340,71 @@
   }
 }
 
-/* ---------- responsive ---------- */
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
 
-@media (max-width: 1100px) {
-  .pg-tech { padding: 72px 0; }
+@media (max-width: 1200px) {
   .pg-tech__wrap { padding: 0 28px; }
-  .pg-tech__grid { grid-template-columns: 1fr; gap: 40px; }
-  .pg-tech__visual { order: -1; }
+  .pg-tech__grid {
+    grid-template-columns: minmax(240px, 280px) minmax(320px, 1fr) minmax(240px, 280px);
+    gap: 20px;
+  }
+  .focus-carousel { --slide-w: 360px; }
+  .focus-carousel__slide { height: 280px; }
+}
+
+@media (max-width: 980px) {
+  .pg-tech { padding: 64px 0; }
+  .pg-tech__wrap { padding: 0 24px; }
+  .pg-tech__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .pg-tech__col--center {
+    grid-column: 1 / -1;
+    order: -1;
+  }
+  .focus-carousel { --slide-w: 420px; }
+  .focus-carousel__slide { height: 300px; }
+  .pg-tech__col--left,
+  .pg-tech__col--right {
+    gap: 16px;
+  }
 }
 
 @media (max-width: 640px) {
-  .pg-tech__head { margin-bottom: 40px; }
-  .pg-tech__cards { grid-template-columns: 1fr; gap: 14px; }
+  .pg-tech__head { margin-bottom: 28px; }
+  .pg-tech__grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .pg-tech__col--center {
+    grid-column: auto;
+    order: -1;
+  }
+  .focus-carousel {
+    --slide-w: 320px;
+    padding: 10px 0 14px;
+  }
+  .focus-carousel__slide {
+    height: 250px;
+  }
+  .focus-carousel__slide img {
+    padding: 10px 14px;
+  }
   .pg-tech__card:hover,
   .pg-tech__card:focus-visible { transform: none; }
-  .pg-tech__visual { padding: 18px; }
+  .focus-carousel__dots { gap: 6px; margin-top: 14px; }
+  .focus-carousel__dot { width: 7px; height: 7px; }
+  .focus-carousel__dot.is-active { width: 20px; }
+}
+
+@media (max-width: 360px) {
+  .focus-carousel {
+    --slide-w: 270px;
+  }
+  .focus-carousel__slide {
+    height: 220px;
+  }
 }

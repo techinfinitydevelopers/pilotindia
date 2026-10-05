@@ -71,18 +71,45 @@
 
 .pi-f2__say b { color: var(--f-accent); font-weight: 700; }
 
-.pi-f2__reach { display: flex; flex-direction: column; gap: 6px; text-align: right; }
+/* The two contact lines were plain right-aligned text, which read as overflow from
+   the statement rather than as the thing you are meant to act on. They are chips
+   now - same information, given an edge. */
+.pi-f2__reach {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
 
 .pi-f2 .pi-f2__reach a {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 18px;
+  border: 1px solid var(--f-line);
+  border-radius: var(--pi-radius-pill, 999px);
+  background: rgba(255, 255, 255, 0.02);
   font-family: var(--pi-font-accent, "Roboto Slab", Georgia, serif);
-  font-size: clamp(17px, 1.8vw, 22px);
+  font-size: clamp(15px, 1.5vw, 18px);
   font-weight: 600;
   color: var(--f-strong);
   text-decoration: none;
-  transition: color 0.2s ease;
+  white-space: nowrap;
+  transition: color 0.22s ease, border-color 0.22s ease,
+              background 0.22s ease, transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.pi-f2 .pi-f2__reach a:hover { color: var(--f-accent); }
-.pi-f2__reach span { font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase; color: #6b6b70; }
+.pi-f2 .pi-f2__reach a:hover,
+.pi-f2 .pi-f2__reach a:focus-visible {
+  color: var(--f-accent);
+  border-color: rgba(245, 134, 52, 0.5);
+  background: rgba(245, 134, 52, 0.07);
+  transform: translateY(-2px);
+}
+.pi-f2__reach span {
+  font-size: 11.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6b6b70;
+}
 
 /* ---------- link columns ---------- */
 
@@ -93,27 +120,53 @@
   padding: 0 0 54px;
 }
 
-.pi-f2__col { border-top: 2px solid var(--f-accent); padding-top: 18px; }
+/* Four heavy orange caps was four competing horizontals fighting the one
+   statement above them. One hairline each, and the accent arrives on hover -
+   it marks where you are instead of shouting at rest. */
+.pi-f2__col {
+  position: relative;
+  border-top: 1px solid var(--f-line);
+  padding-top: 20px;
+}
+.pi-f2__col::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 34px;
+  height: 2px;
+  background: var(--f-accent);
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pi-f2__col:hover::before,
+.pi-f2__col:focus-within::before { width: 100%; }
 
 .pi-f2__h {
   margin: 0 0 16px;
   font-family: var(--pi-font-accent, "Roboto Slab", Georgia, serif);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--f-strong);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #6b6b70;
 }
 
 .pi-f2__list { margin: 0; padding: 0; list-style: none; }
 .pi-f2__list li { margin: 0 0 9px; list-style: none; }
 
+/* links nudge toward their destination on hover */
 .pi-f2 .pi-f2__list a {
+  display: inline-block;
   font-size: 14.5px;
   color: var(--f-text);
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.pi-f2 .pi-f2__list a:hover { color: var(--f-accent); }
+.pi-f2 .pi-f2__list a:hover,
+.pi-f2 .pi-f2__list a:focus-visible {
+  color: var(--f-strong);
+  transform: translateX(5px);
+}
 
 .pi-f2__tag {
   margin-left: 7px;
@@ -156,12 +209,20 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
   border: 1px solid var(--f-line);
-  border-radius: var(--pi-radius-control, 10px);
+  border-radius: 999px;
   color: var(--f-text);
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition: background 0.22s ease, border-color 0.22s ease, color 0.22s ease,
+              transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pi-f2 .pi-f2__social a:hover,
+.pi-f2 .pi-f2__social a:focus-visible {
+  background: var(--f-accent);
+  border-color: var(--f-accent);
+  color: #0a0a0a;
+  transform: translateY(-3px);
 }
 .pi-f2 .pi-f2__social a:hover { background: var(--f-accent); border-color: var(--f-accent); color: #0a0a0a; }
 .pi-f2__social svg { width: 15px; height: 15px; fill: currentColor; }
@@ -173,7 +234,7 @@
 @media (max-width: 900px) {
   .pi-f2__cols { grid-template-columns: repeat(2, 1fr); gap: 30px; }
   .pi-f2__prow { padding: 48px 0 34px; }
-  .pi-f2__reach { text-align: left; }
+  .pi-f2__reach { align-items: flex-start; }
 }
 
 @media (max-width: 560px) {
@@ -184,4 +245,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pi-f2 * { transition: none !important; }
+  .pi-f2 .pi-f2__reach a:hover,
+  .pi-f2 .pi-f2__list a:hover,
+  .pi-f2 .pi-f2__social a:hover { transform: none; }
 }

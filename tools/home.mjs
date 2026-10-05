@@ -43,12 +43,23 @@ const STATS = [
   ['12', 'Countries exported to'],
 ];
 
+/* ---- hero figure deck: the four About Us figures, one card each. Supporting lines
+   come from About Us / schema data (founded 1953, distribution network, export markets). */
+const DECK = [
+  { n: '700', l: 'Authorised dealers', d: 'Plus 7000 sub dealers and ten regional distributors across India.', faces: true },
+  { n: '7000', l: 'Sub dealers', d: 'Served by ten regional distributors and 700 authorised dealers.', tag: 'Across India' },
+  { n: '12', l: 'Countries exported to', d: 'Including Australia, New Zealand, South Africa, Turkey and the UAE.', tag: 'Exports' },
+  { n: '70', l: 'Years of brand trust', d: 'Founded in 1953, building coating equipment for Indian industry.', tag: 'Est. 1953' },
+];
+
+const FRAMER_ARROW = '<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M 16.667 0 C 16.667 0.795 17.43 1.982 18.203 2.979 C 19.197 4.264 20.384 5.386 21.746 6.242 C 22.767 6.884 24.004 7.5 25 7.5 M 25 7.5 C 24.004 7.5 22.766 8.116 21.746 8.758 C 20.384 9.615 19.197 10.737 18.203 12.02 C 17.43 13.018 16.667 14.207 16.667 15 M 25 7.5 L 0 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(7.5 12.5)"/></svg>';
+
 /* ---- what the company says it does, from About Us ---- */
 const CAPS = [
-  ["01", "Manufacturing", "State of the art facilities in Andheri and at Khalapur near Mumbai, with in house CNC machining.", "pi-cap-manufacturing.svg"],
-  ["02", "Research and development", "A professional research and development team keeps new products coming year on year.", "pi-cap-research.svg"],
-  ["03", "Distribution", "Ten regional distributors, 700 authorised dealers and 7000 sub dealers across India.", "pi-cap-distribution.svg"],
-  ["04", "Exports", "Africa, Australia, Bangladesh, Cyprus, Israel, New Zealand, Philippines, South Africa, Sri Lanka, Turkey and the United Arab Emirates.", "pi-cap-exports.svg"],
+  ["001", "Manufacturing", "State of the art facilities in Andheri and at Khalapur near Mumbai, with in house CNC machining.", "pi-cap-manufacturing.svg"],
+  ["002", "Research and development", "A professional research and development team keeps new products coming year on year.", "pi-cap-research.svg"],
+  ["003", "Distribution", "Ten regional distributors, 700 authorised dealers and 7000 sub dealers across India.", "pi-cap-distribution.svg"],
+  ["004", "Exports", "Africa, Australia, Bangladesh, Cyprus, Israel, New Zealand, Philippines, South Africa, Sri Lanka, Turkey and the United Arab Emirates.", "pi-cap-exports.svg"],
 ];
 
 /* ---- application areas listed across the product sites ---- */
@@ -56,6 +67,14 @@ const INDUSTRIES = ['Automobiles', 'Foundries', 'Furniture', 'Textile', 'Railway
   'Construction equipment', 'Agricultural equipment', 'Pharmaceuticals', 'Machine shops', 'Marine',
   'Glass industry', 'Carpet industry', 'Plastic moulding', 'Electrical equipment', 'Handicrafts',
   'Sculpture finishing', 'Food decoration', 'Laboratories', 'Workshops'];
+
+/* Three marquee bands. Dealt round-robin so each band gets a mix of short and long
+   names rather than one band of only long ones; each is doubled in the markup so the
+   track can loop on a -50% translate with no visible seam. */
+const IND_BANDS = 3;
+const IND_ROWS = Array.from({ length: IND_BANDS },
+  (_, r) => INDUSTRIES.filter((_, i) => i % IND_BANDS === r));
+const IND_SPEEDS = [44, 54, 38];
 
 /* ---- real posts from the blog ---- */
 const POSTS = [
@@ -84,16 +103,50 @@ const card = (p) => `
 const main = `
 <main class="pi-home" id="pi-home">
 
-  <!-- 1. hero -->
+  <!-- 1. hero: framed full-bleed photograph, display-serif headline, a floating
+       white figure card on the right and two glass cards along the bottom edge.
+       Layout modelled on an interior-studio hero comp; every word, number and image
+       here is Pilot's own (product range, About Us figures, facility photo). -->
   <section class="pi-hero">
     <img class="pi-hero__media" src="${A}factory-workshop-interior-machines-glass-production-background-scaled.jpg" alt="" fetchpriority="high" />
-    <div class="pi-hero__inner">
+
+    <div class="pi-hero__head">
       <h1 class="pi-hero__title">India's largest maker of <em>surface coating</em> equipment.</h1>
       <p class="pi-hero__sub">Spray guns, airless systems, gas welding and office equipment, trusted by 700 dealers across 12 countries.</p>
-      <div class="pi-hero__cta">
-        <a class="pi-btn" href="#products">Explore products ${ARROW}</a>
-        <a class="pi-btn pi-btn--ghost" href="pages/about-us.html">About Pilot</a>
+    </div>
+
+    <div class="pi-deck" role="group" aria-roledescription="carousel" aria-label="Pilot in figures" tabindex="0">
+      ${DECK.map((c, i) => `<div class="pi-deck__card" data-depth="${i}"${i ? ' aria-hidden="true"' : ''}>
+        <span class="pi-deck__n">${c.n}<sup>+</sup></span>
+        <span class="pi-deck__l">${c.l}</span>
+        ${c.faces
+          ? `<span class="pi-deck__faces" aria-hidden="true">${PRODUCTS.slice(0, 4).map(p => `<img src="${A}${p.img}" alt="" />`).join('')}</span>`
+          : `<span class="pi-deck__tag">${c.tag}</span>`}
+        <span class="pi-deck__d">${c.d}</span>
+      </div>`).join('\n      ')}
+    </div>
+
+    <div class="pi-hero__cards">
+      <div class="pi-hero__slot">
+        <article class="pi-hero__card pi-hero__card--a">
+          <img class="pi-hero__card-img" src="${A}spray-guns1-980x497.jpg" alt="" />
+          <div class="pi-hero__card-body">
+            <h2 class="pi-hero__card-t">${PRODUCTS[0].t}</h2>
+            <p class="pi-hero__card-d">${PRODUCTS[0].d}</p>
+            <a class="pi-hero__pill" href="#products">Explore products</a>
+          </div>
+        </article>
+        <a class="pi-hero__go" href="${PRODUCTS[0].href}" aria-label="Open the ${PRODUCTS[0].t} range">${ARROW}</a>
       </div>
+
+      <article class="pi-hero__card pi-hero__card--b">
+        <div class="pi-hero__card-body">
+          <h2 class="pi-hero__card-t">${CAPS[0][1]}</h2>
+          <p class="pi-hero__card-d">${CAPS[0][2]}</p>
+          <a class="pi-hero__pill" href="pages/about-us.html">About Pilot</a>
+        </div>
+        <img class="pi-hero__card-img" src="${A}manufacturing-facility-in-andheri-mumbai-980x678.png" alt="" />
+      </article>
     </div>
   </section>
 
@@ -148,38 +201,55 @@ const main = `
     </div>
   </section>
 
-  <!-- 5. capability: scroll-spy ghost/active stack, modelled on the "Our Expertise"
-       interaction at o-scs.com (pattern only - own copy, own palette, own code) -->
+  <!-- 5. capability: Expand OnHover List component (matches https://framer.com/m/Expand-OnHover-List-LByFXR.js@OBy0vsXNMeZtHbjUoVsi) -->
   <section class="pi-sec pi-cap-sec">
     <div class="pi-home__wrap">
       <div class="pi-sec__head pi-reveal">
         <h2 class="pi-home__h2">What sits behind the product.</h2>
       </div>
     </div>
-    <div class="pi-cap__list">
-      ${CAPS.map(([n, t, d, img]) => `<div class="pi-cap" tabindex="0">
+    <div class="pi-cap__list" role="list">
+      ${CAPS.map(([n, t, d, img], i) => `<div class="pi-cap${i === 0 ? ' is-open' : ''}" role="listitem" tabindex="0" data-index="${i}">
+        <div class="pi-cap__line-top" aria-hidden="true"></div>
         <span class="pi-cap__no">${n}</span>
-        <div class="pi-cap__body">
-          <div class="pi-cap__text">
-            <h3 class="pi-cap__t">${t}</h3>
-            <div class="pi-cap__d"><p>${d}</p></div>
+        <div class="pi-cap__content">
+          <div class="pi-cap__main">
+            <div class="pi-cap__text">
+              <h3 class="pi-cap__t">${t}</h3>
+              <div class="pi-cap__d"><p>${d}</p></div>
+            </div>
+            <div class="pi-cap__shot-wrap">
+              <div class="pi-cap__shot"><img src="${A}${img}" alt="${t}" loading="lazy" /></div>
+            </div>
           </div>
-          <div class="pi-cap__shot"><img src="${A}${img}" alt="" loading="lazy" /></div>
-          <span class="pi-cap__go" aria-hidden="true">${ARROW}</span>
+        </div>
+        <div class="pi-cap__icon-wrap" aria-hidden="true">
+          <div class="pi-cap__go">${FRAMER_ARROW}</div>
+        </div>
+        <div class="pi-cap__line-bottom" aria-hidden="true">
+          <div class="pi-cap__line-indicator"></div>
         </div>
       </div>`).join("\n      ")}
     </div>
   </section>
 
   <!-- 6. industries -->
-  <section class="pi-sec pi-ind">
+  <section class="pi-sec pi-ind" id="industries">
     <div class="pi-home__wrap">
-      <div class="pi-reveal">
-        <h2 class="pi-home__h2">Where Pilot equipment is used.</h2>
-        <p class="pi-home__lead">Application areas our spray, welding and finishing equipment is specified for.</p>
+      <div class="pi-ind__head pi-reveal">
+        <div>
+          <h2 class="pi-home__h2">Where Pilot equipment is used.</h2>
+          <p class="pi-home__lead">Application areas our spray, welding and finishing equipment is specified for.</p>
+        </div>
+        <p class="pi-ind__count"><span class="pi-ind__num">${INDUSTRIES.length}</span> application areas</p>
       </div>
-      <div class="pi-ind__field pi-reveal">
-        ${INDUSTRIES.map(i => `<span class="pi-ind__pill">${i}</span>`).join('\n        ')}
+    </div>
+    <!-- full-bleed: the bands run past the wrap on both sides -->
+    <div class="pi-ind__stage pi-reveal">
+      <div class="pi-ind__deck">
+        ${IND_ROWS.map((row, r) => `<div class="pi-ind__row" style="--dur:${IND_SPEEDS[r]}s">
+          <div class="pi-ind__track">${row.concat(row).concat(row).concat(row).map(w => `<span class="pi-ind__word">${w}</span>`).join('')}</div>
+        </div>`).join('\n        ')}
       </div>
     </div>
   </section>
@@ -301,6 +371,24 @@ if (footStart < 0) throw new Error('footer not found in index.html');
 const footEnd = html.indexOf('</footer>', footStart) + '</footer>'.length;
 
 html = html.slice(0, bodyStart) + '\n' + main + '\n' + footer2 + html.slice(footEnd);
+
+// display serif for the hero headline (falls back to Georgia when offline)
+const HERO_FONT = 'https://fonts.googleapis.com/css2?family=Italiana&display=swap';
+if (!html.includes(HERO_FONT)) {
+  const at = html.indexOf('</head>');
+  html = html.slice(0, at) +
+    '<link rel="preconnect" href="https://fonts.googleapis.com" />\n' +
+    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />\n' +
+    `<link rel="stylesheet" href="${HERO_FONT}" />\n` + html.slice(at);
+}
+
+// Framer Expand OnHover List fonts: PT Sans Narrow 700 & Inter
+const FRAMER_FONT = 'https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@700&family=Inter:wght@400;500;600&display=swap';
+if (!html.includes('PT+Sans+Narrow')) {
+  const at = html.indexOf('</head>');
+  html = html.slice(0, at) +
+    `<link rel="stylesheet" href="${FRAMER_FONT}" />\n` + html.slice(at);
+}
 
 // stylesheets and the reveal script
 for (const href of ['assets/css/pi-home.css', 'assets/css/pi-footer2.css']) {

@@ -27,9 +27,11 @@
 
 .pi-home__wrap {
   width: 100%;
-  max-width: 1280px;
+  /* was 1280/24: on a wide monitor that left a deep empty margin either side.
+     The measure now tracks the viewport and only caps on very large screens. */
+  max-width: 1660px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 clamp(20px, 3vw, 48px);
 }
 
 .pi-home__eyebrow {
@@ -69,17 +71,32 @@
 [data-pi-js] .pi-reveal.is-in { opacity: 1; transform: none; }
 
 /* ============================ 1. hero ============================ */
+/* Framed full-bleed photograph with the nav floating inside the frame, a display-
+   serif headline top-left, a white figure card on the right and two glass cards
+   pinned to the bottom edge. Layout follows an interior-studio hero comp; the
+   palette stays Pilot's (ink, white, logo orange) and every word, number and image
+   is Pilot's own. */
 
 .pi-hero {
+  --hero-pad: 28px;
+  --hero-ease: cubic-bezier(0.19, 1, 0.22, 1);
+
   position: relative;
-  display: flex;
-  align-items: flex-end;
-  min-height: min(76vh, 680px);
-  margin: 0 18px;
-  border-radius: var(--h-shell);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto 1fr auto;
+  column-gap: 40px;
+  /* one screen: the 72px nav above, plus 14px clear under it and below the frame.
+     Only grows on windows too short to fit. */
+  min-height: calc(100vh - 100px);
+  min-height: max(560px, calc(100svh - 100px));
+  margin: 14px 18px 0;
+  /* top padding no longer has to clear an overlapping nav, only breathe */
+  padding: clamp(52px, 9vh, 92px) var(--hero-pad) clamp(16px, 2.6vh, 28px);
+  border-radius: 28px;
   overflow: hidden;
   isolation: isolate;
-  background: #141414;
+  background: #0b0b0b;
 }
 
 .pi-hero__media {
@@ -89,6 +106,9 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* the comp is near-monochrome; pull the photo's blues down so ink and orange lead */
+  filter: saturate(0.35) brightness(0.62) contrast(1.06);
+  animation: pi-hero-zoom 2.2s var(--hero-ease) both;
 }
 
 .pi-hero::after {
@@ -97,42 +117,332 @@
   inset: 0;
   z-index: -1;
   background:
-    linear-gradient(90deg, rgba(8, 8, 8, 0.93) 0%, rgba(8, 8, 8, 0.78) 42%, rgba(8, 8, 8, 0.25) 75%, rgba(8, 8, 8, 0.1) 100%),
-    linear-gradient(0deg, rgba(8, 8, 8, 0.7) 0%, rgba(8, 8, 8, 0) 45%);
+    linear-gradient(100deg, rgba(8, 8, 8, 0.82) 0%, rgba(8, 8, 8, 0.45) 45%, rgba(8, 8, 8, 0.15) 75%),
+    linear-gradient(0deg, rgba(8, 8, 8, 0.75) 0%, rgba(8, 8, 8, 0) 42%),
+    linear-gradient(180deg, rgba(8, 8, 8, 0.55) 0%, rgba(8, 8, 8, 0) 22%);
 }
 
-.pi-hero__inner {
-  width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 88px 24px 56px;
-}
+/* ---- headline ---- */
+
+.pi-hero__head { position: relative; grid-column: 1; grid-row: 1; max-width: 780px; padding-left: 28px; }
 
 .pi-hero__title {
-  margin: 0 0 20px;
-  max-width: 17ch;
+  margin: 0;
+  font-family: "Italiana", "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  font-size: clamp(42px, min(6.4vw, 11vh), 92px);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.005em;
+  color: #fff;
+  animation: pi-hero-rise 1.1s var(--hero-ease) 0.1s both;
+}
+
+.pi-hero__title em { font-style: normal; color: var(--h-accent); }
+
+.pi-hero__sub {
+  margin: clamp(12px, 2.6vh, 26px) 0 0;
+  max-width: 58ch;
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.72);
+  animation: pi-hero-rise 1.1s var(--hero-ease) 0.25s both;
+}
+
+/* ---- figure deck, right ----
+   Four white cards stacked like a deck: the top one shows a figure, the ones behind
+   peek above it as progressively smaller, greyer card backs. Every few seconds the
+   top card is dealt off (flicks down-left and fades) while the rest step up one place
+   and the dealt card slips in at the back. Hover fans the deck and pauses it; click
+   or Enter deals the next card. Depth is driven by data-depth, set by pi-home.js. */
+
+.pi-deck {
+  position: relative;
+  grid-column: 2;
+  grid-row: 1 / 3;
+  align-self: end;
+  display: grid;
+  width: 236px;
+  margin-bottom: clamp(14px, 3vh, 36px);
+  padding-top: 34px;            /* room for the backs peeking above the top card */
+  border-radius: 26px;
+  outline: none;
+  cursor: pointer;
+  animation: pi-hero-slide 1.1s var(--hero-ease) 0.45s both;
+}
+.pi-deck:focus-visible { box-shadow: 0 0 0 3px var(--h-accent); }
+
+.pi-deck__card {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  padding: 26px 24px 22px;
+  border-radius: 26px;
+  background-color: #fff;
+  color: var(--h-ink);
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6);
+  transform-origin: 50% 0%;
+  transition: transform 0.8s var(--hero-ease), background-color 0.5s ease,
+              opacity 0.5s ease, box-shadow 0.5s ease;
+  will-change: transform;
+}
+
+/* the backs: smaller, greyer, content hidden */
+.pi-deck__card[data-depth="0"] { z-index: 4; }
+.pi-deck__card[data-depth="1"] { z-index: 3; transform: translateY(-15px) scale(0.93); background-color: #e6e6e9; }
+.pi-deck__card[data-depth="2"] { z-index: 2; transform: translateY(-28px) scale(0.86); background-color: #c4c4c9; }
+.pi-deck__card[data-depth="3"] { z-index: 1; transform: translateY(-38px) scale(0.8); background-color: #a6a6ac; opacity: 0; }
+.pi-deck__card:not([data-depth="0"]) { box-shadow: 0 12px 24px -16px rgba(0, 0, 0, 0.55); }
+
+.pi-deck__card > * { transition: opacity 0.3s ease; }
+.pi-deck__card:not([data-depth="0"]) > * { opacity: 0; }
+.pi-deck__card[data-depth="0"] > * { transition-delay: 0.22s; }   /* face appears once it has risen */
+
+/* the deal: flick down-left, tilt, fade; stays above the stack while it flies */
+.pi-deck__card.is-dealt {
+  z-index: 5;
+  animation: pi-deal 0.75s cubic-bezier(0.55, 0, 0.25, 1) forwards;
+}
+.pi-deck__card.is-dealt > * { opacity: 1; transition: none; }
+@keyframes pi-deal {
+  0%   { transform: none; opacity: 1; }
+  30%  { transform: translate(-14px, 10px) rotate(-5deg); opacity: 1; }
+  100% { transform: translate(-70px, 130px) rotate(-18deg) scale(0.9); opacity: 0; }
+}
+/* one-frame jump to the back without animating the move */
+.pi-deck__card.is-reset { transition: none; }
+
+/* hover: fan the backs out like a hand of cards, lift the top one */
+.pi-deck:hover .pi-deck__card[data-depth="0"] { transform: translateY(-4px); }
+.pi-deck:hover .pi-deck__card[data-depth="1"] { transform: translate(-10px, -20px) rotate(-5deg) scale(0.93); }
+.pi-deck:hover .pi-deck__card[data-depth="2"] { transform: translate(12px, -34px) rotate(6deg) scale(0.86); }
+
+.pi-deck__n {
   font-family: var(--pi-font-heading, Roboto, system-ui, sans-serif);
-  font-size: clamp(34px, 5.4vw, 66px);
-  font-weight: 800;
-  line-height: 1.04;
-  letter-spacing: -0.03em;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.pi-deck__n sup { position: relative; top: -0.55em; margin-left: 2px; font-size: 0.6em; line-height: 0; vertical-align: baseline; color: var(--h-accent); }
+
+.pi-deck__l { margin: 14px 0 16px; font-size: 15px; font-weight: 500; color: #27272a; }
+
+.pi-deck__faces { display: flex; height: 38px; margin: 0 0 18px; }
+.pi-deck__faces img {
+  width: 38px;
+  height: 38px;
+  margin-left: -10px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #e4e4e7;
+}
+.pi-deck__faces img:first-child { margin-left: 0; }
+
+/* same height as the faces row, so every card in the deck is the same size */
+.pi-deck__tag {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  margin: 0 0 18px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: rgba(245, 134, 52, 0.12);
+  color: #c2601c;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.pi-deck__d { font-size: 11.5px; line-height: 1.5; color: #71717a; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pi-deck__card, .pi-deck__card > * { transition: none !important; }
+  .pi-deck__card.is-dealt { animation: none; }
+}
+
+/* ---- two glass cards along the bottom ---- */
+
+.pi-hero__cards {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  margin-top: clamp(14px, 3vh, 32px);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+}
+
+.pi-hero__card {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  height: clamp(168px, 24vh, 212px);
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 26px;
+  background: rgba(20, 20, 20, 0.6);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  transition: transform 0.6s var(--hero-ease), background 0.4s ease;
+}
+.pi-hero__card:hover { background: rgba(24, 24, 24, 0.72); }
+.pi-hero__card--b:hover { transform: translateY(-4px); }
+
+/* card A and its arrow travel together: the card is masked (the notch), and a mask clips
+   children, so the arrow is a sibling inside this slot rather than inside the card */
+.pi-hero__slot {
+  position: relative;
+  width: min(480px, 40%);
+  animation: pi-hero-rise 1.1s var(--hero-ease) 0.55s both;
+  transition: transform 0.6s var(--hero-ease);
+}
+.pi-hero__slot:hover { transform: translateY(-4px); }
+
+.pi-hero__card--a {
+  grid-template-columns: 40% 1fr;
+  /* concave notch top-right, where the round arrow sits */
+  -webkit-mask: radial-gradient(circle 34px at calc(100% - 27px) 27px, #0000 97%, #000 100%);
+  mask: radial-gradient(circle 34px at calc(100% - 27px) 27px, #0000 97%, #000 100%);
+}
+
+.pi-hero__card--b {
+  width: min(520px, 46%);
+  grid-template-columns: 1fr 47%;
+  animation: pi-hero-rise 1.1s var(--hero-ease) 0.68s both;
+}
+
+.pi-hero__card-img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border-radius: 18px;
+  object-fit: cover;
+  transition: transform 0.8s var(--hero-ease);
+}
+.pi-hero__card:hover .pi-hero__card-img { transform: scale(1.03); }
+
+.pi-hero__card-body {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 16px 14px 8px 16px;
+}
+.pi-hero__card--a .pi-hero__card-t { padding-right: 44px; }
+
+.pi-hero__card-t {
+  margin: 0 0 10px;
+  font-family: var(--pi-font-heading, Roboto, system-ui, sans-serif);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
   color: #fff;
 }
 
-.pi-hero__title em {
-  font-style: normal;
-  color: var(--h-accent);
+.pi-hero__card-d {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.68);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.pi-hero__sub {
-  margin: 0 0 32px;
-  max-width: 52ch;
-  font-size: clamp(15px, 1.5vw, 18px);
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.82);
+.pi-home a.pi-hero__pill {
+  margin-top: auto;
+  padding: 11px 30px;
+  border-radius: var(--pi-radius-pill, 999px);
+  background: #fff;
+  color: var(--h-ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.3s ease, color 0.3s ease, transform 0.4s var(--hero-ease);
+}
+.pi-home a.pi-hero__pill:hover { background: var(--h-accent); color: #0a0a0a; transform: translateY(-2px); }
+
+/* round arrow sitting in card A's notch */
+.pi-home a.pi-hero__go {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(30, 30, 30, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  text-decoration: none;
+  transition: background 0.3s ease, transform 0.5s var(--hero-ease);
+}
+.pi-hero__go svg { width: 20px; height: 20px; fill: currentColor; transform: rotate(-45deg); transition: transform 0.5s var(--hero-ease); }
+.pi-home a.pi-hero__go:hover { background: var(--h-accent); color: #0a0a0a; }
+.pi-home a.pi-hero__go:hover svg { transform: rotate(0deg); }
+
+/* The nav used to be pulled over the hero photo: the hero carried margin-top:-74px
+   and the bar went transparent, with the logo and the links each floating as their
+   own blurred pill. It depended on the photo staying dark behind them, and it put
+   an object over the image instead of a frame above it. The bar is now a solid
+   full-bleed strip in normal flow (see pi-nav.css) and the hero starts beneath it. */
+
+/* ---- entrance ---- */
+
+@keyframes pi-hero-rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+@keyframes pi-hero-slide { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: none; } }
+@keyframes pi-hero-zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pi-hero__media, .pi-hero__title, .pi-hero__sub, .pi-deck, .pi-hero__slot, .pi-hero__card { animation: none !important; }
 }
 
-.pi-hero__cta { display: flex; flex-wrap: wrap; gap: 12px; }
+/* ---- smaller screens: everything returns to normal flow ---- */
+
+@media (min-width: 961px) and (max-height: 780px) {
+  .pi-hero__card-t { margin-bottom: 6px; font-size: 16px; }
+  .pi-hero__card-d { -webkit-line-clamp: 3; font-size: 12px; }
+  .pi-home a.pi-hero__pill { padding: 9px 24px; }
+  .pi-hero__card-body { padding: 12px 12px 6px 14px; }
+  .pi-deck__card { padding: 20px 20px 16px; }
+  .pi-deck__n { font-size: 34px; }
+  .pi-deck__l { margin: 10px 0 12px; font-size: 14px; }
+  .pi-deck__faces, .pi-deck__tag { height: 32px; margin-bottom: 12px; }
+  .pi-deck__faces img { width: 32px; height: 32px; }
+}
+
+@media (max-width: 1180px) {
+  .pi-deck { width: 210px; }
+  .pi-deck__card { padding: 22px 20px 18px; }
+  .pi-deck__n { font-size: 34px; }
+  .pi-hero__slot, .pi-hero__card--b { width: calc(50% - 12px); }
+}
+
+@media (max-width: 960px) {
+  .pi-hero { min-height: 0; margin-top: 12px; padding: 64px 18px 18px; }
+  .pi-hero__head { padding-left: 4px; }
+  .pi-hero { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; }
+  .pi-deck { grid-column: 1; grid-row: auto; margin: 40px 0 0 auto; }
+  .pi-hero__cards { grid-column: 1; grid-row: auto; flex-direction: column; align-items: stretch; margin-top: 28px; gap: 14px; }
+  .pi-hero__slot, .pi-hero__card--b { width: 100%; }
+}
+
+@media (max-width: 560px) {
+  .pi-deck { margin: 32px 0 0; width: auto; }
+  .pi-hero__card { height: auto; grid-template-columns: 1fr !important; }
+  .pi-hero__card-img { height: 150px; }
+  .pi-hero__card--b .pi-hero__card-img { order: -1; }
+  .pi-hero__card-body { padding: 14px 10px 6px; }
+  .pi-hero__card--a .pi-hero__card-t { padding-right: 44px; }
+  .pi-home a.pi-hero__pill { margin-top: 16px; }
+}
 
 .pi-home a.pi-btn {
   display: inline-flex;
@@ -177,9 +487,9 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
-  max-width: 1280px;
+  max-width: 1660px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 clamp(20px, 3vw, 48px);
 }
 
 .pi-stat { border-left: 2px solid var(--h-accent); padding-left: 18px; }
@@ -536,315 +846,600 @@
   text-transform: uppercase;
 }
 
-/* ============================ 5. capability (expand-on-hover list) ============================ */
-/* Reference behaviour: https://expand-on-hover-list.framer.website/ - a stack of hairline
-   separated rows. The row under the pointer (or the scroll-active one) grows: its name
-   goes from ghost grey to full ink, a line of copy unfolds beneath it and an illustration
-   slides in on the right. Measured off the reference: 49px collapsed band, 200px open,
-   275x179 artwork, 40px number, 30px name, 16px copy, ghost #acacac.
+/* ============================ 5. capability (Expand OnHover List) ============================ */
+/* Reference component: https://framer.com/m/Expand-OnHover-List-LByFXR.js@OBy0vsXNMeZtHbjUoVsi
+   Typography: PT Sans Narrow 700 uppercase for numbers (40px) and titles (30px), Inter for description.
+   Hairline dividers (#e6e6e6) with bottom sweeping indicator line on active/open state.
+   Signature image animation: tilted at -5deg with 3px border, 16px radius, smooth spring swoop on hover.
+   Feathered arrow icon inside 40px circle with smooth scale/tilt.
+*/
 
-   Revamp pass: the interaction stayed, the feel changed. A soft accent wash now bleeds in
-   behind the open row (so it reads as a lifted card, not just recolored text), a left
-   accent bar grows in alongside it, and every property moves on one shared expo-out curve
-   so nothing in the row arrives or leaves out of step with everything else. Opening
-   staggers text -> artwork -> button by ~60-80ms so the row reveals like a small sequence
-   rather than a single flat cut; closing drops every delay so it snaps shut immediately -
-   a row should feel eager to open and quick to let go.
-
-   Rebuilt from scratch for Pilot - own copy, own palette, own markup, own artwork. Only the
-   interaction pattern and its proportions come from the reference. */
-
-.pi-cap-sec { overflow: hidden; }
+.pi-cap-sec {
+  overflow: hidden;
+  padding: 96px 0;
+  background: var(--h-paper, #ffffff);
+}
 
 .pi-cap__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 900px;
+  width: 100%;
   margin: 0 auto;
-  max-width: 1100px;
-  padding: 0 24px;
+  padding: 0 clamp(20px, 3vw, 48px);
+  position: relative;
 }
 
 .pi-cap {
   position: relative;
   isolation: isolate;
-  display: grid;
-  grid-template-columns: 72px minmax(0, 1fr);
-  column-gap: 34px;
-  align-items: start;
-  border-radius: 18px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 40px;
+  width: 100%;
+  margin-top: -1px;
+  padding: 0;
+  cursor: pointer;
   outline: none;
+  background: transparent;
+  transition: background-color 0.3s ease;
 }
 
-/* the accent wash: a soft card that bleeds behind the open row, left-weighted and
-   clipped to the row's own rounded corners so it reads as "this row lifted", not a
-   flat color swap */
-.pi-cap::before {
-  content: "";
+.pi-cap:first-child {
+  margin-top: 0;
+}
+
+/* Hairline dividers matching Framer */
+.pi-cap__line-top {
   position: absolute;
-  z-index: -1;
-  inset: -6px -20px;
-  border-radius: 20px;
-  background: linear-gradient(100deg, rgba(245, 134, 52, 0.09) 0%, rgba(245, 134, 52, 0.015) 70%);
-  opacity: 0;
-  transform: scaleX(0.97);
-  transform-origin: left center;
-  transition: opacity 0.6s cubic-bezier(0.19, 1, 0.22, 1), transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: var(--h-rule, rgb(230, 230, 230));
+  z-index: 1;
 }
 
-/* the accent bar: grows from the vertical centre, full height once open */
-.pi-cap::after {
-  content: "";
+.pi-cap__line-bottom {
   position: absolute;
-  left: -20px;
-  top: 50%;
-  width: 3px;
-  height: 0;
-  border-radius: 999px;
-  background: var(--h-accent);
-  transform: translateY(-50%);
-  transition: height 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: var(--h-rule, rgb(230, 230, 230));
+  z-index: 1;
+  overflow: hidden;
 }
 
-.pi-cap.is-active::before,
-.pi-cap:hover::before,
-.pi-cap:focus-within::before { opacity: 1; transform: scaleX(1); }
+/* Sweeping progress/indicator line inside bottom border */
+.pi-cap__line-indicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  background-color: var(--h-ink, #0e0e0e);
+  z-index: 2;
+  transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-.pi-cap.is-active::after,
-.pi-cap:hover::after,
-.pi-cap:focus-within::after { height: calc(100% + 12px); }
-
-/* the index sits outside the ruled block, as on the reference */
+/* Serial Number */
 .pi-cap__no {
-  padding-top: 24px;
-  font-family: var(--pi-font-heading, Roboto, system-ui, sans-serif);
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: min-content;
+  min-width: 60px;
+  padding: 30px 0;
+  font-family: "PT Sans Narrow", "Roboto Condensed", sans-serif;
   font-size: 40px;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  color: #acacac;
-  transition: color 0.45s cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-/* ruled block: hairline above every row, plus one under the last to close the stack */
-.pi-cap__body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto 40px;
-  column-gap: 28px;
-  align-items: start;
-  padding: 22px 0 24px;
-  border-top: 1px solid var(--h-rule);
-  transition: padding 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-.pi-cap:last-child .pi-cap__body { border-bottom: 1px solid var(--h-rule); }
-
-.pi-cap.is-active .pi-cap__body,
-.pi-cap:hover .pi-cap__body,
-.pi-cap:focus-within .pi-cap__body { padding-top: 26px; padding-bottom: 28px; }
-
-.pi-cap__text { min-width: 0; }
-
-.pi-cap__t {
-  margin: 0;
-  font-family: var(--pi-font-heading, Roboto, system-ui, sans-serif);
-  font-size: 30px;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.01em;
   text-transform: uppercase;
-  white-space: nowrap;
-  color: #acacac;
-  transition: color 0.45s cubic-bezier(0.19, 1, 0.22, 1);
+  color: rgb(172, 172, 172);
+  transition: color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
 }
 
-/* 0fr -> 1fr is the one height animation that works on auto-sized content */
+/* Content wrapper */
+.pi-cap__content {
+  display: flex;
+  flex: 1 0 0px;
+  flex-direction: row;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 30px 0;
+}
+
+.pi-cap__main {
+  display: flex;
+  flex: 1 0 0px;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* Text Block */
+.pi-cap__text {
+  display: flex;
+  flex: 1 0 0px;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.pi-cap__t {
+  margin: 0;
+  font-family: "PT Sans Narrow", "Roboto Condensed", sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: rgb(172, 172, 172);
+  transition: color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  word-break: break-word;
+}
+
+/* Expanding Description */
 .pi-cap__d {
   display: grid;
   grid-template-rows: 0fr;
   opacity: 0;
-  transition: grid-template-rows 0.55s cubic-bezier(0.19, 1, 0.22, 1),
-              opacity 0.4s ease;
+  transition: grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.35s ease;
 }
-
-.pi-cap.is-active .pi-cap__d,
-.pi-cap:hover .pi-cap__d,
-.pi-cap:focus-within .pi-cap__d { transition-delay: 0.02s, 0.06s; }
 
 .pi-cap__d > p {
   overflow: hidden;
   margin: 0;
-  max-width: 42ch;
+  max-width: 550px;
+  font-family: "Inter", var(--pi-font-body, "Open Sans", sans-serif);
   font-size: 16px;
   line-height: 1.55;
-  color: var(--h-muted, #6b6b73);
+  color: var(--h-ink, #0e0e0e);
 }
 
-/* the artwork: collapsed to nothing, so the row's height is 49px of band */
+/* Image Container */
+.pi-cap__shot-wrap {
+  flex: none;
+  width: 281px;
+  height: 49px;
+  overflow: visible;
+  position: relative;
+  z-index: 3;
+  transition: height 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Signature animated floating image with 3px border, shadow, and -5deg tilt */
 .pi-cap__shot {
-  width: 275px;
-  height: 0;
-  overflow: hidden;
+  position: absolute;
+  width: 264px;
+  height: 161px;
+  left: -156px;
+  top: 101px;
+  border: 3px solid rgb(230, 230, 230);
   border-radius: 16px;
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  pointer-events: none;
   opacity: 0;
-  transform: translateX(22px) scale(0.94);
-  transition: height 0.6s cubic-bezier(0.19, 1, 0.22, 1),
-              opacity 0.45s ease,
-              transform 0.6s cubic-bezier(0.19, 1, 0.22, 1),
-              box-shadow 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  transform: rotate(66deg);
+  will-change: transform, opacity, left, top;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+              opacity 0.35s ease,
+              left 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+              top 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.pi-cap.is-active .pi-cap__shot,
-.pi-cap:hover .pi-cap__shot,
-.pi-cap:focus-within .pi-cap__shot { transition-delay: 0.08s; }
+.pi-cap__shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
-.pi-cap__shot img { display: block; width: 275px; height: 179px; object-fit: cover; }
+/* Icon button */
+.pi-cap__icon-wrap {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 0;
+}
 
 .pi-cap__go {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: var(--pi-radius-pill, 999px);
-  background: var(--h-ink, #0e0e0e);
+  border-radius: 100%;
+  background-color: var(--h-ink, #0e0e0e);
+  color: rgb(230, 230, 230);
   transform: scale(1);
-  transition: background 0.45s cubic-bezier(0.19, 1, 0.22, 1),
-              transform 0.5s cubic-bezier(0.19, 1, 0.22, 1),
-              box-shadow 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.4s ease,
+              color 0.4s ease,
+              box-shadow 0.4s ease;
+  will-change: transform;
 }
 
-.pi-cap.is-active .pi-cap__go,
-.pi-cap:hover .pi-cap__go,
-.pi-cap:focus-within .pi-cap__go { transition-delay: 0.12s; }
+.pi-cap__go svg {
+  width: 40px;
+  height: 40px;
+  display: block;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-.pi-cap__go svg { width: 18px; height: 18px; fill: #fff; transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1); }
+/* ================== OPEN / ACTIVE / HOVER STATE ================== */
+.pi-cap.is-open .pi-cap__line-indicator,
+.pi-cap:hover .pi-cap__line-indicator,
+.pi-cap:focus-visible .pi-cap__line-indicator {
+  width: 100%;
+  transition-delay: 0.25s;
+}
 
-/* ---- open state: pointer, keyboard, or the scroll-spy ---- */
-
-.pi-cap.is-active .pi-cap__no,
+.pi-cap.is-open .pi-cap__no,
 .pi-cap:hover .pi-cap__no,
-.pi-cap:focus-within .pi-cap__no { color: var(--h-ink, #0e0e0e); }
+.pi-cap:focus-visible .pi-cap__no {
+  color: var(--h-ink, #0e0e0e);
+}
 
-.pi-cap.is-active .pi-cap__t,
+.pi-cap.is-open .pi-cap__t,
 .pi-cap:hover .pi-cap__t,
-.pi-cap:focus-within .pi-cap__t { color: var(--h-accent); }
+.pi-cap:focus-visible .pi-cap__t {
+  color: var(--h-ink, #0e0e0e);
+}
 
-.pi-cap.is-active .pi-cap__d,
+.pi-cap.is-open .pi-cap__d,
 .pi-cap:hover .pi-cap__d,
-.pi-cap:focus-within .pi-cap__d { grid-template-rows: 1fr; opacity: 1; }
-
-.pi-cap.is-active .pi-cap__shot,
-.pi-cap:hover .pi-cap__shot,
-.pi-cap:focus-within .pi-cap__shot {
-  height: 179px;
+.pi-cap:focus-visible .pi-cap__d {
+  grid-template-rows: 1fr;
   opacity: 1;
-  transform: none;
-  box-shadow: 0 18px 32px -16px rgba(17, 17, 17, 0.28);
+  transition: grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.45s ease 0.08s;
 }
 
-.pi-cap.is-active .pi-cap__go,
+.pi-cap.is-open .pi-cap__shot-wrap,
+.pi-cap:hover .pi-cap__shot-wrap,
+.pi-cap:focus-visible .pi-cap__shot-wrap {
+  height: 180px;
+}
+
+.pi-cap.is-open .pi-cap__shot,
+.pi-cap:hover .pi-cap__shot,
+.pi-cap:focus-visible .pi-cap__shot {
+  opacity: 1;
+  left: 9px;
+  top: 4px;
+  transform: rotate(-5deg);
+  box-shadow: 0 14px 28px -8px rgba(0, 0, 0, 0.18), 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.15) 0.12s,
+              opacity 0.4s ease 0.08s,
+              left 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.08s,
+              top 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.08s,
+              box-shadow 0.6s ease;
+}
+
+.pi-cap.is-open .pi-cap__go,
 .pi-cap:hover .pi-cap__go,
-.pi-cap:focus-within .pi-cap__go {
-  background: var(--h-accent);
-  transform: scale(1.08) translateX(4px);
-  box-shadow: 0 10px 20px -8px rgba(245, 134, 52, 0.55);
+.pi-cap:focus-visible .pi-cap__go {
+  background-color: var(--h-accent, #f58634);
+  color: #ffffff;
+  transform: scale(1.08);
+  box-shadow: 0 8px 20px -4px rgba(245, 134, 52, 0.45);
 }
 
-.pi-cap.is-active .pi-cap__go svg,
+.pi-cap.is-open .pi-cap__go svg,
 .pi-cap:hover .pi-cap__go svg,
-.pi-cap:focus-within .pi-cap__go svg { transform: rotate(-45deg); }
-
-/* hovering any row hands the open state to it alone - the scroll-active row steps back,
-   and immediately: a row that loses focus should snap shut, not linger on the way out */
-
-.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within)::before,
-.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within)::after {
-  transition-duration: 0.3s;
+.pi-cap:focus-visible .pi-cap__go svg {
+  transform: rotate(-45deg);
 }
 
-.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within)::before { opacity: 0; transform: scaleX(0.97); }
-.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within)::after { height: 0; }
-
-.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within) .pi-cap__no,
-.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within) .pi-cap__t {
-  color: #acacac;
-  transition-duration: 0.3s;
+/* When hovering any card, any card that is not hovered collapses immediately */
+.pi-cap__list:has(.pi-cap:hover) .pi-cap.is-open:not(:hover) .pi-cap__line-indicator {
+  width: 0%;
+  transition-delay: 0s;
+  transition-duration: 0.25s;
 }
-
-.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within) .pi-cap__body {
-  padding-top: 22px;
-  padding-bottom: 24px;
-  transition-duration: 0.3s;
+.pi-cap__list:has(.pi-cap:hover) .pi-cap.is-open:not(:hover) .pi-cap__no,
+.pi-cap__list:has(.pi-cap:hover) .pi-cap.is-open:not(:hover) .pi-cap__t {
+  color: rgb(172, 172, 172);
+  transition-duration: 0.25s;
 }
-
-.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within) .pi-cap__d {
+.pi-cap__list:has(.pi-cap:hover) .pi-cap.is-open:not(:hover) .pi-cap__d {
   grid-template-rows: 0fr;
   opacity: 0;
-  transition-duration: 0.3s, 0.2s;
-  transition-delay: 0s;
+  transition-duration: 0.25s, 0.15s;
 }
-
-.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within) .pi-cap__shot {
-  height: 0;
+.pi-cap__list:has(.pi-cap:hover) .pi-cap.is-open:not(:hover) .pi-cap__shot-wrap {
+  height: 49px;
+  transition-duration: 0.25s;
+}
+.pi-cap__list:has(.pi-cap:hover) .pi-cap.is-open:not(:hover) .pi-cap__shot {
   opacity: 0;
-  transform: translateX(22px) scale(0.94);
+  left: -156px;
+  top: 101px;
+  transform: rotate(66deg);
+  transition-duration: 0.25s;
+}
+.pi-cap__list:has(.pi-cap:hover) .pi-cap.is-open:not(:hover) .pi-cap__go {
+  background-color: var(--h-ink, #0e0e0e);
+  color: rgb(230, 230, 230);
+  transform: scale(1);
   box-shadow: none;
-  transition-duration: 0.35s, 0.25s, 0.35s, 0.25s;
-  transition-delay: 0s;
+  transition-duration: 0.25s;
+}
+.pi-cap__list:has(.pi-cap:hover) .pi-cap.is-open:not(:hover) .pi-cap__go svg {
+  transform: none;
+  transition-duration: 0.25s;
 }
 
-.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within) .pi-cap__go {
-  background: var(--h-ink, #0e0e0e);
-  transform: scale(1) translateX(0);
-  box-shadow: none;
-  transition-duration: 0.3s;
-  transition-delay: 0s;
+/* Tablet & Mobile responsive matching Framer component variants */
+@media (max-width: 960px) {
+  .pi-cap__list {
+    max-width: 810px;
+  }
+  .pi-cap {
+    gap: 24px;
+  }
+  .pi-cap__shot-wrap {
+    width: 220px;
+  }
+  .pi-cap__shot {
+    width: 210px;
+    height: 130px;
+  }
+  .pi-cap.is-open .pi-cap__shot-wrap,
+  .pi-cap:hover .pi-cap__shot-wrap {
+    height: 145px;
+  }
 }
 
-.pi-cap__list:has(.pi-cap:hover, .pi-cap:focus-within) .pi-cap.is-active:not(:hover):not(:focus-within) .pi-cap__go svg { transform: none; }
-
-/* without JS nothing is scroll-active, so every row shows its copy outright */
-html:not([data-pi-js]) .pi-cap__d { grid-template-rows: 1fr; opacity: 1; }
-html:not([data-pi-js]) .pi-cap__t { color: var(--h-ink, #0e0e0e); }
+@media (max-width: 680px) {
+  .pi-cap {
+    flex-direction: column;
+    gap: 12px;
+    padding: 24px 0;
+  }
+  .pi-cap__no {
+    padding: 0;
+    font-size: 32px;
+  }
+  .pi-cap__content {
+    padding: 0;
+    width: 100%;
+  }
+  .pi-cap__main {
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+  .pi-cap__t {
+    font-size: 26px;
+  }
+  .pi-cap__shot-wrap {
+    width: 100%;
+    height: auto;
+  }
+  .pi-cap__shot {
+    position: relative;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100%;
+    max-width: 320px;
+    height: 180px;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .pi-cap__icon-wrap {
+    position: absolute;
+    top: 24px;
+    right: 0;
+    padding: 0;
+  }
+  .pi-cap__d {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+  .pi-cap__no,
+  .pi-cap__t {
+    color: var(--h-ink, #0e0e0e);
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .pi-cap,
-  .pi-cap::before,
-  .pi-cap::after,
+  .pi-cap__line-indicator,
   .pi-cap__no,
-  .pi-cap__body,
   .pi-cap__t,
   .pi-cap__d,
+  .pi-cap__shot-wrap,
   .pi-cap__shot,
   .pi-cap__go,
-  .pi-cap__go svg { transition: none !important; }
+  .pi-cap__go svg {
+    transition: none !important;
+  }
 }
 
 
-/* ============================ 6. industries (pill field) ============================ */
+/* ============================ 6. industries (marquee bands) ============================
 
-.pi-ind { background: var(--h-ink); }
+   Three bands of application areas drifting past at different speeds.
+
+   The first cut of this put the bands on a cursor-tilted 3D plane. Seen rendered,
+   the perspective sheared the type into a blurry pseudo-italic and threw the right
+   edge out of focus - the depth cost legibility and bought nothing, so the plane is
+   flat now and the interest comes from the type itself: alternating solid and
+   outlined words, which is a marquee convention and reads as deliberate rather than
+   as a grey wall of text. */
+
+.pi-ind {
+  position: relative;
+  background: var(--h-ink);
+  overflow: hidden;
+}
+.pi-ind::before {
+  content: "";
+  position: absolute;
+  top: -25%;
+  right: -8%;
+  width: 52%;
+  height: 130%;
+  background: radial-gradient(closest-side, rgba(245, 134, 52, 0.11), transparent 72%);
+  pointer-events: none;
+}
+
 .pi-ind .pi-home__h2 { color: #fff; }
-.pi-ind .pi-home__lead { color: #a1a1aa; }
+.pi-ind .pi-home__lead { color: #a1a1aa; max-width: 46ch; }
 
-.pi-ind__field {
+.pi-ind__head {
+  position: relative;
+  z-index: 1;
   display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 40px;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 34px;
+  margin-bottom: 58px;
 }
 
-.pi-ind__pill {
-  padding: 10px 18px;
-  border: 1px solid #2a2a2a;
-  border-radius: var(--pi-radius-pill, 999px);
-  background: #141414;
-  font-size: 14px;
-  color: #d4d4d8;
-  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+/* Stacked, so the numeral can carry real size: inline on a shared baseline it was
+   capped by the label beside it and read as a footnote rather than as the figure
+   the section is about. */
+.pi-ind__count {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #8a8a93;
+  white-space: nowrap;
 }
-.pi-ind__pill:hover {
-  border-color: var(--h-accent);
-  background: rgba(245, 134, 52, 0.1);
+.pi-ind__num {
+  font-family: var(--pi-font-heading, Roboto, system-ui, sans-serif);
+  font-size: clamp(64px, 7.5vw, 112px);
+  font-weight: 700;
+  line-height: 0.85;
+  letter-spacing: -0.045em;
+  color: var(--h-accent);
+}
+
+/* ---- the bands ---- */
+
+.pi-ind__stage {
+  position: relative;
+  z-index: 1;
+  /* hairlines top and bottom so the three bands read as one contained block */
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 0;
+}
+
+.pi-ind__deck {
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes pi-ind-run {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+.pi-ind__row {
+  overflow: hidden;
+  padding: 7px 0;
+  /* feathered ends, so names enter and leave rather than being chopped */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.pi-ind__track {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: max-content;
+  animation: pi-ind-run var(--dur, 44s) linear infinite;
+}
+/* alternate direction so the bands counter-scroll */
+.pi-ind__row:nth-child(even) .pi-ind__track { animation-direction: reverse; }
+/* hovering a band holds it still so a name can actually be read */
+.pi-ind__row:hover .pi-ind__track,
+.pi-ind__row:focus-within .pi-ind__track { animation-play-state: paused; }
+
+/* Each area is a chip. The previous pass set them as huge display type with every
+   other word outlined, which read as hollow and unfinished rather than rhythmic,
+   and three rows of it was a wall. Chips are the vocabulary the rest of the site
+   already speaks - nav phone, footer contacts, FAQ marker - so the band belongs to
+   the page instead of shouting over it. */
+.pi-ind__word {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--pi-radius-pill, 999px);
+  background: rgba(255, 255, 255, 0.028);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: #c8c8ce;
+  cursor: default;
+  transition: color 0.24s ease, border-color 0.24s ease,
+              background 0.24s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* accent pip inside the chip, which gives the row texture without a separator
+   floating loose between items */
+.pi-ind__word::before {
+  content: "";
+  flex: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--h-accent);
+  opacity: 0.55;
+  transition: opacity 0.24s ease, transform 0.28s ease;
+}
+
+.pi-ind__word:hover {
   color: #fff;
+  border-color: rgba(245, 134, 52, 0.55);
+  background: rgba(245, 134, 52, 0.1);
+  transform: translateY(-2px);
+}
+.pi-ind__word:hover::before { opacity: 1; transform: scale(1.25); }
+
+@media (max-width: 680px) {
+  .pi-ind__head { margin-bottom: 38px; }
+  .pi-ind__num { font-size: 60px; }
+  .pi-ind__track { gap: 10px; }
+  .pi-ind__word { padding: 10px 16px; font-size: 13.5px; gap: 8px; }
+}
+
+/* Motion is the point here, so with it switched off the bands simply stop. Every
+   name stays present and legible. */
+@media (prefers-reduced-motion: reduce) {
+  .pi-ind__track { animation: none; }
+  .pi-ind__track { flex-wrap: wrap; }
+  .pi-ind__word:hover { transform: none; }
 }
 
 /* ============================ 7. insights (editorial list) ============================ */
@@ -1009,8 +1604,7 @@ html:not([data-pi-js]) .pi-cap__t { color: var(--h-ink, #0e0e0e); }
 
 @media (max-width: 680px) {
   .pi-sec { padding: 64px 0; }
-  .pi-hero { margin: 0 12px; min-height: 0; }
-  .pi-hero__inner { padding: 64px 20px 40px; }
+  .pi-hero { margin: 12px 12px 0; border-radius: 22px; }
   .pi-stats, .pi-close { margin: 12px; }
   .pi-close { padding: 64px 20px; }
   .pi-close__70 { font-size: clamp(160px, 60vw, 260px); }
@@ -1026,7 +1620,7 @@ html:not([data-pi-js]) .pi-cap__t { color: var(--h-ink, #0e0e0e); }
   .pi-cap__t { font-size: 22px; white-space: normal; }
   .pi-home a.pi-ins__row { grid-template-columns: 40px 1fr auto; gap: 14px; }
   .pi-home a.pi-btn { width: 100%; justify-content: center; }
-  .pi-hero__cta, .pi-close__cta { width: 100%; }
+  .pi-close__cta { width: 100%; }
 }
 
 /* no pointer means no hover, so every row of the capability list opens outright */

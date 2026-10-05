@@ -500,6 +500,10 @@ setup_collapsible_submenus();
 <link rel="stylesheet" href="assets/css/pi-nav.css" />
 <link rel="stylesheet" href="assets/css/pi-home.css" />
 <link rel="stylesheet" href="assets/css/pi-footer2.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Italiana&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@700&family=Inter:wght@400;500;600&display=swap" />
 </head>
 <body class="home wp-singular page-template-default page page-id-7 wp-theme-Divi et_pb_button_helper_class et_fullwidth_nav et_non_fixed_nav et_show_nav et_primary_nav_dropdown_animation_fade et_secondary_nav_dropdown_animation_fade et_header_style_left et_pb_footer_columns4 et_cover_background et_pb_gutter windows et_pb_gutters3 et_pb_pagebuilder_layout et_no_sidebar et_divi_theme et-db elementor-default elementor-kit-2523">
 	<div id="page-container">
@@ -546,16 +550,66 @@ setup_collapsible_submenus();
 
 <main class="pi-home" id="pi-home">
 
-  <!-- 1. hero -->
+  <!-- 1. hero: framed full-bleed photograph, display-serif headline, a floating
+       white figure card on the right and two glass cards along the bottom edge.
+       Layout modelled on an interior-studio hero comp; every word, number and image
+       here is Pilot's own (product range, About Us figures, facility photo). -->
   <section class="pi-hero">
     <img class="pi-hero__media" src="assets/img/factory-workshop-interior-machines-glass-production-background-scaled.jpg" alt="" fetchpriority="high" />
-    <div class="pi-hero__inner">
+
+    <div class="pi-hero__head">
       <h1 class="pi-hero__title">India's largest maker of <em>surface coating</em> equipment.</h1>
       <p class="pi-hero__sub">Spray guns, airless systems, gas welding and office equipment, trusted by 700 dealers across 12 countries.</p>
-      <div class="pi-hero__cta">
-        <a class="pi-btn" href="#products">Explore products <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.4 11.8 6.8l4.2 4.2H4v2h12l-4.2 4.2 1.4 1.4L20 12z"/></svg></a>
-        <a class="pi-btn pi-btn--ghost" href="pages/about-us.html">About Pilot</a>
+    </div>
+
+    <div class="pi-deck" role="group" aria-roledescription="carousel" aria-label="Pilot in figures" tabindex="0">
+      <div class="pi-deck__card" data-depth="0">
+        <span class="pi-deck__n">700<sup>+</sup></span>
+        <span class="pi-deck__l">Authorised dealers</span>
+        <span class="pi-deck__faces" aria-hidden="true"><img src="assets/img/spray-guns1-scaled.jpg" alt="" /><img src="assets/img/airless-spray-systems-scaled.jpg" alt="" /><img src="assets/img/welding-equipments-scaled.jpg" alt="" /><img src="assets/img/note-counting-machines-scaled.jpg" alt="" /></span>
+        <span class="pi-deck__d">Plus 7000 sub dealers and ten regional distributors across India.</span>
       </div>
+      <div class="pi-deck__card" data-depth="1" aria-hidden="true">
+        <span class="pi-deck__n">7000<sup>+</sup></span>
+        <span class="pi-deck__l">Sub dealers</span>
+        <span class="pi-deck__tag">Across India</span>
+        <span class="pi-deck__d">Served by ten regional distributors and 700 authorised dealers.</span>
+      </div>
+      <div class="pi-deck__card" data-depth="2" aria-hidden="true">
+        <span class="pi-deck__n">12<sup>+</sup></span>
+        <span class="pi-deck__l">Countries exported to</span>
+        <span class="pi-deck__tag">Exports</span>
+        <span class="pi-deck__d">Including Australia, New Zealand, South Africa, Turkey and the UAE.</span>
+      </div>
+      <div class="pi-deck__card" data-depth="3" aria-hidden="true">
+        <span class="pi-deck__n">70<sup>+</sup></span>
+        <span class="pi-deck__l">Years of brand trust</span>
+        <span class="pi-deck__tag">Est. 1953</span>
+        <span class="pi-deck__d">Founded in 1953, building coating equipment for Indian industry.</span>
+      </div>
+    </div>
+
+    <div class="pi-hero__cards">
+      <div class="pi-hero__slot">
+        <article class="pi-hero__card pi-hero__card--a">
+          <img class="pi-hero__card-img" src="assets/img/spray-guns1-980x497.jpg" alt="" />
+          <div class="pi-hero__card-body">
+            <h2 class="pi-hero__card-t">Spray Guns</h2>
+            <p class="pi-hero__card-d">Evolution, Legacy, HVLP and air brush series for automotive, industrial and fine finishing.</p>
+            <a class="pi-hero__pill" href="#products">Explore products</a>
+          </div>
+        </article>
+        <a class="pi-hero__go" href="spray-guns/" aria-label="Open the Spray Guns range"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.4 11.8 6.8l4.2 4.2H4v2h12l-4.2 4.2 1.4 1.4L20 12z"/></svg></a>
+      </div>
+
+      <article class="pi-hero__card pi-hero__card--b">
+        <div class="pi-hero__card-body">
+          <h2 class="pi-hero__card-t">Manufacturing</h2>
+          <p class="pi-hero__card-d">State of the art facilities in Andheri and at Khalapur near Mumbai, with in house CNC machining.</p>
+          <a class="pi-hero__pill" href="pages/about-us.html">About Pilot</a>
+        </div>
+        <img class="pi-hero__card-img" src="assets/img/manufacturing-facility-in-andheri-mumbai-980x678.png" alt="" />
+      </article>
     </div>
   </section>
 
@@ -669,90 +723,124 @@ setup_collapsible_submenus();
     </div>
   </section>
 
-  <!-- 5. capability: scroll-spy ghost/active stack, modelled on the "Our Expertise"
-       interaction at o-scs.com (pattern only - own copy, own palette, own code) -->
+  <!-- 5. capability: Expand OnHover List component (matches https://framer.com/m/Expand-OnHover-List-LByFXR.js@OBy0vsXNMeZtHbjUoVsi) -->
   <section class="pi-sec pi-cap-sec">
     <div class="pi-home__wrap">
       <div class="pi-sec__head pi-reveal">
         <h2 class="pi-home__h2">What sits behind the product.</h2>
       </div>
     </div>
-    <div class="pi-cap__list">
-      <div class="pi-cap" tabindex="0">
-        <span class="pi-cap__no">01</span>
-        <div class="pi-cap__body">
-          <div class="pi-cap__text">
-            <h3 class="pi-cap__t">Manufacturing</h3>
-            <div class="pi-cap__d"><p>State of the art facilities in Andheri and at Khalapur near Mumbai, with in house CNC machining.</p></div>
+    <div class="pi-cap__list" role="list">
+      <div class="pi-cap is-open" role="listitem" tabindex="0" data-index="0">
+        <div class="pi-cap__line-top" aria-hidden="true"></div>
+        <span class="pi-cap__no">001</span>
+        <div class="pi-cap__content">
+          <div class="pi-cap__main">
+            <div class="pi-cap__text">
+              <h3 class="pi-cap__t">Manufacturing</h3>
+              <div class="pi-cap__d"><p>State of the art facilities in Andheri and at Khalapur near Mumbai, with in house CNC machining.</p></div>
+            </div>
+            <div class="pi-cap__shot-wrap">
+              <div class="pi-cap__shot"><img src="assets/img/pi-cap-manufacturing.svg" alt="Manufacturing" loading="lazy" /></div>
+            </div>
           </div>
-          <div class="pi-cap__shot"><img src="assets/img/pi-cap-manufacturing.svg" alt="" loading="lazy" /></div>
-          <span class="pi-cap__go" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.4 11.8 6.8l4.2 4.2H4v2h12l-4.2 4.2 1.4 1.4L20 12z"/></svg></span>
+        </div>
+        <div class="pi-cap__icon-wrap" aria-hidden="true">
+          <div class="pi-cap__go"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M 16.667 0 C 16.667 0.795 17.43 1.982 18.203 2.979 C 19.197 4.264 20.384 5.386 21.746 6.242 C 22.767 6.884 24.004 7.5 25 7.5 M 25 7.5 C 24.004 7.5 22.766 8.116 21.746 8.758 C 20.384 9.615 19.197 10.737 18.203 12.02 C 17.43 13.018 16.667 14.207 16.667 15 M 25 7.5 L 0 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(7.5 12.5)"/></svg></div>
+        </div>
+        <div class="pi-cap__line-bottom" aria-hidden="true">
+          <div class="pi-cap__line-indicator"></div>
         </div>
       </div>
-      <div class="pi-cap" tabindex="0">
-        <span class="pi-cap__no">02</span>
-        <div class="pi-cap__body">
-          <div class="pi-cap__text">
-            <h3 class="pi-cap__t">Research and development</h3>
-            <div class="pi-cap__d"><p>A professional research and development team keeps new products coming year on year.</p></div>
+      <div class="pi-cap" role="listitem" tabindex="0" data-index="1">
+        <div class="pi-cap__line-top" aria-hidden="true"></div>
+        <span class="pi-cap__no">002</span>
+        <div class="pi-cap__content">
+          <div class="pi-cap__main">
+            <div class="pi-cap__text">
+              <h3 class="pi-cap__t">Research and development</h3>
+              <div class="pi-cap__d"><p>A professional research and development team keeps new products coming year on year.</p></div>
+            </div>
+            <div class="pi-cap__shot-wrap">
+              <div class="pi-cap__shot"><img src="assets/img/pi-cap-research.svg" alt="Research and development" loading="lazy" /></div>
+            </div>
           </div>
-          <div class="pi-cap__shot"><img src="assets/img/pi-cap-research.svg" alt="" loading="lazy" /></div>
-          <span class="pi-cap__go" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.4 11.8 6.8l4.2 4.2H4v2h12l-4.2 4.2 1.4 1.4L20 12z"/></svg></span>
+        </div>
+        <div class="pi-cap__icon-wrap" aria-hidden="true">
+          <div class="pi-cap__go"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M 16.667 0 C 16.667 0.795 17.43 1.982 18.203 2.979 C 19.197 4.264 20.384 5.386 21.746 6.242 C 22.767 6.884 24.004 7.5 25 7.5 M 25 7.5 C 24.004 7.5 22.766 8.116 21.746 8.758 C 20.384 9.615 19.197 10.737 18.203 12.02 C 17.43 13.018 16.667 14.207 16.667 15 M 25 7.5 L 0 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(7.5 12.5)"/></svg></div>
+        </div>
+        <div class="pi-cap__line-bottom" aria-hidden="true">
+          <div class="pi-cap__line-indicator"></div>
         </div>
       </div>
-      <div class="pi-cap" tabindex="0">
-        <span class="pi-cap__no">03</span>
-        <div class="pi-cap__body">
-          <div class="pi-cap__text">
-            <h3 class="pi-cap__t">Distribution</h3>
-            <div class="pi-cap__d"><p>Ten regional distributors, 700 authorised dealers and 7000 sub dealers across India.</p></div>
+      <div class="pi-cap" role="listitem" tabindex="0" data-index="2">
+        <div class="pi-cap__line-top" aria-hidden="true"></div>
+        <span class="pi-cap__no">003</span>
+        <div class="pi-cap__content">
+          <div class="pi-cap__main">
+            <div class="pi-cap__text">
+              <h3 class="pi-cap__t">Distribution</h3>
+              <div class="pi-cap__d"><p>Ten regional distributors, 700 authorised dealers and 7000 sub dealers across India.</p></div>
+            </div>
+            <div class="pi-cap__shot-wrap">
+              <div class="pi-cap__shot"><img src="assets/img/pi-cap-distribution.svg" alt="Distribution" loading="lazy" /></div>
+            </div>
           </div>
-          <div class="pi-cap__shot"><img src="assets/img/pi-cap-distribution.svg" alt="" loading="lazy" /></div>
-          <span class="pi-cap__go" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.4 11.8 6.8l4.2 4.2H4v2h12l-4.2 4.2 1.4 1.4L20 12z"/></svg></span>
+        </div>
+        <div class="pi-cap__icon-wrap" aria-hidden="true">
+          <div class="pi-cap__go"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M 16.667 0 C 16.667 0.795 17.43 1.982 18.203 2.979 C 19.197 4.264 20.384 5.386 21.746 6.242 C 22.767 6.884 24.004 7.5 25 7.5 M 25 7.5 C 24.004 7.5 22.766 8.116 21.746 8.758 C 20.384 9.615 19.197 10.737 18.203 12.02 C 17.43 13.018 16.667 14.207 16.667 15 M 25 7.5 L 0 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(7.5 12.5)"/></svg></div>
+        </div>
+        <div class="pi-cap__line-bottom" aria-hidden="true">
+          <div class="pi-cap__line-indicator"></div>
         </div>
       </div>
-      <div class="pi-cap" tabindex="0">
-        <span class="pi-cap__no">04</span>
-        <div class="pi-cap__body">
-          <div class="pi-cap__text">
-            <h3 class="pi-cap__t">Exports</h3>
-            <div class="pi-cap__d"><p>Africa, Australia, Bangladesh, Cyprus, Israel, New Zealand, Philippines, South Africa, Sri Lanka, Turkey and the United Arab Emirates.</p></div>
+      <div class="pi-cap" role="listitem" tabindex="0" data-index="3">
+        <div class="pi-cap__line-top" aria-hidden="true"></div>
+        <span class="pi-cap__no">004</span>
+        <div class="pi-cap__content">
+          <div class="pi-cap__main">
+            <div class="pi-cap__text">
+              <h3 class="pi-cap__t">Exports</h3>
+              <div class="pi-cap__d"><p>Africa, Australia, Bangladesh, Cyprus, Israel, New Zealand, Philippines, South Africa, Sri Lanka, Turkey and the United Arab Emirates.</p></div>
+            </div>
+            <div class="pi-cap__shot-wrap">
+              <div class="pi-cap__shot"><img src="assets/img/pi-cap-exports.svg" alt="Exports" loading="lazy" /></div>
+            </div>
           </div>
-          <div class="pi-cap__shot"><img src="assets/img/pi-cap-exports.svg" alt="" loading="lazy" /></div>
-          <span class="pi-cap__go" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.4 11.8 6.8l4.2 4.2H4v2h12l-4.2 4.2 1.4 1.4L20 12z"/></svg></span>
+        </div>
+        <div class="pi-cap__icon-wrap" aria-hidden="true">
+          <div class="pi-cap__go"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M 16.667 0 C 16.667 0.795 17.43 1.982 18.203 2.979 C 19.197 4.264 20.384 5.386 21.746 6.242 C 22.767 6.884 24.004 7.5 25 7.5 M 25 7.5 C 24.004 7.5 22.766 8.116 21.746 8.758 C 20.384 9.615 19.197 10.737 18.203 12.02 C 17.43 13.018 16.667 14.207 16.667 15 M 25 7.5 L 0 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(7.5 12.5)"/></svg></div>
+        </div>
+        <div class="pi-cap__line-bottom" aria-hidden="true">
+          <div class="pi-cap__line-indicator"></div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- 6. industries -->
-  <section class="pi-sec pi-ind">
+  <section class="pi-sec pi-ind" id="industries">
     <div class="pi-home__wrap">
-      <div class="pi-reveal">
-        <h2 class="pi-home__h2">Where Pilot equipment is used.</h2>
-        <p class="pi-home__lead">Application areas our spray, welding and finishing equipment is specified for.</p>
+      <div class="pi-ind__head pi-reveal">
+        <div>
+          <h2 class="pi-home__h2">Where Pilot equipment is used.</h2>
+          <p class="pi-home__lead">Application areas our spray, welding and finishing equipment is specified for.</p>
+        </div>
+        <p class="pi-ind__count"><span class="pi-ind__num">20</span> application areas</p>
       </div>
-      <div class="pi-ind__field pi-reveal">
-        <span class="pi-ind__pill">Automobiles</span>
-        <span class="pi-ind__pill">Foundries</span>
-        <span class="pi-ind__pill">Furniture</span>
-        <span class="pi-ind__pill">Textile</span>
-        <span class="pi-ind__pill">Railways</span>
-        <span class="pi-ind__pill">Ship building</span>
-        <span class="pi-ind__pill">Construction equipment</span>
-        <span class="pi-ind__pill">Agricultural equipment</span>
-        <span class="pi-ind__pill">Pharmaceuticals</span>
-        <span class="pi-ind__pill">Machine shops</span>
-        <span class="pi-ind__pill">Marine</span>
-        <span class="pi-ind__pill">Glass industry</span>
-        <span class="pi-ind__pill">Carpet industry</span>
-        <span class="pi-ind__pill">Plastic moulding</span>
-        <span class="pi-ind__pill">Electrical equipment</span>
-        <span class="pi-ind__pill">Handicrafts</span>
-        <span class="pi-ind__pill">Sculpture finishing</span>
-        <span class="pi-ind__pill">Food decoration</span>
-        <span class="pi-ind__pill">Laboratories</span>
-        <span class="pi-ind__pill">Workshops</span>
+    </div>
+    <!-- full-bleed: the bands run past the wrap on both sides -->
+    <div class="pi-ind__stage pi-reveal">
+      <div class="pi-ind__deck">
+        <div class="pi-ind__row" style="--dur:44s">
+          <div class="pi-ind__track"><span class="pi-ind__word">Automobiles</span><span class="pi-ind__word">Textile</span><span class="pi-ind__word">Construction equipment</span><span class="pi-ind__word">Machine shops</span><span class="pi-ind__word">Carpet industry</span><span class="pi-ind__word">Handicrafts</span><span class="pi-ind__word">Laboratories</span><span class="pi-ind__word">Automobiles</span><span class="pi-ind__word">Textile</span><span class="pi-ind__word">Construction equipment</span><span class="pi-ind__word">Machine shops</span><span class="pi-ind__word">Carpet industry</span><span class="pi-ind__word">Handicrafts</span><span class="pi-ind__word">Laboratories</span><span class="pi-ind__word">Automobiles</span><span class="pi-ind__word">Textile</span><span class="pi-ind__word">Construction equipment</span><span class="pi-ind__word">Machine shops</span><span class="pi-ind__word">Carpet industry</span><span class="pi-ind__word">Handicrafts</span><span class="pi-ind__word">Laboratories</span><span class="pi-ind__word">Automobiles</span><span class="pi-ind__word">Textile</span><span class="pi-ind__word">Construction equipment</span><span class="pi-ind__word">Machine shops</span><span class="pi-ind__word">Carpet industry</span><span class="pi-ind__word">Handicrafts</span><span class="pi-ind__word">Laboratories</span></div>
+        </div>
+        <div class="pi-ind__row" style="--dur:54s">
+          <div class="pi-ind__track"><span class="pi-ind__word">Foundries</span><span class="pi-ind__word">Railways</span><span class="pi-ind__word">Agricultural equipment</span><span class="pi-ind__word">Marine</span><span class="pi-ind__word">Plastic moulding</span><span class="pi-ind__word">Sculpture finishing</span><span class="pi-ind__word">Workshops</span><span class="pi-ind__word">Foundries</span><span class="pi-ind__word">Railways</span><span class="pi-ind__word">Agricultural equipment</span><span class="pi-ind__word">Marine</span><span class="pi-ind__word">Plastic moulding</span><span class="pi-ind__word">Sculpture finishing</span><span class="pi-ind__word">Workshops</span><span class="pi-ind__word">Foundries</span><span class="pi-ind__word">Railways</span><span class="pi-ind__word">Agricultural equipment</span><span class="pi-ind__word">Marine</span><span class="pi-ind__word">Plastic moulding</span><span class="pi-ind__word">Sculpture finishing</span><span class="pi-ind__word">Workshops</span><span class="pi-ind__word">Foundries</span><span class="pi-ind__word">Railways</span><span class="pi-ind__word">Agricultural equipment</span><span class="pi-ind__word">Marine</span><span class="pi-ind__word">Plastic moulding</span><span class="pi-ind__word">Sculpture finishing</span><span class="pi-ind__word">Workshops</span></div>
+        </div>
+        <div class="pi-ind__row" style="--dur:38s">
+          <div class="pi-ind__track"><span class="pi-ind__word">Furniture</span><span class="pi-ind__word">Ship building</span><span class="pi-ind__word">Pharmaceuticals</span><span class="pi-ind__word">Glass industry</span><span class="pi-ind__word">Electrical equipment</span><span class="pi-ind__word">Food decoration</span><span class="pi-ind__word">Furniture</span><span class="pi-ind__word">Ship building</span><span class="pi-ind__word">Pharmaceuticals</span><span class="pi-ind__word">Glass industry</span><span class="pi-ind__word">Electrical equipment</span><span class="pi-ind__word">Food decoration</span><span class="pi-ind__word">Furniture</span><span class="pi-ind__word">Ship building</span><span class="pi-ind__word">Pharmaceuticals</span><span class="pi-ind__word">Glass industry</span><span class="pi-ind__word">Electrical equipment</span><span class="pi-ind__word">Food decoration</span><span class="pi-ind__word">Furniture</span><span class="pi-ind__word">Ship building</span><span class="pi-ind__word">Pharmaceuticals</span><span class="pi-ind__word">Glass industry</span><span class="pi-ind__word">Electrical equipment</span><span class="pi-ind__word">Food decoration</span></div>
+        </div>
       </div>
     </div>
   </section>

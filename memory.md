@@ -168,6 +168,16 @@ unexpected on this Windows box (confirmed: files written there were unreadable b
 homepage. Don't chase them when verifying a page.
 
 
+### Expand OnHover List ("What sits behind the product" section)
+Modelled directly on the Framer component `https://framer.com/m/Expand-OnHover-List-LByFXR.js@OBy0vsXNMeZtHbjUoVsi`.
+- Stack of hairline-divided rows (top/bottom lines `#e6e6e6`) with a bottom sweep indicator line that expands across on open.
+- Typography: `PT Sans Narrow 700` uppercase for numbers (`001`, `002`, `003`, `004` at 40px) and titles (30px), transitioning from close color `#acacac` to open `#0e0e0e`.
+- Description: `Inter` 16px line-height 1.55, expanding smoothly via `grid-template-rows: 0fr -> 1fr`.
+- Signature image animation: floating illustration card (264x161px) with 3px border, 16px radius, and -5deg tilt, smoothly swooping in from lower left (rotated 66deg, opacity 0) on hover.
+- Feathered arrow circular button (40px) that highlights and tilts arrow up-right on hover/open.
+- Desktop hover, mobile/tablet accordion click toggle, and keyboard focus accessibility.
+- Owned by `tools/home.mjs` + `assets/css/pi-home.css` + `assets/js/pi-home.js`.
+
 ### Measuring a Framer reference site (hover states)
 Framer hover states are JS variants, so CSS `:hover` cannot be forced and `--dump-dom` only
 ever shows the collapsed layout. Drive headless Chrome over the DevTools protocol instead:
@@ -210,6 +220,14 @@ width and a blank carousel. Fix: `min-width: 0` on every grid track and the caro
 own wrapper, plus `overflow: hidden` on the wrapper as a second guard. Always
 sanity-check a relocated/re-parented JS widget's actual computed dimensions over CDP,
 not just whether it rendered something.
+
+
+### Home hero (rebuilt 2026-10-01 to an interior-studio comp)
+Framed dark photo, nav floating inside the frame (home only, `body.home .pi-nav:not(.is-stuck)`,
+hero `margin-top:-74px`), Italiana display-serif h1 (Google Fonts, Georgia fallback), white
+"700+ Authorised dealers" card right, two glass cards bottom (Spray Guns / Manufacturing).
+Hero is a grid (cards in row 3, never absolute - absolute cards overlapped the copy on short windows). Card A notch is a CSS mask, so its arrow button must be a sibling (`.pi-hero__slot`) - a mask
+clips children. The right-hand card is a 4-card animated deck (`.pi-deck`, `data-depth` 0-3, `DECK` array, logic in pi-home.js; `.is-reset` = transition:none jump to the back). Hero is one viewport tall; all vertical sizes are vh-clamped plus a max-height:780px tightening block - user views at 125% scaling (~1536x730 CSS px), test that size. Nav sticky never engages site-wide (Divi `html,body{overflow-x:hidden}`) - pre-existing.
 
 ## Work done
 See `BUILD_LOG.md`.

@@ -25,39 +25,71 @@
   --pi-shell: var(--pi-radius-shell, 15px);
   --pi-control: var(--pi-radius-control, 10px);
 
+  /* A full-bleed bar pinned to the top edge, not a slab floating over the page.
+     It previously sat inset by 14/18px as a rounded card, which on the home page
+     was pulled over the hero photo - legible only because of a blur, and it made
+     the first thing on the page an object rather than a frame. */
   position: sticky;
-  top: 14px;
+  top: 0;
   z-index: 9990;
-  margin: 14px 18px 0;
-  border: 1px solid var(--pi-hairline);
-  border-radius: var(--pi-shell);
-  background: rgba(10, 10, 10, 0.95);
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
-  backdrop-filter: blur(16px) saturate(150%);
-  box-shadow: 0 6px 24px rgba(18, 10, 2, 0.14);
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid var(--pi-hairline);
+  border-radius: 0;
+  background: rgba(10, 10, 10, 0.92);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
   font-family: var(--pi-font-body, "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
-  transition: margin 0.3s ease, box-shadow 0.3s ease;
+  transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-/* once the page scrolls, tuck closer to the edges and lift off the content */
+/* once the page scrolls, deepen the bar so it reads as lifted off the content */
 .pi-nav.is-stuck {
-  margin: 10px 12px 0;
-  box-shadow: 0 14px 38px rgba(18, 10, 2, 0.3);
+  background: rgba(8, 8, 8, 0.97);
+  border-bottom-color: rgba(255, 255, 255, 0.13);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.38);
 }
 
+/* condense once scrolled, so the bar takes less of the screen while reading */
 .pi-nav.is-stuck .pi-nav__inner {
-  height: 62px;
+  height: 60px;
 }
+.pi-nav.is-stuck .pi-nav__logo img { height: 26px; }
 
 .pi-nav__inner {
   display: flex;
   align-items: center;
-  gap: 32px;
-  height: 72px;
+  gap: 40px;
+  height: 76px;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 16px 0 24px;
-  transition: height 0.3s ease;
+  padding: 0 28px;
+  transition: height 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Reading progress along the bottom edge. Driven by a scroll timeline rather than
+   a scroll handler, so it costs no main-thread work and needs no extra markup -
+   this file's own rule is that nothing runs per frame. Browsers without
+   scroll-driven animation simply never see the line. */
+@supports (animation-timeline: scroll()) {
+  .pi-nav::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+    background: linear-gradient(90deg, var(--pi-orange), #ffb061);
+    animation: pi-nav-progress linear forwards;
+    animation-timeline: scroll(root block);
+  }
+  @keyframes pi-nav-progress { to { transform: scaleX(1); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pi-nav::after { display: none; }
+  }
 }
 
 /* the row that holds links + actions; becomes the drop-down panel on mobile */
@@ -89,11 +121,30 @@
 
 .pi-nav__links {
   display: flex;
+  flex: 1 1 auto;
+  justify-content: center;
   align-items: center;
-  gap: 4px;
+  gap: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/* True centring against the bar, not against the gap left over between the logo
+   and the actions - those two are different widths, so flex centring lands the
+   links visibly off-axis. Taking them out of flow is the only way to centre on
+   the bar itself without restructuring markup shared by 125 pages. */
+@media (min-width: 961px) {
+  .pi-nav__inner { position: relative; }
+  .pi-nav__links {
+    position: absolute;
+    left: 50%;
+    /* top matters as much as left: without it the box keeps its static position,
+       which in this flex row sits well below the optical centre of the bar */
+    top: 50%;
+    transform: translate(-50%, -50%);
+    flex: 0 0 auto;
+  }
 }
 
 .pi-nav__item {
@@ -120,6 +171,39 @@
   white-space: nowrap;
   cursor: pointer;
   transition: color 0.18s ease, background 0.18s ease;
+}
+
+/* An accent rule that wipes in from the left, instead of a grey hover pill.
+   Scoped to the desktop row - on mobile these become stacked drawer rows where
+   an underline would read as a divider. */
+@media (min-width: 961px) {
+  .pi-nav .pi-nav__link::before {
+    content: "";
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 2px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--pi-orange), #ffb061);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .pi-nav .pi-nav__link:hover::before,
+  .pi-nav .pi-nav__link:focus-visible::before,
+  .pi-nav .pi-nav__item:focus-within > .pi-nav__link::before,
+  .pi-nav .pi-nav__link[aria-expanded="true"]::before {
+    transform: scaleX(1);
+  }
+  /* the rule replaces the grey pill rather than joining it - two hover signals on
+     one control read as noise. The pill stays on the mobile drawer rows. */
+  .pi-nav .pi-nav__link:hover,
+  .pi-nav .pi-nav__link:focus-visible,
+  .pi-nav .pi-nav__item:focus-within > .pi-nav__link,
+  .pi-nav .pi-nav__link[aria-expanded="true"] {
+    background: transparent;
+  }
 }
 
 .pi-nav .pi-nav__link:hover,
@@ -263,21 +347,30 @@
   margin-left: auto;
 }
 
+/* Given an outline so the right side reads as two deliberate controls rather than
+   loose text sitting next to a button. */
 .pi-nav .pi-nav__phone {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  color: #b5b5b5;
-  font-size: 14px;
+  gap: 9px;
+  height: 44px;
+  padding: 0 18px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: var(--pi-radius-pill, 999px);
+  background: rgba(255, 255, 255, 0.025);
+  color: #cfcfcf;
+  font-size: 13.5px;
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
-  transition: color 0.18s ease;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
 
 .pi-nav .pi-nav__phone:hover,
 .pi-nav .pi-nav__phone:focus-visible {
-  color: var(--pi-orange);
+  color: #fff;
+  border-color: rgba(245, 134, 52, 0.5);
+  background: rgba(245, 134, 52, 0.08);
 }
 
 .pi-nav__phone svg {
@@ -287,9 +380,11 @@
 }
 
 .pi-nav .pi-nav__cta {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  padding: 11px 22px;
+  height: 44px;
+  padding: 0 24px;
   border: 1px solid var(--pi-orange);
   border-radius: var(--pi-radius-pill, 999px);
   background: var(--pi-orange);
@@ -299,13 +394,24 @@
   letter-spacing: 0.01em;
   text-decoration: none;
   white-space: nowrap;
-  transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
+  transition: background 0.2s ease, color 0.2s ease,
+              transform 0.26s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.26s ease;
 }
 
+/* it lifts and throws a little of its own colour, rather than only inverting */
 .pi-nav .pi-nav__cta:hover,
 .pi-nav .pi-nav__cta:focus-visible {
-  background: transparent;
-  color: var(--pi-orange);
+  background: #ff9748;
+  color: #0a0a0a;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -10px rgba(245, 134, 52, 0.75);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pi-nav .pi-nav__cta { transition: background 0.2s ease, color 0.2s ease; }
+  .pi-nav .pi-nav__cta:hover,
+  .pi-nav .pi-nav__cta:focus-visible { transform: none; }
 }
 
 .pi-nav .pi-nav__cta:active {

@@ -1126,3 +1126,56 @@ The "Why choose ..." restyle above was undone at the user's request. Removed fro
 pages: the pg-why.css link, the `pg-why` hook class on the section container, and the
 stylesheet files themselves. Those sections are back to their original Elementor styling.
 pg-faq, pg-marquee and pg-features are unaffected and remain in place.
+
+---
+
+# spray-guns: evolution-series page revamp (2026-10-05)
+
+Restyle of `spray-guns/pages/evolution-series.html` layered over the existing Divi markup.
+**No copy, image, link or table value changed**: visible text and all 200 links/image sources
+compared identical to the original (backup kept in the session scratchpad). Owned by
+`tools/sprayguns-series.mjs` + `spray-guns/assets/css/pg-series.css` + `assets/js/pg-series.js`.
+Opt another series page in with `node tools/sprayguns-series.mjs pages/<page>.html` (only
+evolution-series is converted so far; legacy, air-brush, electric, service guns and pressure
+feed tanks share the template).
+
+## What changed
+- **Hero**: the banner photo carries a baked-in grey panel on its right, so the guns now fade into
+  ink and the title (orange "EVOLUTION", light "SERIES", eyebrow "Pilot Spray Guns") sits on solid dark.
+- **Series menu**: pills, current series filled ink; below it a **model rail** (9 chips) built by JS
+  from the page's own headings, with scroll-spy (active chip follows the model in view) and
+  click-to-scroll.
+- **Model cards**: each model is a rounded white card on a warm canvas: name + accent bar, features
+  with orange bullets, product photo on a warm tile, a spec table (label left, value bold right),
+  application icons, document links as pills. Cards rise in on scroll; row hover lifts, photo zooms.
+- Mobile copy gets the same card, with the photo pulled into a tile above the copy.
+
+## How it works / gotchas
+- Divi ships every model twice (3-column desktop copy, stacked mobile copy; one hidden per
+  breakpoint). The tool tags sections `pg-prod--desk` / `pg-prod--mob`, plus `pg-hero`, `pg-nav`,
+  `pg-skip` (empty spacers) and mints `id="model-<slug>"`. **Idempotent: re-run gives an identical
+  md5.** Bug caught on the way: the tag regex first required `">` straight after `class`, so a
+  second run no longer matched already-tagged sections, misclassified neighbours (desk count 9 -> 16)
+  and duplicated ids. Fixed by allowing an existing `id` and reusing it.
+- Product photos are Divi **background images** on `.et_pb_image` with huge inline padding, and
+  every source image is framed differently (square with wide margins, tall, wide). `cover` / height-fit
+  cropped the wide ones; the only uniform fit is `contain` in a fixed-aspect tile (1 : 1.12), with
+  `mix-blend-mode: multiply` on a gradient tile so pale photo backdrops melt into it.
+- I turn off Divi's `.et_pb_row::after` clearfix on cards (it would become a grid cell). That left the
+  mobile copy's floated columns uncontained (row 54px tall, content spilling): fixed with
+  `display: flow-root` on the mobile row.
+- The mobile photo is absolutely positioned by an inline style (`right: -75px; max-width: 75%`), with
+  varying values and wrapper widths (30% / 50%). Matched with `div:has(> img[style*="absolute"])`
+  and overridden with `!important`.
+- Divi lifts the sticky series menu out of flow, which shortens the page mid-smooth-scroll, so a long
+  chip jump landed ~110px too far. `settle()` re-measures on `scrollend` (and 450ms later) and nudges
+  the section to the bar's own `offsetHeight` + 8 (not its position: while it is still in the flow
+  its position says nothing about where it will stick).
+- Spec-value styling uses `table:not(:has(img))`, because the areas and downloads tables also have
+  two-cell rows and were picking up the bold right-aligned value style.
+
+## Verification (headless Chrome over CDP, localhost:8080)
+1536x730, 1024x760 and 420x900: no horizontal overflow; all nine models contact-sheeted at the same
+tile size, none cropped; tablet collapses the data column under the photo; phone shows all nine with
+photo, features, areas, spec table and both document links. Rail: four jumps (HP 64 N, HVLP 08,
+HP P-70, HVLP 06) all land with the card directly under the bar and the matching chip active.

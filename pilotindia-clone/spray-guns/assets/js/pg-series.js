@@ -34,6 +34,28 @@
   label.textContent = 'Models';
   rail.appendChild(label);
 
+  // Divi lifts the series menu out of the flow once it sticks, which shortens the page
+  // part way through a long smooth scroll and leaves the target tucked under the bar.
+  // When the scroll ends, measure again and nudge the section to just below the bar.
+  function settle(sec) {
+    var done = false;
+    function measure() {
+      var bar = document.querySelector('.pg-nav');
+      var want = (bar ? bar.offsetHeight : 0) + 8;
+      var off = sec.getBoundingClientRect().top - want;
+      if (Math.abs(off) > 4) window.scrollBy({ top: off, behavior: 'auto' });
+    }
+    function fix() {
+      if (done) return;
+      done = true;
+      window.removeEventListener('scrollend', fix);
+      measure();
+      setTimeout(measure, 450);   // the bar can finish sticking a beat after the scroll ends
+    }
+    if ('onscrollend' in window) window.addEventListener('scrollend', fix);
+    setTimeout(fix, reduce ? 150 : 2600);   // fallback where scrollend is missing
+  }
+
   var chips = {};
   desk.forEach(function (sec) {
     var h = sec.querySelector('h1');
@@ -46,6 +68,7 @@
       ev.preventDefault();
       sec.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
       if (history.replaceState) history.replaceState(null, '', '#' + sec.id);
+      settle(sec);
     });
     rail.appendChild(a);
     chips[sec.id] = a;

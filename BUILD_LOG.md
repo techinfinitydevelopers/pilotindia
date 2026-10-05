@@ -1218,3 +1218,73 @@ Measured ink edges with canvas actualBoundingBoxRight against the wrap's content
   1024px (76.8px numeral): ink edges 0.42px apart  (was 3.3px)
   1440px (108px numeral):  ink edges 0.48px apart
 Block bottom also sits on the intro paragraph's bottom (517 / 517).
+
+# Landing page heroes fit one screen
+
+spray-guns, airless, welding and office each had a hero with a fixed `--min-height: 650px`.
+On a laptop window ~696px of CSS height (a 1913px-wide capture at Windows 125% scaling),
+65px header + 650px hero + strip overflowed, so the foot of the hero and the category strip
+sat below the fold.
+
+New shared pair: assets/css/pg-hero-fit.css + assets/js/pg-hero-fit.js, copied into each of
+the four page folders and linked on spray-guns, airless, welding, office (CSS last in <head>
+so it beats Elementor's (0,3,0) per-element rule; hook is the existing #select-series-re).
+
+The hero is `100svh - header - (strip, when outside the hero)`. Two offsets cannot be known in
+CSS, so the JS measures them once (load, fonts.ready, resize - no scroll handler) and writes
+--pg-top / --pg-mq; CSS defaults of 65px / 0px mean first paint and no-JS are already right.
+Floor of 480px so a very short window overflows slightly instead of crushing the heading.
+
+Strip placement differs: spray-guns keeps it as a sibling after the hero (so it is subtracted),
+welding/office keep it inside (the hero's own height already covers it). There the 40px
+--padding-bottom left a band of photo under the strip; removed so every page ends flush on it.
+Airless uses a different component (pilot-blocks), left with its own 40px gap.
+
+## Scoped to landscape on purpose
+
+First version applied everywhere. On a 375x812 phone it stretched the hero to the full screen,
+and since the artwork is a wide banner that only cropped it into a tall field of empty grey -
+and the original hero + strip already fit a portrait screen. Rules now sit inside
+`(min-width: 768px) and (orientation: landscape)`; phones and upright tablets are unchanged.
+
+## Verification (real page, real window sizes, not iframes)
+
+An iframe harness reported innerWidth 0, which made every media query evaluate as tiny and
+the Divi header misbehave - discarded; numbers below are from the page itself.
+  1530x696: spray-guns hero 566 + strip 65, ends 696/696; welding/office hero ends 696 with
+            strip flush; airless ends 696
+  1440x900: spray-guns hero grows 650 -> 770, strip ends 900 (the old 120px grey gap is gone)
+  375x812:  back to Elementor's 650px, which fits; no horizontal scroll
+Not changed: power-tools (360px slider hero + strip, fits), about-us (no hero), detail pages
+(~330px banner, fits), home (own min-height rule, already one screen).
+
+# Welding restored to original content; copy I had added removed
+
+An earlier pass of mine (start of the welding UI work) broke the rule "do not change the
+images and text": it swapped the welding hero's heading and background image. Restored to
+the originals:
+  - heading back to "OUT TO BUILD / BIG THINGS? / GO FOR SUPERIOR / BUILD QUALITY."
+  - background back to home-pg-gas-torches-gas-regulator (breakpoint rules and preload links
+    point at the -png-bv.webp again; base rule back to `background-image:none`, the
+    original lazy-load form)
+  - the category strip's labels back to the page's own wording: GAS WELDING & BRAZING
+    TORCHES / GAS CUTTING / GAS REGULATORS (I had shortened/invented "WELDING TORCHES" and
+    "CUTTING TORCHES")
+The small "N deg 01 - CATEGORY" tags I added to the welding and office showcase slides are
+removed; they were copy that never existed on those pages. spray-guns keeps its own, which
+were original there.
+
+Why this needed care: the repo's first commit already contained my welding edits, and I had
+deleted my own pre-change backup, so git could not supply the pristine hero. The original
+heading and CSS values were reconstructed from the file as I read it before changing it; the
+original image files were still on disk. If anything looks off against the live site, that
+is the place to compare.
+
+Verified on the real page at 1530x696: heading text, strip labels, background-image
+(webp) and that the hero still ends at 696/696 with the strip flush; zero luboss tags on
+welding/office.
+
+Not changed, and why: the home page. Its headings ("Five ranges, one manufacturer." etc.)
+were written in earlier sessions and appear nowhere in the original site; the original home
+was only six product tiles and a footer, so there is no original copy to restore without
+reverting the redesign. Left for the user to decide.

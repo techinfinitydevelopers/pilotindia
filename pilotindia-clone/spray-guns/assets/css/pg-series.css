@@ -395,11 +395,30 @@
 
 /* ---------- mobile copy ---------- */
 
-.pg-series .pg-prod--mob .et_pb_row { width: 92% !important; padding: 26px 22px !important; border-radius: 22px; }
-.pg-series .pg-prod--mob .et_pb_column { width: 100% !important; margin: 0 !important; padding: 0 !important; }
-.pg-series .pg-prod--mob .et_pb_text_inner > div[style*="flex"] { gap: 18px; flex-wrap: wrap; }
+/* Divi's clearfix is switched off above (it would become a grid cell on desktop), so the
+   floated columns of this copy need the row to contain them another way */
+.pg-series .pg-prod--mob .et_pb_row { display: flow-root !important; width: 92% !important; padding: 26px 22px !important; border-radius: 22px; }
+.pg-series .pg-prod--mob .et_pb_column { float: none !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+.pg-series .pg-prod--mob .et_pb_text { margin-bottom: 14px !important; }
+.pg-series .pg-prod--mob .et_pb_text_inner > div[style*="flex"] { display: flex !important; flex-direction: column; gap: 18px; width: 100% !important; }
 .pg-series .pg-prod--mob .et_pb_text_inner > div[style*="flex"] > div { width: 100% !important; margin: 0 !important; }
+/* the product photo is absolutely placed inline; bring it into the flow as a tile above the copy */
+.pg-series .pg-prod--mob .et_pb_text_inner > div[style*="flex"] > div:has(> img[style*="absolute"]) {
+  order: -1;
+  display: flex;
+  justify-content: center;
+  padding: 18px;
+  border-radius: 20px;
+  isolation: isolate;
+  background: radial-gradient(120% 90% at 50% 38%, #fff 0%, #f1ede6 70%, #e9e3d8 100%);
+}
+.pg-series .pg-prod--mob div:has(> img[style*="absolute"]) img { position: static !important; right: auto !important; top: auto !important; display: block; width: auto; max-width: 100% !important; max-height: 320px; height: auto; object-fit: contain; mix-blend-mode: multiply; }
 .pg-series .pg-prod--mob td img:not([src*="pdf"]) { width: 54px !important; height: 54px !important; object-fit: cover; }
+.pg-series .pg-prod--mob table[border="0"] td:not(:has(*)) { display: none; }
+/* the two document links, one under the other */
+.pg-series .pg-prod--mob p:has(> img[src*="pdf"]) { margin: 4px 0 0 !important; line-height: 1; }
+.pg-series .pg-prod--mob p > img[src*="pdf"] { width: 24px !important; height: auto !important; margin: 0 10px 0 0; vertical-align: middle; }
+.pg-series .pg-prod--mob p > a[href$=".pdf"] { display: inline-block; margin: 0 0 14px; padding: 9px 18px; border: 1px solid var(--s-rule); border-radius: 999px; background: #fff; }
 
 @media (min-width: 768px) {
   .pg-series .pg-prod--mob { display: none !important; }

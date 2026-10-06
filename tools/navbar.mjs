@@ -35,53 +35,89 @@ const BARS = '<svg class="pi-nav__bars" viewBox="0 0 24 24" aria-hidden="true"><
 const XMARK = '<svg class="pi-nav__x" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 10.6 5.3-5.3 1.4 1.4-5.3 5.3 5.3 5.3-1.4 1.4-5.3-5.3-5.3 5.3-1.4-1.4 5.3-5.3-5.3-5.3 1.4-1.4z"/></svg>';
 
 function buildNav(p, rel) {
-  // `p` is the prefix back to the site root; `rel` is this page's path, used to
-  // mark the current section.
+  const onHome = rel === 'index.html' || rel === '';
   const onAbout = rel === 'pages/about-us.html';
   const onContact = rel === 'pages/contact-us.html';
-  const onProduct = rel === 'pages/power-tools.html';
+  const onProduct = rel === 'pages/power-tools.html' || rel.startsWith('spray-guns') || rel.startsWith('airless') || rel.startsWith('welding') || rel.startsWith('office');
 
-  const products = [
-    ['Pilot Group', p + 'index.html', false],
-    ['Spray Guns', p + 'spray-guns/', false],
-    ['Airless Spray Systems', p + 'airless/', false],
-    ['Power Tools', p + 'pages/power-tools.html', false, 'NEW'],
-    ['Welding Equipments', p + 'welding/', false],
-    ['Office Products', p + 'office/', false],
-  ];
+  return `<header class="pi-nav framer-dyn-nav" id="pi-nav">
+	<div class="framer-dyn-track">
+		<div class="framer-dyn-pill" id="framer-dyn-pill" data-state="static">
 
-  const sub = products.map(([label, href, ext, tag]) =>
-    `<li><a href="${href}"${ext ? ' target="_blank" rel="noopener"' : ''}>${label}` +
-    `${tag ? `<span class="pi-nav__tag">${tag}</span>` : ''}</a></li>`
-  ).join('\n\t\t\t\t\t\t');
+			<a class="framer-dyn-logo" href="${p}index.html" aria-label="Pilot India">
+				<img class="framer-dyn-pilot-logo" src="${p}assets/img/pilot-logo-1-1.png" alt="Pilot India" width="138" height="32" />
+			</a>
 
-  return `<header class="pi-nav" id="pi-nav">
-	<div class="pi-nav__inner">
-
-		<a class="pi-nav__logo" href="${p}index.html" aria-label="Pilot India, home">
-			<img src="${p}assets/img/pilot-logo-1-1.png" alt="Pilot India" width="178" height="42" />
-		</a>
-
-		<button class="pi-nav__burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="pi-nav-drawer">${BARS}${XMARK}</button>
-
-		<div class="pi-nav__drawer" id="pi-nav-drawer">
-			<nav aria-label="Main">
-				<ul class="pi-nav__links">
-					<li class="pi-nav__item">
-						<a class="pi-nav__link${onAbout ? ' is-active' : ''}" href="${p}pages/about-us.html"${onAbout ? ' aria-current="page"' : ''}>About Us</a>
+			<nav class="framer-dyn-menu" aria-label="Main Navigation">
+				<ul class="framer-dyn-links">
+					<li class="framer-dyn-item">
+						<a class="framer-dyn-link${onHome ? ' is-active' : ''}" href="${p}index.html">Home</a>
 					</li>
-					<li class="pi-nav__item pi-nav__item--menu">
-						<button class="pi-nav__link${onProduct ? ' is-active' : ''}" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="pi-nav-products">Products ${CARET}</button>
-						<ul class="pi-nav__menu" id="pi-nav-products">
-						${sub}
-						</ul>
+					<li class="framer-dyn-item framer-dyn-dropdown-parent">
+						<button class="framer-dyn-link${onProduct ? ' is-active' : ''}" type="button" aria-haspopup="true" aria-expanded="false">
+							Products
+							<svg class="framer-dyn-caret" viewBox="0 0 24 24"><path d="M12 15.4 5.6 9l1.4-1.4 5 5 5-5L18.4 9z"/></svg>
+						</button>
+						<div class="framer-dyn-dropdown">
+							<ul class="framer-dyn-dropdown-list">
+								<li><a href="${p}spray-guns/"><span class="framer-dyn-dd-title">Spray Guns</span><span class="framer-dyn-dd-desc">Evolution, HVLP & legacy series</span></a></li>
+								<li><a href="${p}airless/"><span class="framer-dyn-dd-title">Airless Spray Systems</span><span class="framer-dyn-dd-desc">High-output hydraulic & electric</span></a></li>
+								<li><a href="${p}pages/power-tools.html"><span class="framer-dyn-dd-title">Power Tools <span class="framer-dyn-tag">NEW</span></span><span class="framer-dyn-dd-desc">Drills, grinders & saws</span></a></li>
+								<li><a href="${p}welding/"><span class="framer-dyn-dd-title">Welding Equipments</span><span class="framer-dyn-dd-desc">Industrial gas welding & regulators</span></a></li>
+								<li><a href="${p}office/"><span class="framer-dyn-dd-title">Office Products</span><span class="framer-dyn-dd-desc">Currency counters & shredders</span></a></li>
+							</ul>
+						</div>
+					</li>
+					<li class="framer-dyn-item">
+						<a class="framer-dyn-link${onAbout ? ' is-active' : ''}" href="${p}pages/about-us.html"${onAbout ? ' aria-current="page"' : ''}>About Us</a>
+					</li>
+					<li class="framer-dyn-item">
+						<a class="framer-dyn-link${onContact ? ' is-active' : ''}" href="${p}pages/contact-us.html"${onContact ? ' aria-current="page"' : ''}>Contact</a>
 					</li>
 				</ul>
 			</nav>
 
-			<div class="pi-nav__end">
-				<a class="pi-nav__phone" href="tel:+912266047000">${PHONE}<span>+91 22 6604 7000</span></a>
-				<a class="pi-nav__cta" href="${p}pages/contact-us.html"${onContact ? ' aria-current="page"' : ''}>Connect with Pilot</a>
+			<div class="framer-dyn-section" aria-live="polite">
+				<span class="framer-dyn-dot"></span>
+				<span class="framer-dyn-section-text" id="framer-dyn-section-text">Hero</span>
+			</div>
+
+			<div class="framer-dyn-actions">
+				<a class="framer-dyn-phone-icon" href="tel:+912266047000" aria-label="Call Pilot India">
+					${PHONE}
+				</a>
+				<a class="framer-dyn-cta" href="${p}pages/contact-us.html"${onContact ? ' aria-current="page"' : ''}>
+					<span>Connect with Pilot</span>
+				</a>
+				<button class="framer-dyn-burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="framer-dyn-mobile-drawer">
+					<span class="framer-burger-line"></span>
+					<span class="framer-burger-line"></span>
+				</button>
+			</div>
+
+		</div>
+
+		<div class="framer-dyn-mobile-drawer" id="framer-dyn-mobile-drawer">
+			<div class="framer-dyn-mobile-content">
+				<ul class="framer-dyn-mobile-links">
+					<li><a href="${p}index.html">Home</a></li>
+					<li class="framer-dyn-mobile-subgroup">
+						<span class="framer-dyn-subgroup-label">Products</span>
+						<div class="framer-dyn-subgroup-items">
+							<a href="${p}spray-guns/">Spray Guns</a>
+							<a href="${p}airless/">Airless Spray Systems</a>
+							<a href="${p}pages/power-tools.html">Power Tools <span class="framer-dyn-tag">NEW</span></a>
+							<a href="${p}welding/">Welding Equipments</a>
+							<a href="${p}office/">Office Products</a>
+						</div>
+					</li>
+					<li><a href="${p}pages/about-us.html">About Us</a></li>
+					<li><a href="${p}pages/contact-us.html">Contact</a></li>
+				</ul>
+				<div class="framer-dyn-mobile-footer">
+					<a class="framer-dyn-mobile-phone" href="tel:+912266047000">${PHONE} +91 22 6604 7000</a>
+					<a class="framer-dyn-mobile-cta" href="${p}pages/contact-us.html">Connect with Pilot</a>
+				</div>
 			</div>
 		</div>
 
@@ -95,9 +131,7 @@ for (const rel of files) {
   let html = fs.readFileSync(fp, 'utf8');
   const prefix = '../'.repeat(rel.split('/').length - 1);
 
-  const old = html.indexOf('<header id="main-header"');
-  const mine = html.indexOf('<header class="pi-nav"');
-  const s = old >= 0 ? old : mine;
+  const s = html.search(/<header[^>]+(?:pi-nav|main-header)/);
   if (s >= 0) {
     const e = html.indexOf('</header>', s);
     if (e > s) {
@@ -121,6 +155,18 @@ for (const rel of files) {
     }
   }
 
-  fs.writeFileSync(fp, html, 'utf8');
+  let written = false;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      fs.writeFileSync(fp, html, 'utf8');
+      written = true;
+      break;
+    } catch (err) {
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 150);
+    }
+  }
+  if (!written) {
+    console.warn('Could not write ' + fp + ' after retries');
+  }
 }
 console.log('navbars replaced: ' + swapped + '  css linked: ' + css + '  js linked: ' + js + '  of ' + files.length);

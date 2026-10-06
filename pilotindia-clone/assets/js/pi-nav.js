@@ -1,71 +1,192 @@
-/* Pilot India nav: mobile drawer, submenu disclosure, scrolled state.
-   No scroll listener - the stuck state comes from an IntersectionObserver on a
-   sentinel, per the perf rule against per-frame scroll handlers. */
+/* ==========================================================================
+   Framer Dynamic Navbar — Interactive Controller
+   Framer Component: https://framer.com/m/Dyanmic-Navbar-MD51bK.js@mDPLUu5eFS42KaFa2LkM
+   ========================================================================== */
+
 (function () {
-  var nav = document.querySelector('.pi-nav');
-  if (!nav) return;
+  'use strict';
 
-  var burger = nav.querySelector('.pi-nav__burger');
-  var drawer = nav.querySelector('.pi-nav__drawer');
-  var submenuBtn = nav.querySelector('.pi-nav__link[aria-haspopup="true"]');
-  var submenu = submenuBtn && document.getElementById(submenuBtn.getAttribute('aria-controls'));
-  var isMobile = function () { return window.matchMedia('(max-width: 900px)').matches; };
+  function initDynamicNavbar() {
+    var pill = document.getElementById('framer-dyn-pill');
+    var sectionText = document.getElementById('framer-dyn-section-text');
+    var sectionBadge = document.querySelector('.framer-dyn-section');
+    var burger = document.querySelector('.framer-dyn-burger');
+    var drawer = document.getElementById('framer-dyn-mobile-drawer');
+    var dropdownParent = document.querySelector('.framer-dyn-dropdown-parent');
+    var dropdown = document.querySelector('.framer-dyn-dropdown');
 
-  function closeDrawer() {
-    if (!burger || !drawer) return;
-    burger.setAttribute('aria-expanded', 'false');
-    drawer.classList.remove('is-open');
-  }
+    if (!pill) return;
 
-  function closeSubmenu() {
-    if (!submenuBtn || !submenu) return;
-    submenuBtn.setAttribute('aria-expanded', 'false');
-    submenu.classList.remove('is-open');
-  }
+    var currentSection = '';
+    var isScrolled = false;
+    var scrollThreshold = 80;
 
-  if (burger && drawer) {
-    burger.addEventListener('click', function () {
-      var open = burger.getAttribute('aria-expanded') === 'true';
-      burger.setAttribute('aria-expanded', String(!open));
-      drawer.classList.toggle('is-open', !open);
-      if (open) closeSubmenu();
+    // 1. Detect scroll position and toggle Static vs Scrolled / Collapsed
+    function updateScrollState() {
+      var scrollY = window.pageYOffset || document.documentElement.scrollTop;
+      var nowScrolled = scrollY > scrollThreshold;
+
+      if (nowScrolled !== isScrolled) {
+        isScrolled = nowScrolled;
+        if (isScrolled) {
+          pill.classList.add('is-scrolled', 'is-collapsed');
+        } else {
+          pill.classList.remove('is-scrolled', 'is-collapsed', 'is-expanded');
+        }
+      }
+    }
+
+    window.addEventListener('scroll', updateScrollState, { passive: true });
+    updateScrollState();
+
+    // 2. Hover to Expand when scrolled
+    var hoverTimer = null;
+    pill.addEventListener('mouseenter', function () {
+      if (isScrolled) {
+        clearTimeout(hoverTimer);
+        pill.classList.remove('is-collapsed');
+        pill.classList.add('is-expanded');
+      }
     });
-  }
 
-  if (submenuBtn && submenu) {
-    submenuBtn.addEventListener('click', function (e) {
-      // desktop opens the panel on hover/focus; the tap toggle is for touch
-      if (!isMobile()) return;
-      e.preventDefault();
-      var open = submenuBtn.getAttribute('aria-expanded') === 'true';
-      submenuBtn.setAttribute('aria-expanded', String(!open));
-      submenu.classList.toggle('is-open', !open);
+    pill.addEventListener('mouseleave', function () {
+      if (isScrolled) {
+        hoverTimer = setTimeout(function () {
+          pill.classList.remove('is-expanded');
+          pill.classList.add('is-collapsed');
+        }, 150);
+      }
     });
+
+    // 3. Section Tracker with Framer spring morph animation
+    function setSectionTitle(newTitle) {
+      if (!newTitle || newTitle === currentSection || !sectionText) return;
+      currentSection = newTitle;
+
+      // Framer appear animation: blur(10px) -> blur(0), translateY(8px) -> translateY(0)
+      sectionText.classList.add('is-animating');
+      setTimeout(function () {
+        sectionText.textContent = newTitle;
+        requestAnimationFrame(function () {
+          sectionText.classList.remove('is-animating');
+        });
+      }, 100);
+    }
+
+    // Identify candidate sections
+    var sections = Array.from(document.querySelectorAll('section, main > div, #main-footer, .pi-f2, footer'));
+    
+    function getSectionName(el) {
+      if (el.getAttribute('data-nav-title')) return el.getAttribute('data-nav-title');
+      
+      var id = el.id || '';
+      var cls = el.className || '';
+
+      if (cls.indexOf('pi-hero') !== -1) return 'Hero';
+      if (cls.indexOf('pi-stats') !== -1 || cls.indexOf('pi-deck') !== -1) return '700+ Dealers';
+      if (id === 'products' || cls.indexOf('pi-showcase') !== -1) return 'Products';
+      if (cls.indexOf('pi-about') !== -1) return 'About Pilot';
+      if (cls.indexOf('pi-cap-sec') !== -1) return 'Manufacturing';
+      if (id === 'industries' || cls.indexOf('pi-ind') !== -1) return 'Industries';
+      if (cls.indexOf('pi-ins') !== -1) return 'Insights';
+      if (cls.indexOf('pi-close') !== -1) return 'Get in Touch';
+      if (id === 'main-footer' || cls.indexOf('pi-f2') !== -1) return 'Network';
+
+      // Fallback: search for first h1 or h2
+      var h = el.querySelector('h1, h2');
+      if (h) {
+        var txt = (h.textContent || '').trim().replace(/\s+/g, ' ');
+        if (txt.length > 25) txt = txt.slice(0, 22) + '...';
+        if (txt) return txt;
+      }
+
+      if (id) {
+        return id.replace(/[-_]/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+      }
+
+      return 'Pilot India';
+    }
+
+    // Track active section via IntersectionObserver or viewport position
+    if ('IntersectionObserver' in window && sections.length > 0) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.15) {
+            var name = getSectionName(entry.target);
+            if (name) setSectionTitle(name);
+          }
+        });
+      }, {
+        rootMargin: '-20% 0px -55% 0px',
+        threshold: [0.15, 0.4]
+      });
+
+      sections.forEach(function (sec) {
+        observer.observe(sec);
+      });
+    } else {
+      // Fallback on scroll
+      window.addEventListener('scroll', function () {
+        var scrollPos = window.pageYOffset + 200;
+        for (var i = sections.length - 1; i >= 0; i--) {
+          var sec = sections[i];
+          if (sec.offsetTop <= scrollPos) {
+            setSectionTitle(getSectionName(sec));
+            break;
+          }
+        }
+      }, { passive: true });
+    }
+
+    // 4. Click on Section badge scrolls smoothly to current section
+    if (sectionBadge) {
+      sectionBadge.addEventListener('click', function () {
+        // Toggle expand so user can see links easily
+        pill.classList.toggle('is-expanded');
+        pill.classList.toggle('is-collapsed');
+      });
+    }
+
+    // 5. Mobile Burger & Drawer
+    if (burger && drawer) {
+      burger.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var open = burger.getAttribute('aria-expanded') === 'true';
+        burger.setAttribute('aria-expanded', String(!open));
+        drawer.classList.toggle('is-open', !open);
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!pill.contains(e.target) && !drawer.contains(e.target)) {
+          burger.setAttribute('aria-expanded', 'false');
+          drawer.classList.remove('is-open');
+        }
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          burger.setAttribute('aria-expanded', 'false');
+          drawer.classList.remove('is-open');
+        }
+      });
+    }
+
+    // 6. Products dropdown hover/click disclosure for touch
+    if (dropdownParent && dropdown) {
+      var dropdownBtn = dropdownParent.querySelector('button');
+      if (dropdownBtn) {
+        dropdownBtn.addEventListener('click', function (e) {
+          if (window.innerWidth <= 900) return;
+          e.preventDefault();
+          dropdown.classList.toggle('is-open');
+        });
+      }
+    }
   }
 
-  document.addEventListener('keydown', function (e) {
-    if (e.key !== 'Escape') return;
-    closeSubmenu();
-    closeDrawer();
-  });
-
-  document.addEventListener('click', function (e) {
-    if (!nav.contains(e.target)) { closeSubmenu(); closeDrawer(); }
-  });
-
-  window.addEventListener('resize', function () {
-    if (!isMobile()) { closeSubmenu(); closeDrawer(); }
-  });
-
-  // sentinel sits directly above the nav; once it leaves the viewport the bar is stuck
-  var sentinel = document.createElement('div');
-  sentinel.setAttribute('aria-hidden', 'true');
-  sentinel.style.cssText = 'position:absolute;top:0;left:0;height:1px;width:1px;pointer-events:none';
-  if (nav.parentNode) nav.parentNode.insertBefore(sentinel, nav);
-
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function (entries) {
-      nav.classList.toggle('is-stuck', !entries[0].isIntersecting);
-    }, { threshold: 0 }).observe(sentinel);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDynamicNavbar);
+  } else {
+    initDynamicNavbar();
   }
 })();

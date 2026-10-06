@@ -1425,3 +1425,52 @@ and a new `--pi-font-display` token in `theme/theme.css`.
 - Icon glyphs are SVG data URIs (they cannot read CSS variables), so their orange is the logo orange
   #f58634 written out; the hover arrow is a mask and follows `--pi-accent`.
 - Verified at 1631, 1000 and 420 px on home and about-us: no overflow, hover state works.
+
+---
+
+# evolution-series: product section redesign to the home-hero language (2026-10-06)
+
+The first series revamp (light cards) read as "basic and weird". Restyled to match the home hero:
+near-black showroom, serif model names, glass panels, a white floating stage per gun, white pills.
+Still CSS + a small script over the untouched Divi markup: page body text identical to the original
+(header and footer excluded); all 40 referenced assets exist. Only the old Divi header logo is gone,
+removed with the old header when the new navbar landed.
+
+## Design
+- **Ground**: `--s-bg #0a0a0a` with three soft orange radial glows; hero and cards share it.
+- **Card**: glass panel (blur, hairline border, 32px radius). Model name in Italiana (new theme token
+  family), "No. 01" eyebrow numbered by a CSS counter (not typed in), features as hairline rows with a
+  glowing orange dot.
+- **Stage**: the gun on a white tile with a translucent tab peeking above it (the hero comp's motif),
+  `mix-blend-mode: multiply` so pale photo backdrops melt in, and a white **figure card** overlapping its
+  corner showing two table values (cup capacity, weight) read from the spec table by `pg-series.js`.
+- **Balance**: the "areas of application" block used to stretch the data column into empty space; the
+  script moves it under the features, so left column ~ stage ~ data column are about the same height.
+- **Data**: spec table as a ledger (muted label, bold white value, orange row hover); two white download pills.
+- Series bar + model rail go dark; current series is a white pill (like the hero's button).
+- Mobile copy gets the same card; its inline-positioned gun becomes a white stage above the copy; the
+  mobile banner is darkened too.
+
+## Bugs found while verifying (all would have shipped otherwise)
+- Figure card labels were garbled ("Cup / capacity (litres / Cup capacity (litre )"): the regex
+  backslashes were lost when the script was written through a template string. Fixed in the file directly.
+- The site gained a fixed floating menu, which covered the hero title and would have covered the sticky
+  series bar. Added `--pg-top: 92px`; hero gets that as top padding, the bar sticks at `top: var(--pg-top)`.
+- The sticky bar had stopped sticking: Divi's `html,body{overflow-x:hidden}` makes body a scroll container.
+  `overflow-x: clip` on html/body fixes it (same fix as pg-features).
+- Divi's own sticky script then rewrote the bar to `position: fixed; top: 0` after the first scroll,
+  under the menu. The tool now strips `et_pb_sticky_module` from the bar and the CSS is `!important`.
+- Model-button jumps **zigzagged** (down, back to the top, down again). Traced by wrapping scrollTo /
+  scrollBy / scrollIntoView / the scrollTop setter and logging stacks: Divi's `readystatechange`
+  handler (`scripts-min-v2.js`) reads `location.hash` once at load-complete and answers with
+  `scrollTo(0,0)` plus a jQuery animation to the anchor. My click wrote the hash before the page had
+  finished loading. Now the hash is only written when `document.readyState === 'complete'`. (Switching the
+  chips to `<button>` was tried first and did not fix it; kept because Divi binds every `a[href^="#"]`.)
+- Italiana has only old-style figures; irrelevant here (model names), but it is why the footer phone
+  number is set in the body face.
+- `tools/sprayguns-series.mjs` still pointed at the pre-merge `spray-guns/` folder; now `pilotindia-clone`.
+
+## Verification (headless Chrome over CDP, localhost:8080)
+1631x800, 1024x760, 420x900: no overflow; four model-button jumps (HP 64 N, HVLP 08, HP P-70, HVLP 06)
+each land with the card at 196px, directly under the 92-188px bar, correct chip lit, one clean scroll.
+Tool idempotent (identical hash on re-run).

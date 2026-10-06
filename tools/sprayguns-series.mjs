@@ -13,11 +13,12 @@
 //   - id="model-<slug>" on each desktop model section, for the model rail
 //   - the stylesheet link and script tag
 //
-//   node tools/sprayguns-series.mjs pages/evolution-series.html [more pages...]
+//   node tools/sprayguns-series.mjs pages/evolution-series.html [more pages...]   (paths relative to pilotindia-clone)
 import fs from 'node:fs';
 import path from 'node:path';
 
-const CLONE = path.join(process.cwd(), 'pilotindia-clone', 'spray-guns');
+// the four product sites were merged into one: series pages now live in pilotindia-clone/pages
+const CLONE = path.join(process.cwd(), 'pilotindia-clone');
 const files = process.argv.slice(2);
 if (!files.length) { console.error('usage: node tools/sprayguns-series.mjs pages/<page>.html ...'); process.exit(1); }
 
@@ -47,7 +48,7 @@ for (const rel of files) {
 
     if (!hasRow) add.push('pg-skip');
     else if (num === 0) add.push('pg-hero');
-    else if (/et_pb_menu/.test(seg) && /et_pb_sticky_module/.test(m[1])) add.push('pg-nav');
+    else if (/et_pb_menu/.test(seg) && /pg-nav|et_pb_sticky_module/.test(m[1])) add.push('pg-nav');
     else if (isModel) {
       add.push('pg-prod', desk ? 'pg-prod--desk' : 'pg-prod--mob');
       if (desk) {
@@ -69,6 +70,10 @@ for (const rel of files) {
     const id = (e.add.find(a => a.startsWith('#')) || '').slice(1);
     let cls = e.cls;
     for (const c of classes) if (!new RegExp('(^| )' + c + '( |$)').test(cls)) cls += ' ' + c;
+    // Divi's own sticky script wakes after the first scroll and forces the bar to position:fixed;
+    // top:0 (under the site menu), then re-lays the page out mid-scroll. pg-series.css sticks the
+    // bar itself, so Divi is told to leave it alone.
+    if (classes.includes('pg-nav')) cls = cls.replace(/ ?et_pb_sticky_module/, '');
     const idAttr = e.hadId || (id ? ` id="${id}"` : '');
     const open = `<div class="${cls}"${idAttr}${e.sp}>`;
     html = html.slice(0, e.at) + open + html.slice(e.at + e.len);
@@ -80,6 +85,14 @@ for (const rel of files) {
   // ---- gate attribute, set before first paint ------------------------------
   if (!html.includes("setAttribute('data-pgs-js'")) {
     html = html.replace(/<head[^>]*>/i, (m) => m + "\n<script>document.documentElement.setAttribute('data-pgs-js','');</script>");
+  }
+
+  // ---- display serif for model names (falls back to Georgia when offline) ----
+  const FONT = 'https://fonts.googleapis.com/css2?family=Italiana&display=swap';
+  if (!html.includes(FONT)) {
+    html = html.replace('</head>', '<link rel="preconnect" href="https://fonts.googleapis.com" />\n' +
+      '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />\n' +
+      '<link rel="stylesheet" href="' + FONT + '" />\n</head>');
   }
 
   // ---- stylesheet + script -------------------------------------------------

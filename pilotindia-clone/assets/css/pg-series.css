@@ -1,30 +1,55 @@
 /* ==========================================================================
    Pilot Spray Guns - series pages (evolution-series and siblings)
 
-   A restyle layered over the existing Divi markup: no copy, image or link was
+   A restyle layered over the existing Divi markup: no copy, image or link is
    changed. tools/sprayguns-series.mjs tags the sections (pg-hero, pg-nav,
-   pg-prod--desk / pg-prod--mob, pg-skip) and this file does the rest.
+   pg-prod--desk / pg-prod--mob, pg-skip) and pg-series.js moves the "areas of
+   application" block under the features and adds a figure card to each stage.
+
+   Look: a dark showroom, taken from the home hero. Near-black ground with soft
+   orange glows, serif model names, glass panels for the data, and each gun on a
+   white "stage" card with a tab peeking above it and a white figure card
+   overlapping its corner. White pills for the actions.
 
    Divi ships every model twice, a three-column desktop copy and a stacked mobile
    copy, and hides one per breakpoint. Both are styled here; only one ever shows.
 
    Divi writes a lot of its layout with !important, and its row widths through
-   selectors that include #page-container, so overrides below carry !important
-   where a Divi rule would otherwise win.
+   selectors that include #page-container, so overrides carry !important where a
+   Divi rule would otherwise win.
    ========================================================================== */
 
 .pg-series {
-  --s-ink: #111114;
-  --s-body: #55575e;
-  --s-rule: rgba(17, 17, 20, 0.09);
+  --s-bg: #0a0a0a;
+  --s-glass: rgba(24, 24, 24, 0.7);
+  --s-line: rgba(255, 255, 255, 0.09);
+  --s-text: rgba(255, 255, 255, 0.84);
+  --s-mute: rgba(255, 255, 255, 0.56);
   --s-accent: var(--pi-accent, #f58634);
-  --s-canvas: #f3f2ef;
+  --s-serif: "Italiana", "Cormorant Garamond", Georgia, "Times New Roman", serif;
   --s-ease: cubic-bezier(0.19, 1, 0.22, 1);
+  /* the site menu is a fixed pill at the top of every page; everything sticky sits below it */
+  --pg-top: 92px;
+  counter-reset: pgm;
 }
 
+/* Divi sets overflow-x:hidden on html and body, which turns body into a scroll container and
+   stops position:sticky from ever engaging. `clip` blocks sideways overflow the same way
+   without creating one. */
+html:has(body.pg-series),
+body.pg-series { overflow-x: clip !important; }
+
 .pg-series #page-container,
-.pg-series #et-main-area,
-.pg-series #main-content { background: var(--s-canvas); }
+.pg-series #et-main-area { background: var(--s-bg); }
+
+/* ambient glows behind the cards, so the dark ground is lit rather than flat */
+.pg-series #main-content {
+  background:
+    radial-gradient(900px circle at 88% 4%, rgba(245, 134, 52, 0.11), transparent 62%),
+    radial-gradient(760px circle at 4% 38%, rgba(245, 134, 52, 0.07), transparent 62%),
+    radial-gradient(900px circle at 80% 78%, rgba(245, 134, 52, 0.07), transparent 62%),
+    var(--s-bg);
+}
 
 .pg-series .et_pb_section.pg-skip { display: none !important; }
 
@@ -34,8 +59,8 @@
   position: relative;
   display: flex;
   align-items: center;
-  height: clamp(300px, 24vw, 400px);
-  padding: 0 !important;
+  min-height: clamp(380px, 30vw, 480px);
+  padding: var(--pg-top) 0 28px !important;
   overflow: hidden;
   background-color: #0b0b0b !important;
   background-size: auto 100% !important;
@@ -50,8 +75,8 @@
   inset: 0;
   z-index: 0;
   background:
-    linear-gradient(90deg, rgba(11, 11, 11, 0) 0%, rgba(11, 11, 11, 0) 28%, rgba(11, 11, 11, 0.9) 44%, #0b0b0b 49%),
-    linear-gradient(0deg, rgba(11, 11, 11, 0.55) 0%, rgba(11, 11, 11, 0) 38%);
+    linear-gradient(90deg, rgba(10, 10, 10, 0) 0%, rgba(10, 10, 10, 0) 28%, rgba(10, 10, 10, 0.9) 44%, #0a0a0a 49%),
+    linear-gradient(0deg, #0a0a0a 0%, rgba(10, 10, 10, 0.4) 22%, rgba(10, 10, 10, 0) 45%);
 }
 
 .pg-series .pg-hero .et_pb_row {
@@ -81,22 +106,25 @@
 .pg-series .pg-hero h3 {
   margin: 0 0 18px !important;
   padding: 0 !important;
-  font-size: clamp(34px, 4.4vw, 62px) !important;
-  font-weight: 300 !important;
-  line-height: 1.02 !important;
-  letter-spacing: 0.03em !important;
+  font-family: var(--s-serif) !important;
+  font-size: clamp(38px, 5vw, 72px) !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.01em !important;
   text-transform: uppercase;
   color: #fff !important;
   animation: pgs-rise 1s var(--s-ease) 0.1s both;
 }
-.pg-series .pg-hero h3 b { font-weight: 800; color: var(--s-accent); }
+.pg-series .pg-hero h3 b { font-weight: 400; color: var(--s-accent); }
 .pg-series .pg-hero h3::before {
   content: "Pilot Spray Guns";
   display: block;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
+  font-family: "Open Sans", system-ui, sans-serif;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.24em;
+  text-transform: uppercase;
   color: rgba(255, 255, 255, 0.55);
 }
 
@@ -116,11 +144,15 @@
 /* ---------- series menu + model rail (sticky) ---------- */
 
 .pg-series .et_pb_section.pg-nav {
+  /* Divi's own sticky script rewrites this section to position:fixed; top:0 after the first scroll
+     (hiding it under the site menu), so both values are !important to outrank its inline style */
+  position: sticky !important;
+  top: var(--pg-top) !important;
   padding: 0 !important;
-  background: rgba(243, 242, 239, 0.88) !important;
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  backdrop-filter: blur(14px) saturate(140%);
-  border-bottom: 1px solid var(--s-rule);
+  background: rgba(10, 10, 10, 0.82) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+  border-bottom: 1px solid var(--s-line);
   z-index: 9000;
 }
 .pg-series .pg-nav .et_pb_row { padding: 8px 0 !important; width: 94% !important; max-width: 1320px !important; }
@@ -137,12 +169,12 @@
   font-size: 12.5px !important;
   font-weight: 700 !important;
   letter-spacing: 0.07em !important;
-  color: #3b3b42 !important;
+  color: rgba(255, 255, 255, 0.66) !important;
   transition: background 0.3s var(--s-ease), color 0.3s ease;
 }
-.pg-series .pg-nav .et_pb_menu ul li a:hover { background: rgba(17, 17, 20, 0.07); color: var(--s-ink) !important; opacity: 1 !important; }
+.pg-series .pg-nav .et_pb_menu ul li a:hover { background: rgba(255, 255, 255, 0.09); color: #fff !important; opacity: 1 !important; }
 .pg-series .pg-nav .et_pb_menu ul li.current-menu-item > a,
-.pg-series .pg-nav .et_pb_menu ul li.current_page_item > a { background: var(--s-ink); color: #fff !important; }
+.pg-series .pg-nav .et_pb_menu ul li.current_page_item > a { background: #fff; color: #0a0a0a !important; }
 
 .pg-rail {
   display: flex;
@@ -150,7 +182,7 @@
   gap: 6px;
   margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px solid var(--s-rule);
+  border-top: 1px solid var(--s-line);
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -163,74 +195,84 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #8a8a92;
+  color: var(--s-mute);
 }
-.pg-series .pg-rail a.pg-chip {
+.pg-series .pg-rail .pg-chip {
   flex: 0 0 auto;
+  font-family: inherit;
+  line-height: 1.3;
+  cursor: pointer;
+  appearance: none;
   padding: 6px 14px;
-  border: 1px solid var(--s-rule);
+  border: 1px solid var(--s-line);
   border-radius: 999px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.05);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-decoration: none;
   white-space: nowrap;
-  color: #3b3b42;
+  color: rgba(255, 255, 255, 0.76);
   transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s var(--s-ease);
 }
-.pg-series .pg-rail a.pg-chip:hover { border-color: var(--s-accent); transform: translateY(-1px); }
-.pg-series .pg-rail a.pg-chip.is-on { background: var(--s-accent); border-color: var(--s-accent); color: #111114; }
+.pg-series .pg-rail .pg-chip:hover { border-color: var(--s-accent); color: #fff; transform: translateY(-1px); }
+.pg-series .pg-rail .pg-chip.is-on { background: var(--s-accent); border-color: var(--s-accent); color: #0a0a0a; }
 
 /* ---------- model cards ---------- */
 
 .pg-series .et_pb_section.pg-prod {
-  padding: 14px 0 !important;
+  padding: 16px 0 !important;
   background: transparent !important;
-  scroll-margin-top: 130px;
+  scroll-margin-top: 206px;
+  counter-increment: pgm;
 }
-.pg-series .pg-prod--desk:first-of-type,
-.pg-series .pg-nav + .pg-prod { padding-top: 34px !important; }
+.pg-series .pg-nav + .pg-prod { padding-top: 40px !important; }
 
 .pg-series .pg-prod .et_pb_row {
   position: relative;
-  width: min(1240px, 92%) !important;
+  width: min(1280px, 92%) !important;
   max-width: none !important;
   margin: 0 auto !important;
-  background: #fff;
-  border: 1px solid rgba(17, 17, 20, 0.06);
-  border-radius: 28px;
-  box-shadow: 0 30px 60px -42px rgba(25, 18, 8, 0.4);
-  transition: transform 0.6s var(--s-ease), box-shadow 0.6s var(--s-ease);
+  background: var(--s-glass);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--s-line);
+  border-radius: 32px;
+  box-shadow: 0 40px 80px -48px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: transform 0.6s var(--s-ease), box-shadow 0.6s var(--s-ease), border-color 0.4s ease;
 }
 .pg-series .pg-prod .et_pb_row::before,
 .pg-series .pg-prod .et_pb_row::after { display: none !important; }
-.pg-series .pg-prod .et_pb_row:hover { box-shadow: 0 40px 70px -40px rgba(25, 18, 8, 0.5); }
+.pg-series .pg-prod .et_pb_row:hover { border-color: rgba(255, 255, 255, 0.15); }
 
 /* type shared by both copies */
 .pg-series .pg-prod .et_pb_text { margin: 0 !important; padding: 0 !important; }
 .pg-series .pg-prod h1 {
-  margin: 0 0 6px !important;
+  margin: 0 0 8px !important;
   padding: 0 !important;
-  font-size: clamp(30px, 2.9vw, 42px) !important;
-  font-weight: 800 !important;
-  line-height: 1.05 !important;
-  letter-spacing: -0.02em !important;
-  color: var(--s-ink) !important;
+  font-family: var(--s-serif) !important;
+  font-size: clamp(40px, 4.4vw, 68px) !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.005em !important;
+  color: #fff !important;
 }
-.pg-series .pg-prod h1::after {
-  content: "";
+/* "No. 01" - numbered by the page itself, not typed in */
+.pg-series .pg-prod h1::before {
+  content: "No. " counter(pgm, decimal-leading-zero);
   display: block;
-  width: 36px;
-  height: 3px;
-  margin-top: 14px;
-  border-radius: 3px;
-  background: var(--s-accent);
+  margin-bottom: 18px;
+  font-family: "Open Sans", system-ui, sans-serif;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--s-accent);
 }
-.pg-series .pg-prod p { color: var(--s-body); }
+.pg-series .pg-prod p { color: var(--s-mute); }
 .pg-series .pg-prod .et_pb_text_inner > p:first-of-type,
-.pg-series .pg-prod .et_pb_text_inner > div > div > p:first-of-type { margin: 12px 0 0 !important; font-size: 14px; }
-.pg-series .pg-prod hr { height: 1px !important; margin: 20px 0 !important; border: 0 !important; background: var(--s-rule) !important; }
+.pg-series .pg-prod .et_pb_text_inner > div > div > p:first-of-type { margin: 10px 0 0 !important; font-size: 14px; color: var(--s-mute); }
+.pg-series .pg-prod hr { height: 1px !important; margin: 24px 0 !important; border: 0 !important; background: var(--s-line) !important; }
 .pg-series .pg-prod h5 {
   margin: 0 0 14px !important;
   padding: 0 !important;
@@ -242,16 +284,24 @@
 }
 .pg-series .pg-prod h5 strong { font-weight: 700; }
 .pg-series .pg-prod ul { margin: 0 0 18px !important; padding: 0 !important; list-style: none !important; }
-.pg-series .pg-prod li { position: relative; margin: 0 0 10px !important; padding: 0 0 0 20px !important; list-style: none !important; }
+.pg-series .pg-prod li {
+  position: relative;
+  margin: 0 !important;
+  padding: 11px 0 11px 22px !important;
+  border-bottom: 1px solid var(--s-line);
+  list-style: none !important;
+}
+.pg-series .pg-prod li:last-child { border-bottom: 0; }
 .pg-series .pg-prod li::before {
   content: "";
   position: absolute;
   left: 0;
-  top: 0.62em;
+  top: 1.15em;
   width: 7px;
   height: 7px;
   border-radius: 50%;
   background: var(--s-accent);
+  box-shadow: 0 0 0 4px rgba(245, 134, 52, 0.16);
 }
 .pg-series .pg-prod h6 {
   margin: 0 !important;
@@ -260,24 +310,60 @@
   font-weight: 400 !important;
   line-height: 1.5 !important;
   letter-spacing: 0 !important;
-  color: #3b3b42 !important;
+  color: var(--s-text) !important;
 }
 
 /* spec table */
 .pg-series .pg-prod table { width: 100%; margin: 0; border: 0 !important; border-collapse: collapse; background: transparent; }
 .pg-series .pg-prod td { padding: 11px 6px !important; border: 0 !important; vertical-align: middle; background: transparent !important; }
-.pg-series .pg-prod table:not(:has(img)) tr td { border-bottom: 1px solid var(--s-rule) !important; }
+.pg-series .pg-prod table:not(:has(img)) tr td { border-bottom: 1px solid var(--s-line) !important; }
 .pg-series .pg-prod tr { transition: background 0.25s ease; }
-.pg-series .pg-prod tr:hover { background: rgba(245, 134, 52, 0.06); }
+.pg-series .pg-prod table:not(:has(img)) tr:hover { background: rgba(245, 134, 52, 0.08); }
 
 /* the text rows of a spec table (label | value) */
-.pg-series .pg-prod table:not(:has(img)) td:first-child:not(:last-child) { font-size: 13.5px; line-height: 1.45; color: var(--s-body); }
-.pg-series .pg-prod table:not(:has(img)) td:last-child:not(:first-child) { font-size: 14px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; color: var(--s-ink); white-space: nowrap; }
+.pg-series .pg-prod table:not(:has(img)) td:first-child:not(:last-child) { font-size: 13.5px; line-height: 1.45; color: var(--s-mute); }
+.pg-series .pg-prod table:not(:has(img)) td:last-child:not(:first-child) { font-size: 14.5px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; color: #fff; white-space: nowrap; }
 
-/* areas of application */
+/* areas of application: a wrap of icon chips, built from the original two-column table */
 .pg-series .pg-prod td img:not([src*="pdf"]) { border-radius: 14px; }
+.pg-series .pg-prod .pg-areas { width: auto !important; margin-left: 0 !important; margin-right: 0 !important; }
+.pg-series .pg-prod .pg-areas > p {
+  margin: 0 0 14px !important;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--s-accent) !important;
+}
+.pg-series .pg-prod .pg-areas table,
+.pg-series .pg-prod .pg-areas tbody { display: block; width: auto; }
+.pg-series .pg-prod .pg-areas tbody { display: flex; flex-wrap: wrap; gap: 12px 8px; }
+.pg-series .pg-prod .pg-areas tr { display: contents; }
+.pg-series .pg-prod .pg-areas td {
+  display: block;
+  min-width: 50px;
+  padding: 0 !important;
+  white-space: nowrap;
+  border: 0 !important;
+  font-size: 10.5px;
+  font-weight: 400 !important;
+  line-height: 1.3;
+  text-align: left !important;
+  color: var(--s-mute) !important;
+}
+.pg-series .pg-prod .pg-areas td:not(:has(img)) { display: none; }
+.pg-series .pg-prod .pg-areas td img {
+  display: block;
+  width: 50px !important;
+  height: 50px !important;
+  margin-bottom: 6px;
+  border-radius: 15px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px var(--s-line);
+  transition: transform 0.5s var(--s-ease), box-shadow 0.4s ease;
+}
+.pg-series .pg-prod .pg-areas td:hover img { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--s-accent); }
 
-/* downloads: the pdf icon and its link become one pill */
+/* downloads: white pills, like the hero's buttons */
 .pg-series .pg-prod td a[href$=".pdf"] {
   top: 0 !important;
   padding: 0;
@@ -285,21 +371,21 @@
   font-size: 13px !important;
   font-weight: 700;
   white-space: nowrap;
-  color: var(--s-ink) !important;
+  color: #0a0a0a !important;
   text-decoration: none;
 }
 .pg-series .pg-prod td:has(> a[href$=".pdf"]),
 .pg-series .pg-prod td:has(> img[src*="pdf"]) { padding: 18px 0 0 !important; border: 0 !important; }
-.pg-series .pg-prod td img[src*="pdf"] { width: 24px !important; height: auto !important; margin-right: 8px; vertical-align: middle; }
+.pg-series .pg-prod td img[src*="pdf"] { width: 22px !important; height: auto !important; margin-right: 8px; vertical-align: middle; }
 
 /* ---------- desktop copy ---------- */
 
 .pg-series .pg-prod--desk .et_pb_row {
   display: grid !important;
-  grid-template-columns: minmax(220px, 0.8fr) minmax(300px, 1.05fr) minmax(0, 2.2fr);
-  gap: 0 44px;
+  grid-template-columns: minmax(270px, 1fr) minmax(320px, 1.12fr) minmax(0, 1.4fr);
+  gap: 0 52px;
   align-items: stretch;
-  padding: 46px 50px !important;
+  padding: 54px 56px !important;
 }
 .pg-series .pg-prod--desk .et_pb_column {
   float: none !important;
@@ -309,15 +395,34 @@
   padding: 0 !important;
 }
 
-/* the product shot sits on a warm tile; Divi paints it as a background on the module */
+/* first column: name + features, with the application icons pinned to the bottom */
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) { display: flex !important; flex-direction: column; }
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text { flex: 1 1 auto; display: flex; flex-direction: column; }
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner { flex: 1 1 auto; display: flex; flex-direction: column; }
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .pg-areas { margin-top: auto; padding-top: 26px; }
+
+/* second column: the white stage. A tab peeks above it, a figure card overlaps its corner. */
 .pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) {
+  position: relative;
   display: flex !important;
-  align-self: center;
-  aspect-ratio: 1 / 1.12;
-  border-radius: 22px;
-  background: radial-gradient(120% 90% at 50% 38%, #fff 0%, #f1ede6 70%, #e9e3d8 100%);
-  overflow: hidden;
+  min-height: 480px;
+  border-radius: 28px;
+  background: radial-gradient(120% 90% at 50% 38%, #fff 0%, #f3efe8 70%, #e8e2d6 100%);
+  box-shadow: 0 40px 70px -40px rgba(0, 0, 0, 0.85);
   isolation: isolate;
+}
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2)::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 12%;
+  right: 12%;
+  top: -16px;
+  height: 40px;
+  border-radius: 20px 20px 0 0;
+  background: rgba(255, 255, 255, 0.22);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 .pg-series .pg-prod--desk .et_pb_image {
   flex: 1 1 auto;
@@ -325,63 +430,88 @@
   min-height: 0;
   margin: 0 !important;
   padding: 0 !important;
+  border-radius: 28px;
   background-size: contain !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
   mix-blend-mode: multiply;
   transition: transform 0.9s var(--s-ease);
 }
-.pg-series .pg-prod--desk .et_pb_row:hover .et_pb_image { transform: scale(1.05); }
+.pg-series .pg-prod--desk .et_pb_row:hover .et_pb_image { transform: scale(1.04); }
 .pg-series .pg-prod--desk .et_pb_image_wrap { display: block; height: 100%; }
+
+/* the figure card (built by pg-series.js from two rows of the spec table) */
+.pg-fig {
+  position: absolute;
+  z-index: 2;
+  right: -30px;
+  bottom: 26px;
+  display: flex;
+  gap: 22px;
+  padding: 18px 24px 16px;
+  border-radius: 22px;
+  background: #fff;
+  color: #0a0a0a;
+  box-shadow: 0 30px 60px -28px rgba(0, 0, 0, 0.75);
+  transition: transform 0.7s var(--s-ease);
+}
+.pg-prod--desk .et_pb_row:hover .pg-fig { transform: translateY(-6px); }
+.pg-fig__item { display: flex; flex-direction: column; }
+.pg-fig__item + .pg-fig__item { padding-left: 22px; border-left: 1px solid rgba(10, 10, 10, 0.1); }
+.pg-fig__n { font-size: 28px; font-weight: 600; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.pg-fig__n small { margin-left: 3px; font-size: 12px; font-weight: 600; color: #7a7a82; letter-spacing: 0; }
+.pg-fig__l { max-width: 124px; margin-top: 8px; font-size: 11.5px; line-height: 1.3; color: #6b6b73; }
 
 .pg-series .pg-prod--desk .et_pb_divider { display: none !important; }
 
+/* third column: the technical data */
 .pg-series .pg-prod--desk .et_pb_column_3_5 .et_pb_text:first-of-type h5 {
   display: flex;
   align-items: center;
   gap: 14px;
-  color: var(--s-ink) !important;
+  color: #fff !important;
 }
-.pg-series .pg-prod--desk .et_pb_column_3_5 .et_pb_text:first-of-type h5::after { content: ""; flex: 1; height: 1px; background: var(--s-rule); }
+.pg-series .pg-prod--desk .et_pb_column_3_5 .et_pb_text:first-of-type h5::after { content: ""; flex: 1; height: 1px; background: var(--s-line); }
+.pg-series .pg-prod--desk .et_pb_column_3_5 .et_pb_text:first-of-type h5::before {
+  content: "";
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--s-accent);
+  order: -1;
+}
 
-/* inside the data module Divi uses an inline flex row: spec + downloads | applications */
-.pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1.7fr) minmax(150px, 1fr);
-  gap: 8px 36px;
-  width: 100% !important;
-}
+/* the data module wraps its tables in an inline flex row; once the areas block has moved out
+   it holds just the spec table and the downloads */
+.pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] { display: block !important; width: 100% !important; }
 .pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div { width: auto !important; margin: 0 !important; min-width: 0; }
 
-.pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:last-child > p {
-  margin: 0 0 8px !important;
+/* before the script has moved it (or with scripting off) the areas block stays in this column */
+.pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:not(:first-child):not(.pg-areas) > p {
+  margin: 22px 0 10px !important;
   font-size: 11.5px;
   font-weight: 700;
-  letter-spacing: 0.18em;
-  color: #8a8a92 !important;
+  letter-spacing: 0.2em;
+  color: var(--s-accent) !important;
 }
-.pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:last-child table { width: auto; }
-.pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:last-child td { padding: 6px 14px 10px 0 !important; border: 0 !important; font-size: 12px; font-weight: 400 !important; text-align: left !important; color: var(--s-body) !important; }
-.pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:last-child td img { width: 58px !important; height: 58px !important; object-fit: cover; display: block; margin-bottom: 4px; }
-.pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:last-child tr:hover { background: transparent; }
 
-/* two download buttons side by side (an empty cell, for a model with one document, is dropped) */
+/* downloads: two white pills side by side (a model with one document leaves an empty cell, dropped) */
 .pg-series .pg-prod--desk table[border="0"] td:not(:has(*)) { display: none !important; }
-.pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:first-child table[border="0"] { width: auto; margin-top: 4px; }
+.pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:first-child table[border="0"] { width: auto; margin-top: 6px; }
 .pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:first-child table[border="0"] tr { display: flex; flex-wrap: wrap; gap: 10px; }
 .pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:first-child table[border="0"] td {
   display: inline-flex;
   align-items: center;
-  padding: 10px 18px !important;
-  border: 1px solid var(--s-rule) !important;
+  padding: 11px 22px !important;
+  border: 0 !important;
   border-radius: 999px;
   background: #fff !important;
-  transition: background 0.3s ease, border-color 0.3s ease, transform 0.4s var(--s-ease);
+  transition: background 0.3s ease, transform 0.4s var(--s-ease), box-shadow 0.4s ease;
 }
 .pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:first-child table[border="0"] td:hover {
-  border-color: var(--s-accent) !important;
-  background: rgba(245, 134, 52, 0.08) !important;
+  background: var(--s-accent) !important;
   transform: translateY(-2px);
+  box-shadow: 0 14px 28px -12px rgba(245, 134, 52, 0.6);
 }
 
 /* ---------- scroll reveal (start states gated on the data attribute) ---------- */
@@ -389,7 +519,7 @@
 [data-pgs-js] .pg-prod .et_pb_row {
   opacity: 0;
   transform: translateY(46px);
-  transition: opacity 0.9s var(--s-ease), transform 0.9s var(--s-ease), box-shadow 0.6s var(--s-ease);
+  transition: opacity 0.9s var(--s-ease), transform 0.9s var(--s-ease), border-color 0.4s ease;
 }
 [data-pgs-js] .pg-prod.is-in .et_pb_row { opacity: 1; transform: none; }
 
@@ -397,28 +527,29 @@
 
 /* Divi's clearfix is switched off above (it would become a grid cell on desktop), so the
    floated columns of this copy need the row to contain them another way */
-.pg-series .pg-prod--mob .et_pb_row { display: flow-root !important; width: 92% !important; padding: 26px 22px !important; border-radius: 22px; }
+.pg-series .pg-prod--mob .et_pb_row { display: flow-root !important; width: 92% !important; padding: 28px 22px !important; border-radius: 26px; }
 .pg-series .pg-prod--mob .et_pb_column { float: none !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
 .pg-series .pg-prod--mob .et_pb_text { margin-bottom: 14px !important; }
+.pg-series .pg-prod--mob h1 { font-size: clamp(38px, 11vw, 52px) !important; }
 .pg-series .pg-prod--mob .et_pb_text_inner > div[style*="flex"] { display: flex !important; flex-direction: column; gap: 18px; width: 100% !important; }
 .pg-series .pg-prod--mob .et_pb_text_inner > div[style*="flex"] > div { width: 100% !important; margin: 0 !important; }
-/* the product photo is absolutely placed inline; bring it into the flow as a tile above the copy */
+/* the product photo is absolutely placed inline; bring it into the flow as a white stage above the copy */
 .pg-series .pg-prod--mob .et_pb_text_inner > div[style*="flex"] > div:has(> img[style*="absolute"]) {
   order: -1;
   display: flex;
   justify-content: center;
   padding: 18px;
-  border-radius: 20px;
+  border-radius: 22px;
   isolation: isolate;
-  background: radial-gradient(120% 90% at 50% 38%, #fff 0%, #f1ede6 70%, #e9e3d8 100%);
+  background: radial-gradient(120% 90% at 50% 38%, #fff 0%, #f3efe8 70%, #e8e2d6 100%);
 }
 .pg-series .pg-prod--mob div:has(> img[style*="absolute"]) img { position: static !important; right: auto !important; top: auto !important; display: block; width: auto; max-width: 100% !important; max-height: 320px; height: auto; object-fit: contain; mix-blend-mode: multiply; }
 .pg-series .pg-prod--mob td img:not([src*="pdf"]) { width: 54px !important; height: 54px !important; object-fit: cover; }
 .pg-series .pg-prod--mob table[border="0"] td:not(:has(*)) { display: none; }
-/* the two document links, one under the other */
+/* the two document links, one under the other, as white pills */
 .pg-series .pg-prod--mob p:has(> img[src*="pdf"]) { margin: 4px 0 0 !important; line-height: 1; }
 .pg-series .pg-prod--mob p > img[src*="pdf"] { width: 24px !important; height: auto !important; margin: 0 10px 0 0; vertical-align: middle; }
-.pg-series .pg-prod--mob p > a[href$=".pdf"] { display: inline-block; margin: 0 0 14px; padding: 9px 18px; border: 1px solid var(--s-rule); border-radius: 999px; background: #fff; }
+.pg-series .pg-prod--mob p > a[href$=".pdf"] { display: inline-block; margin: 0 0 14px; padding: 10px 20px; border-radius: 999px; background: #fff; }
 
 @media (min-width: 768px) {
   .pg-series .pg-prod--mob { display: none !important; }
@@ -426,26 +557,42 @@
 
 /* ---------- smaller desktops / tablets ---------- */
 
-@media (max-width: 1180px) {
-  .pg-series .pg-prod--desk .et_pb_row { grid-template-columns: minmax(200px, 1fr) minmax(170px, 0.8fr); padding: 38px 34px !important; gap: 0 32px; }
-  .pg-series .pg-prod--desk .et_pb_column_3_5 { grid-column: 1 / -1; margin-top: 30px !important; }
+@media (max-width: 1280px) {
+  .pg-series .pg-prod--desk .et_pb_row { grid-template-columns: minmax(230px, 0.95fr) minmax(280px, 1fr) minmax(0, 1.3fr); padding: 44px 40px !important; gap: 0 40px; }
+  .pg-fig { right: -22px; padding: 14px 18px 13px; gap: 16px; }
+  .pg-fig__n { font-size: 24px; }
+}
+
+@media (max-width: 1100px) {
+  .pg-series .pg-prod--desk .et_pb_row { grid-template-columns: minmax(200px, 1fr) minmax(240px, 0.9fr); padding: 40px 34px !important; gap: 0 34px; }
+  .pg-series .pg-prod--desk .et_pb_column_3_5 { grid-column: 1 / -1; margin-top: 34px !important; }
+  .pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) { min-height: 380px; }
 }
 
 @media (max-width: 980px) {
   .pg-series .pg-rail { display: none; }
   .pg-series .et_pb_section.pg-hero { height: auto; min-height: 280px; padding: 40px 0 !important; }
-  .pg-series .pg-hero::before { background: linear-gradient(0deg, #0b0b0b 0%, rgba(11, 11, 11, 0.78) 100%); }
+  .pg-series .pg-hero::before { background: linear-gradient(0deg, #0a0a0a 0%, rgba(10, 10, 10, 0.78) 100%); }
   .pg-series .pg-hero .et_pb_row { grid-template-columns: 1fr; }
   .pg-series .pg-hero .et_pb_column_empty { display: none; }
 }
 
 @media (max-width: 767px) {
   .pg-series .et_pb_section.pg-hero { display: none !important; }   /* the mobile banner copy takes over */
+  /* ...so give that banner the same dark treatment: the photo's grey panel fades to ink */
+  .pg-series .et_pb_section_1.et_pb_with_background { position: relative; background-color: #0a0a0a !important; padding-top: var(--pg-top) !important; }
+  .pg-series .et_pb_section_1.et_pb_with_background::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10, 10, 10, 0.5) 0%, rgba(10, 10, 10, 0.78) 55%, #0a0a0a 100%);
+  }
+  .pg-series .et_pb_section_1 > * { position: relative; z-index: 1; }
   .pg-series .pg-nav .et-menu-nav > ul { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .pg-series .pg-hero h3, .pg-series .pg-hero p { animation: none !important; }
   [data-pgs-js] .pg-prod .et_pb_row { opacity: 1; transform: none; transition: none; }
-  .pg-series .pg-prod--desk .et_pb_image, .pg-series .pg-prod .et_pb_row { transition: none !important; }
+  .pg-series .pg-prod--desk .et_pb_image, .pg-series .pg-prod .et_pb_row, .pg-fig { transition: none !important; }
 }

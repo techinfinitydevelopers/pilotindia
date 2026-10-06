@@ -257,5 +257,12 @@ posts), one `pages/`, `category/`, `assets/`. spray-guns/ airless/ welding/ offi
   they were deliberately NOT deleted - only agreed duplicates were.
 - Footer v2 and the pi-nav navbar are on every page; the product sites no longer have their own header.
 
+
+### series page look (evolution-series, redesigned 2026-10-06)
+Dark showroom matching the home hero: glass cards, Italiana model names, white stage tile per gun with a
+figure card read from the spec table, areas-of-application moved under the features by pg-series.js.
+Run `node tools/sprayguns-series.mjs pages/<page>.html` (paths relative to pilotindia-clone). Divi traps:
+its scripts/scroll fight any custom sticky or anchor scroll - see the persistent memory note.
+
 ## Work done
 See `BUILD_LOG.md`.

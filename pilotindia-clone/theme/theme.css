@@ -54,6 +54,7 @@
   --pi-font-body:    'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --pi-font-heading: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
   --pi-font-accent:  'Roboto Slab', Georgia, 'Times New Roman', serif;
+  --pi-font-display: 'Italiana', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;   /* hero + footer statement */
 
   /* Elementor reads these for its own global typography */
   --e-global-typography-text-font-family:      var(--pi-font-body);

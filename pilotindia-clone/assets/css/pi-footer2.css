@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Italiana&display=swap");
+
 /* ==========================================================================
    Pilot India — home page footer (variant 2)
    Same palette as the rest of the site, deliberately different structure and
@@ -60,56 +62,124 @@
 
 .pi-f2__say {
   margin: 0;
-  max-width: 19ch;
-  font-family: var(--pi-font-accent, "Roboto Slab", Georgia, serif);
-  font-size: clamp(24px, 3vw, 38px);
-  font-weight: 700;
-  line-height: 1.18;
-  letter-spacing: -0.015em;
+  max-width: 17ch;
+  font-family: var(--pi-font-display, "Italiana", Georgia, serif);
+  font-size: clamp(32px, 4vw, 56px);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: 0;
   color: var(--f-strong);
 }
 
-.pi-f2__say b { color: var(--f-accent); font-weight: 700; }
+.pi-f2__say b { color: var(--f-accent); font-weight: 400; }
 
-/* The two contact lines were plain right-aligned text, which read as overflow from
-   the statement rather than as the thing you are meant to act on. They are chips
-   now - same information, given an edge. */
+/* Contact: the two lines were plain right-aligned text, then two loose chips. Now one glass
+   card: an eyebrow, then two rows, each an orange icon disc, the figure in the body face
+   (Italiana only has old-style numerals, which make a phone number hard to read), and an
+   arrow that slides in on hover. Same two links,
+   same information. */
 .pi-f2__reach {
+  position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  width: min(100%, 392px);
+  padding: 22px 22px 10px;
+  border: 1px solid var(--f-line);
+  border-radius: 28px;
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(245, 134, 52, 0.1) 0%, rgba(245, 134, 52, 0) 60%),
+    rgba(255, 255, 255, 0.025);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.pi-f2__reach span {
+  display: inline-flex;
+  align-items: center;
   gap: 10px;
+  margin: 0 0 10px 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8a8a90;
+}
+/* a quiet pulse: someone is at the other end */
+.pi-f2__reach span::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--f-accent);
+  animation: pi-f2-pulse 2.4s ease-out infinite;
+}
+@keyframes pi-f2-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(245, 134, 52, 0.55); }
+  70%  { box-shadow: 0 0 0 9px rgba(245, 134, 52, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 134, 52, 0); }
 }
 
 .pi-f2 .pi-f2__reach a {
-  display: inline-flex;
+  position: relative;
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) 18px;
   align-items: center;
-  padding: 10px 18px;
-  border: 1px solid var(--f-line);
-  border-radius: var(--pi-radius-pill, 999px);
-  background: rgba(255, 255, 255, 0.02);
-  font-family: var(--pi-font-accent, "Roboto Slab", Georgia, serif);
-  font-size: clamp(15px, 1.5vw, 18px);
+  gap: 16px;
+  padding: 14px 4px;
+  border: 0;
+  border-top: 1px solid var(--f-line);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--pi-font-body, "Open Sans", system-ui, sans-serif);
+  font-size: clamp(20px, 1.9vw, 24px);
   font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
   color: var(--f-strong);
   text-decoration: none;
   white-space: nowrap;
-  transition: color 0.22s ease, border-color 0.22s ease,
-              background 0.22s ease, transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: color 0.25s ease, padding 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
+.pi-f2 .pi-f2__reach a[href^="mailto"] { font-size: clamp(16px, 1.4vw, 18px); font-weight: 500; }
+
+/* icon disc: a tint with the glyph centred on it */
+.pi-f2 .pi-f2__reach a::before {
+  content: "";
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background-color: rgba(245, 134, 52, 0.12);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 20px 20px;
+  transition: background-color 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pi-f2 .pi-f2__reach a[href^="tel"]::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f58634'%3E%3Cpath d='M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.4 0 .7-.2 1l-2.2 2.2z'/%3E%3C/svg%3E"); }
+.pi-f2 .pi-f2__reach a[href^="mailto"]::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f58634'%3E%3Cpath d='M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm9 7.2L4.4 7H4v.4l8 5.5 8-5.5V7h-.4L12 12.2zM4 9.8V17h16V9.8l-8 5.5-8-5.5z'/%3E%3C/svg%3E"); }
+
+/* arrow, hidden until the row is hovered */
+.pi-f2 .pi-f2__reach a::after {
+  content: "";
+  width: 18px;
+  height: 18px;
+  background: var(--f-accent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13.2 5.4 11.8 6.8l4.2 4.2H4v2h12l-4.2 4.2 1.4 1.4L20 12z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13.2 5.4 11.8 6.8l4.2 4.2H4v2h12l-4.2 4.2 1.4 1.4L20 12z'/%3E%3C/svg%3E") center / contain no-repeat;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .pi-f2 .pi-f2__reach a:hover,
 .pi-f2 .pi-f2__reach a:focus-visible {
+  padding-left: 10px;
   color: var(--f-accent);
-  border-color: rgba(245, 134, 52, 0.5);
-  background: rgba(245, 134, 52, 0.07);
-  transform: translateY(-2px);
 }
-.pi-f2__reach span {
-  font-size: 11.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #6b6b70;
-}
+.pi-f2 .pi-f2__reach a:hover::before,
+.pi-f2 .pi-f2__reach a:focus-visible::before { background-color: rgba(245, 134, 52, 0.22); transform: scale(1.06); }
+.pi-f2 .pi-f2__reach a:hover::after,
+.pi-f2 .pi-f2__reach a:focus-visible::after { opacity: 1; transform: none; }
 
 /* ---------- link columns ---------- */
 
@@ -143,10 +213,9 @@
 
 .pi-f2__h {
   margin: 0 0 16px;
-  font-family: var(--pi-font-accent, "Roboto Slab", Georgia, serif);
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: #6b6b70;
 }
@@ -234,7 +303,7 @@
 @media (max-width: 900px) {
   .pi-f2__cols { grid-template-columns: repeat(2, 1fr); gap: 30px; }
   .pi-f2__prow { padding: 48px 0 34px; }
-  .pi-f2__reach { align-items: flex-start; }
+  .pi-f2__reach { width: 100%; max-width: 440px; }
 }
 
 @media (max-width: 560px) {
@@ -245,7 +314,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pi-f2 * { transition: none !important; }
-  .pi-f2 .pi-f2__reach a:hover,
+  .pi-f2__reach span::before { animation: none; }
   .pi-f2 .pi-f2__list a:hover,
   .pi-f2 .pi-f2__social a:hover { transform: none; }
 }

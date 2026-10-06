@@ -1404,3 +1404,24 @@ Verified at 1536x730, 1792x900, 1366x650, 1280x620, 1920x1080, 1024x700: no text
 description complete. Known limit: windows under ~650px tall scroll by ~50px because the content no longer
 shrinks past its natural height. (The hero frame was reworked on disk by someone else meanwhile - nav above
 the hero, `min-height: calc(100vh - 100px)` - left as found.)
+
+---
+
+# Footer contact block + font revamp (2026-10-06)
+
+`pilotindia-clone/assets/css/pi-footer2.css` (CSS only; footer v2 is on every page, so no HTML touched)
+and a new `--pi-font-display` token in `theme/theme.css`.
+
+- **Contact**: the two loose pills became one glass card: pulsing-dot "Speak to us" eyebrow, then two
+  rows, each an orange icon disc (phone / mail), the figure, and an arrow that slides in on hover with
+  the row turning orange. Same two links, same information.
+- **Font**: the heavy Roboto Slab (statement, headings, contact) is gone. The statement uses Italiana,
+  the display serif of the home hero, via the new theme token; column headings are small-caps in the
+  body face; the contact rows use the body face (Open Sans 600, tabular figures).
+- **Gotcha**: Italiana has only old-style figures (no `lnum` feature), so as a phone number the 4 and 7
+  dropped below the line; lining-nums changed nothing. Contact rows therefore use the body face.
+- The Italiana `@import` sits at the top of `pi-footer2.css` so every page with the footer gets the
+  font without editing 298 pages; offline it falls back to Georgia.
+- Icon glyphs are SVG data URIs (they cannot read CSS variables), so their orange is the logo orange
+  #f58634 written out; the hover arrow is a mask and follows `--pi-accent`.
+- Verified at 1631, 1000 and 420 px on home and about-us: no overflow, hover state works.

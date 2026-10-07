@@ -20,11 +20,12 @@
    ========================================================================== */
 
 .pg-series {
-  --s-bg: #0a0a0a;
-  --s-glass: rgba(24, 24, 24, 0.7);
-  --s-line: rgba(255, 255, 255, 0.09);
-  --s-text: rgba(255, 255, 255, 0.84);
-  --s-mute: rgba(255, 255, 255, 0.56);
+  --s-bg: #ffffff;
+  --s-ink: #111114;
+  --s-glass: #faf9f7;
+  --s-line: rgba(17, 17, 20, 0.1);
+  --s-text: #2c2c32;
+  --s-mute: #6b6b73;
   --s-accent: var(--pi-accent, #f58634);
   --s-serif: "Italiana", "Cormorant Garamond", Georgia, "Times New Roman", serif;
   --s-ease: cubic-bezier(0.19, 1, 0.22, 1);
@@ -42,12 +43,12 @@ body.pg-series { overflow-x: clip !important; }
 .pg-series #page-container,
 .pg-series #et-main-area { background: var(--s-bg); }
 
-/* ambient glows behind the cards, so the dark ground is lit rather than flat */
+/* a faint warm wash behind the cards, so the white ground is not flat */
 .pg-series #main-content {
   background:
-    radial-gradient(900px circle at 88% 4%, rgba(245, 134, 52, 0.11), transparent 62%),
-    radial-gradient(760px circle at 4% 38%, rgba(245, 134, 52, 0.07), transparent 62%),
-    radial-gradient(900px circle at 80% 78%, rgba(245, 134, 52, 0.07), transparent 62%),
+    radial-gradient(900px circle at 88% 4%, rgba(245, 134, 52, 0.07), transparent 62%),
+    radial-gradient(760px circle at 4% 38%, rgba(245, 134, 52, 0.045), transparent 62%),
+    radial-gradient(900px circle at 80% 78%, rgba(245, 134, 52, 0.045), transparent 62%),
     var(--s-bg);
 }
 
@@ -149,7 +150,7 @@ body.pg-series { overflow-x: clip !important; }
   position: sticky !important;
   top: var(--pg-top) !important;
   padding: 0 !important;
-  background: rgba(10, 10, 10, 0.82) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   backdrop-filter: blur(16px) saturate(140%);
   border-bottom: 1px solid var(--s-line);
@@ -169,12 +170,12 @@ body.pg-series { overflow-x: clip !important; }
   font-size: 12.5px !important;
   font-weight: 700 !important;
   letter-spacing: 0.07em !important;
-  color: rgba(255, 255, 255, 0.66) !important;
+  color: #4a4a52 !important;
   transition: background 0.3s var(--s-ease), color 0.3s ease;
 }
-.pg-series .pg-nav .et_pb_menu ul li a:hover { background: rgba(255, 255, 255, 0.09); color: #fff !important; opacity: 1 !important; }
+.pg-series .pg-nav .et_pb_menu ul li a:hover { background: rgba(17, 17, 20, 0.07); color: #111114 !important; opacity: 1 !important; }
 .pg-series .pg-nav .et_pb_menu ul li.current-menu-item > a,
-.pg-series .pg-nav .et_pb_menu ul li.current_page_item > a { background: #fff; color: #0a0a0a !important; }
+.pg-series .pg-nav .et_pb_menu ul li.current_page_item > a { background: #111114; color: #fff !important; }
 
 .pg-rail {
   display: flex;
@@ -206,16 +207,16 @@ body.pg-series { overflow-x: clip !important; }
   padding: 6px 14px;
   border: 1px solid var(--s-line);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
+  background: #fff;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-decoration: none;
   white-space: nowrap;
-  color: rgba(255, 255, 255, 0.76);
+  color: #3b3b42;
   transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s var(--s-ease);
 }
-.pg-series .pg-rail .pg-chip:hover { border-color: var(--s-accent); color: #fff; transform: translateY(-1px); }
+.pg-series .pg-rail .pg-chip:hover { border-color: var(--s-accent); color: #111114; transform: translateY(-1px); }
 .pg-series .pg-rail .pg-chip.is-on { background: var(--s-accent); border-color: var(--s-accent); color: #0a0a0a; }
 
 /* ---------- model cards ---------- */
@@ -238,12 +239,12 @@ body.pg-series { overflow-x: clip !important; }
   backdrop-filter: blur(18px) saturate(140%);
   border: 1px solid var(--s-line);
   border-radius: 32px;
-  box-shadow: 0 40px 80px -48px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow: 0 30px 60px -42px rgba(25, 18, 8, 0.28);
   transition: transform 0.6s var(--s-ease), box-shadow 0.6s var(--s-ease), border-color 0.4s ease;
 }
 .pg-series .pg-prod .et_pb_row::before,
 .pg-series .pg-prod .et_pb_row::after { display: none !important; }
-.pg-series .pg-prod .et_pb_row:hover { border-color: rgba(255, 255, 255, 0.15); }
+.pg-series .pg-prod .et_pb_row:hover { border-color: rgba(17, 17, 20, 0.2); }
 
 /* type shared by both copies */
 .pg-series .pg-prod .et_pb_text { margin: 0 !important; padding: 0 !important; }
@@ -255,7 +256,7 @@ body.pg-series { overflow-x: clip !important; }
   font-weight: 400 !important;
   line-height: 1 !important;
   letter-spacing: 0.005em !important;
-  color: #fff !important;
+  color: var(--s-ink) !important;
 }
 /* "No. 01" - numbered by the page itself, not typed in */
 .pg-series .pg-prod h1::before {
@@ -322,7 +323,7 @@ body.pg-series { overflow-x: clip !important; }
 
 /* the text rows of a spec table (label | value) */
 .pg-series .pg-prod table:not(:has(img)) td:first-child:not(:last-child) { font-size: 13.5px; line-height: 1.45; color: var(--s-mute); }
-.pg-series .pg-prod table:not(:has(img)) td:last-child:not(:first-child) { font-size: 14.5px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; color: #fff; white-space: nowrap; }
+.pg-series .pg-prod table:not(:has(img)) td:last-child:not(:first-child) { font-size: 14.5px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; color: var(--s-ink); white-space: nowrap; }
 
 /* areas of application: a wrap of icon chips, built from the original two-column table */
 .pg-series .pg-prod td img:not([src*="pdf"]) { border-radius: 14px; }
@@ -408,7 +409,7 @@ body.pg-series { overflow-x: clip !important; }
   min-height: 480px;
   border-radius: 28px;
   background: radial-gradient(120% 90% at 50% 38%, #fff 0%, #f3efe8 70%, #e8e2d6 100%);
-  box-shadow: 0 40px 70px -40px rgba(0, 0, 0, 0.85);
+  box-shadow: 0 26px 50px -30px rgba(25, 18, 8, 0.35), 0 0 0 1px rgba(17, 17, 20, 0.05);
   isolation: isolate;
 }
 .pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2)::before {
@@ -420,7 +421,7 @@ body.pg-series { overflow-x: clip !important; }
   top: -16px;
   height: 40px;
   border-radius: 20px 20px 0 0;
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(17, 17, 20, 0.06);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
@@ -452,7 +453,7 @@ body.pg-series { overflow-x: clip !important; }
   border-radius: 22px;
   background: #fff;
   color: #0a0a0a;
-  box-shadow: 0 30px 60px -28px rgba(0, 0, 0, 0.75);
+  box-shadow: 0 22px 44px -24px rgba(25, 18, 8, 0.4), 0 0 0 1px rgba(17, 17, 20, 0.06);
   transition: transform 0.7s var(--s-ease);
 }
 .pg-prod--desk .et_pb_row:hover .pg-fig { transform: translateY(-6px); }
@@ -469,7 +470,7 @@ body.pg-series { overflow-x: clip !important; }
   display: flex;
   align-items: center;
   gap: 14px;
-  color: #fff !important;
+  color: var(--s-ink) !important;
 }
 .pg-series .pg-prod--desk .et_pb_column_3_5 .et_pb_text:first-of-type h5::after { content: ""; flex: 1; height: 1px; background: var(--s-line); }
 .pg-series .pg-prod--desk .et_pb_column_3_5 .et_pb_text:first-of-type h5::before {
@@ -506,6 +507,7 @@ body.pg-series { overflow-x: clip !important; }
   border: 0 !important;
   border-radius: 999px;
   background: #fff !important;
+  box-shadow: 0 0 0 1px var(--s-line);
   transition: background 0.3s ease, transform 0.4s var(--s-ease), box-shadow 0.4s ease;
 }
 .pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:first-child table[border="0"] td:hover {
@@ -549,7 +551,7 @@ body.pg-series { overflow-x: clip !important; }
 /* the two document links, one under the other, as white pills */
 .pg-series .pg-prod--mob p:has(> img[src*="pdf"]) { margin: 4px 0 0 !important; line-height: 1; }
 .pg-series .pg-prod--mob p > img[src*="pdf"] { width: 24px !important; height: auto !important; margin: 0 10px 0 0; vertical-align: middle; }
-.pg-series .pg-prod--mob p > a[href$=".pdf"] { display: inline-block; margin: 0 0 14px; padding: 10px 20px; border-radius: 999px; background: #fff; }
+.pg-series .pg-prod--mob p > a[href$=".pdf"] { display: inline-block; margin: 0 0 14px; padding: 10px 20px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 1px var(--s-line); }
 
 @media (min-width: 768px) {
   .pg-series .pg-prod--mob { display: none !important; }
@@ -597,109 +599,6 @@ body.pg-series { overflow-x: clip !important; }
   .pg-series .pg-prod--desk .et_pb_image, .pg-series .pg-prod .et_pb_row, .pg-fig { transition: none !important; }
 }
 
-/* ---------- Stack Scroll Reveal (Framer component) ----------
-   Built by pg-series.js on desktop screens: model cards are pinned in a 3D sticky stack.
-   As you scroll, the top card tilts back (rotateX: 15deg with bottom hinge) and glides up,
-   while background cards scale up and rise into place. Everything here is inert until
-   `body.pg-deck-on` exists. */
-
-.pg-deck { position: relative; }
-
-/* Never render calendar binder rings or backface elements */
-.pg-deck__rings,
-.pg-deck__ring,
-.pg-deck__back {
-  display: none !important;
-}
-
-.pg-deck__sticky {
-  position: sticky;
-  z-index: 1;
-  perspective: 1200px;
-  perspective-origin: 50% 50%;
-}
-
-/* the whole stage is scaled as one piece so a tall card still fits under the sticky bars */
-.pg-deck__scaler {
-  position: relative;
-  width: calc(100% / var(--s, 1));
-  transform: scale(var(--s, 1));
-  transform-origin: 0 0;
-  transform-style: preserve-3d;
-}
-
-/* each model section becomes a card sheet in the 3D stack: hinged at bottom edge */
-.pg-series .pg-deck .et_pb_section.pg-deck__sheet {
-  position: absolute !important;
-  inset: 0;
-  display: flex !important;
-  align-items: flex-start;
-  justify-content: center;
-  margin: 0 !important;
-  padding: 0 !important;
-  transform-origin: 50% 100%;
-  transform-style: preserve-3d;
-  will-change: transform, opacity;
-  transition: none;
-}
-
-/* the card face: all sheets share one height */
-.pg-series .pg-deck .pg-deck__sheet .et_pb_row {
-  min-height: var(--card-h, 0px);
-  transform: none !important;
-  background: linear-gradient(165deg, #18191b 0%, #0e0f11 100%) !important;
-  border-radius: 32px;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 40px 90px -25px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.06) !important;
-  overflow: hidden;
-  transition: border-color 0.4s ease;
-}
-
-/* depth shade for cards deeper in the stack */
-.pg-deck__shade {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: min(1280px, 92%);
-  height: var(--card-h, 100%);
-  margin-left: calc(min(1280px, 92%) / -2);
-  border-radius: 32px;
-  background: #000;
-  opacity: var(--shade, 0);
-  pointer-events: none;
-  transition: opacity 0.15s linear;
-}
-
-/* cards under the top one don't capture pointer events */
-.pg-deck__sheet[inert] { pointer-events: none; }
-
-/* ---------- deck mode: a tighter card ----------
-   A leaf has to fit under the sticky bars in one screen, so the card is compacted (less padding,
-   slightly smaller type, denser rows) instead of being shrunk to half size. Same content. */
-.pg-deck-on .pg-prod--desk .et_pb_row { padding: 30px 44px 32px !important; gap: 0 40px; }
-.pg-deck-on .pg-prod--desk h1 { font-size: clamp(36px, 3.5vw, 54px) !important; margin-bottom: 2px !important; }
-.pg-deck-on .pg-prod--desk h1::before { margin-bottom: 10px; }
-.pg-deck-on .pg-prod--desk .et_pb_text_inner > p:first-of-type { margin-top: 6px !important; font-size: 13px; }
-.pg-deck-on .pg-prod--desk hr { margin: 14px 0 !important; }
-.pg-deck-on .pg-prod--desk h5 { margin-bottom: 8px !important; }
-.pg-deck-on .pg-prod--desk ul { margin-bottom: 6px !important; }
-.pg-deck-on .pg-prod--desk li { padding: 6px 0 6px 22px !important; }
-.pg-deck-on .pg-prod--desk li::before { top: 0.95em; }
-.pg-deck-on .pg-prod--desk h6 { font-size: 13.5px !important; line-height: 1.4 !important; }
-.pg-deck-on .pg-prod--desk .pg-areas { padding-top: 12px !important; }
-.pg-deck-on .pg-prod--desk .pg-areas > p { margin-bottom: 8px !important; }
-.pg-deck-on .pg-prod--desk .pg-areas tbody { gap: 8px 8px; }
-.pg-deck-on .pg-prod--desk .pg-areas td { min-width: 44px; font-size: 10px; }
-.pg-deck-on .pg-prod--desk .pg-areas td img { width: 44px !important; height: 44px !important; margin-bottom: 4px; border-radius: 13px; }
-.pg-deck-on .pg-prod--desk .et_pb_column_1_5:nth-child(2) { min-height: 0; }
-.pg-deck-on .pg-prod--desk table:not(:has(img)) td { padding-top: 6.5px !important; padding-bottom: 6.5px !important; }
-.pg-deck-on .pg-prod--desk table:not(:has(img)) td:first-child:not(:last-child) { font-size: 12.5px; line-height: 1.35; }
-.pg-deck-on .pg-prod--desk table:not(:has(img)) td:last-child:not(:first-child) { font-size: 13.5px; }
-.pg-deck-on .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:first-child table[border="0"] td { padding: 9px 20px !important; }
-.pg-deck-on .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:first-child table[border="0"] { margin-top: 2px; }
-.pg-deck-on .pg-fig { padding: 12px 18px 11px; bottom: 18px; }
-.pg-deck-on .pg-fig__n { font-size: 22px; }
-
 /* Some models carry inline styles on their application table (`width: 20px`, image `height: 75px`) and a
    <br> before each caption; without these the icons stack in one narrow column and the card doubles in height */
 .pg-series .pg-prod .pg-areas table { width: auto !important; }
@@ -707,7 +606,3 @@ body.pg-series { overflow-x: clip !important; }
 .pg-series .pg-prod .pg-areas td { width: auto !important; }
 
 .pg-series .pg-prod td.pg-empty { display: none !important; }
-
-/* leaves under the top one: a lighter edge so the stack reads as a stack on the dark ground */
-.pg-series .pg-deck .pg-deck__sheet .et_pb_row { border-color: rgba(255, 255, 255, 0.17); }
-.pg-series .pg-deck .pg-deck__sheet .et_pb_row:hover { border-color: rgba(255, 255, 255, 0.26); }

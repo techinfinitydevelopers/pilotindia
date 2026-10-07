@@ -274,5 +274,8 @@ opaque showroom background to prevent text bleed, smooth shadow layering, depth 
 model chips in the sticky navigation rail. Plain responsive list on tablets, phones, or reduced motion.
 Owned by `assets/js/pg-series.js` + `assets/css/pg-series.css`.
 
+### series page: deck removed, white theme (2026-10-07)
+The scroll deck (calendar flip, then Stack Scroll Reveal) was removed at the user's request; models are plain cards on a white theme. Theme is the `--s-*` tokens at the top of pg-series.css. Hero banner stays dark. If a deck is ever wanted again: commits 79b21bf (calendar) and cf6e44b (stack).
+
 ## Work done
 See `BUILD_LOG.md`.

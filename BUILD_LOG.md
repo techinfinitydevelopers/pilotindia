@@ -1548,3 +1548,29 @@ Replaced the calendar binder-ring flip with the exact 3D **Stack Scroll Reveal**
   - Tested on `http://localhost:8080/pages/evolution-series.html` over CDP headless Chrome.
   - Captured frames across initial rest, mid-scroll 3D tilt reveal, and subsequent settled card state.
 
+
+---
+
+# evolution-series: deck animation removed, product area on a white theme (2026-10-07)
+
+Requested: undo the product animation and use a white-theme background.
+
+- **Removed the scroll deck entirely.** The calendar-flip (79b21bf) had been replaced by a "Stack Scroll
+  Reveal" version (cf6e44b) on the same scaffolding; both are gone from `assets/js/pg-series.js` (the
+  `deckCtl` block, its click branch, spy guard and `setActiveChip`) and from `assets/css/pg-series.css`
+  (`.pg-deck*`, `.pg-deck-on` compact-card rules). The nine models are plain stacked cards again. Kept:
+  the gentle fade-up reveal, the figure card, the areas-of-application move, the blank-cell fix, and the
+  `.pg-areas` overrides (those fix an inline `width: 20px` and are not deck-specific).
+- **White theme.** Page canvas `#ffffff` (was near-black), cards `#faf9f7` with a hairline border and a soft
+  warm shadow, text ink `#111114`, series bar `rgba(255,255,255,.9)` with a dark current-series pill, model chips
+  white with a dark label, download pills white with a hairline ring, the faint orange wash lowered. The
+  hero banner keeps its dark photograph (it is a photo band), as does the mobile banner.
+- Done with one script of assert-once replacements (each target had to match exactly once), which also made
+  the colours trivial to find: most of the dark values lived behind `--s-*` tokens (`--s-bg`, `--s-glass`,
+  `--s-line`, `--s-text`, `--s-mute`, new `--s-ink`), so a future theme change is those six lines.
+- Backups of the pre-change files are in the session scratchpad (`pre-undo/`); the previous versions are also
+  commits 79b21bf and cf6e44b.
+
+Verified (headless Chrome, localhost:8080): 1631x800 at three scroll positions, 420x900, no overflow; the four
+model buttons (HP 64 N, HVLP 08, HP P-70, HVLP 06) land with the card at 196px under the 92-188px bar and the
+right chip lit.

@@ -1474,3 +1474,52 @@ removed with the old header when the new navbar landed.
 1631x800, 1024x760, 420x900: no overflow; four model-button jumps (HP 64 N, HVLP 08, HP P-70, HVLP 06)
 each land with the card at 196px, directly under the 92-188px bar, correct chip lit, one clean scroll.
 Tool idempotent (identical hash on re-run).
+
+---
+
+# evolution-series: calendar deck (2026-10-07)
+
+The nine model cards become one pinned stack of calendar leaves. Scrolling is the date: the top leaf holds,
+then swings up and over its hinge and the next model is underneath. Built in `assets/js/pg-series.js`,
+styled at the end of `assets/css/pg-series.css`; the model sections are MOVED into the stage (not copied), so
+every `.pg-prod ...` style and every link still applies.
+
+## How it works
+- `.pg-deck` is a runway (`stage + 8 steps`); inside it a sticky stage with `perspective: 2600px`, origin
+  at the top, holds a scaler (`transform: scale(--s)`, `preserve-3d`) and the leaves (`position: absolute`).
+- Each frame (rAF, passive scroll): `p = (stick - deck.top) / step`; per leaf `flip` holds for the first 26% of
+  its stretch, turns over the next 54% (smoothstep), then the next leaf holds. Leaf transform is
+  `translate3d(0, d*16px, -d*4px) rotateX(f*180deg) scale(1 - d*.035)`, `d` = leaves above it (capped at 3).
+  `--fade` fades the face between 90 and 150 degrees, `--shade` dims leaves lower in the stack, leaves that
+  are fully turned or more than 3 deep get `visibility: hidden`, and every leaf but the top is `inert`.
+- Hinge: 18 binder rings across the top of the stage. The back of a leaf (model name as a ghost outline on a
+  dark grid) shows while it is in the air.
+- Model buttons scroll to the point where that leaf is on top (`p = i`); the active button follows the leaf.
+- Only on width >= 1101 and height >= 560 and not reduced-motion, and only if the tallest card needs a scale
+  of at least 0.66 to fit under the sticky bars. Otherwise nothing is built and the cards stay a plain list
+  (tablet) or the stacked mobile copy (phone). Resize rebuilds or tears down (`destroy()` puts each section back
+  before its saved next sibling, last to first).
+- Deck mode applies a tighter card (`.pg-deck-on ...`): less padding, denser rows, smaller figure card, so the
+  card fits in one screen at scale 0.67 to 1.0 instead of being shrunk to half size.
+
+## Traps hit
+- **3D sorting**: a plane pushed `translateZ(1px)` beats `z-index` in a `preserve-3d` stack, so the shade layers of
+  the leaves underneath were drawn over the top card (it looked dim). Fixed by removing it and giving each leaf its
+  own real depth (`-4px` per level).
+- **Opacity / backdrop-filter flatten 3D**: the card has `backdrop-filter`, so it cannot be the 3D element. The
+  section is the preserve-3d leaf; the card and the back are its two faces with `backface-visibility: hidden`;
+  fading is applied to those faces, never to the leaf.
+- **One outlier card sets the height for all**: HP 64 N measured 838px against ~550 for the rest. Cause: its
+  application table has an inline `width: 20px`, image `height: 75px` and a `<br>` before every caption, so the
+  icons stacked in one narrow column. `!important` overrides on `.pg-areas table/td` and `br { display: none }`.
+- HVLP 06 has a download cell with an empty link (`<a> </a>`) which showed as a blank white pill; the script marks
+  cells with no image and no text `pg-empty` and hides them.
+- Backslashes in regexes were lost again when the script was written through a template string (`/s+/` for
+  `/\s+/`): it silently did nothing. For regexes, edit the file directly.
+
+## Verification (headless Chrome over CDP, localhost:8080)
+Window sizes: 1920x1000 scale 1.00, 1631x800 0.87, 1536x730 0.76, 1366x650 0.67, 1280x720 0.80 -> deck, stage fits
+under the bars; 1100x800 and 1024x700 -> plain list, no overflow; 420x900 -> mobile cards. Frames at hold, 25%, 50%,
+75% of a flip and the next hold: the top card is fully lit at rest, tilts about its hinge with perspective, and the
+next model rises. Four model buttons (HP 64 N, HVLP 08, HP P-70 W/O CUP, HVLP 03) each land with exactly that leaf
+interactive and its button lit. End of the deck: last leaf holds, then the page flows on into the footer.

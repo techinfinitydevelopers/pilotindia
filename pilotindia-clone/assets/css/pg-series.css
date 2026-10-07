@@ -596,3 +596,158 @@ body.pg-series { overflow-x: clip !important; }
   [data-pgs-js] .pg-prod .et_pb_row { opacity: 1; transform: none; transition: none; }
   .pg-series .pg-prod--desk .et_pb_image, .pg-series .pg-prod .et_pb_row, .pg-fig { transition: none !important; }
 }
+
+/* ---------- the calendar deck ----------
+   Built by pg-series.js on wide, tall screens: the desktop model sections are moved into one
+   pinned stage and stacked like the leaves of a desk calendar. Scrolling flips the top leaf up
+   and over its hinge (the JS writes transform / --fade / --shade each frame). Everything here
+   is inert until `body.pg-deck-on` exists. */
+
+.pg-deck { position: relative; }
+
+.pg-deck__sticky {
+  position: sticky;
+  z-index: 1;
+  perspective: 2600px;
+  perspective-origin: 50% 0%;
+}
+
+/* the whole stage is scaled as one piece so a tall card still fits under the sticky bars */
+.pg-deck__scaler {
+  position: relative;
+  width: calc(100% / var(--s, 1));
+  transform: scale(var(--s, 1));
+  transform-origin: 0 0;
+  transform-style: preserve-3d;
+}
+
+/* each model section becomes a leaf: same size, stacked, hinged at its top edge */
+.pg-series .pg-deck .et_pb_section.pg-deck__sheet {
+  position: absolute !important;
+  inset: 0;
+  display: flex !important;
+  align-items: flex-start;
+  justify-content: center;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform-origin: 50% 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* the card face: all leaves share one height, and it must not show when it has turned away */
+.pg-series .pg-deck .pg-deck__sheet .et_pb_row {
+  min-height: var(--card-h, 0px);
+  opacity: var(--fade, 1) !important;
+  transform: none !important;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transition: border-color 0.4s ease;
+}
+
+/* the reverse of the leaf, seen while it is in the air */
+.pg-deck__back,
+.pg-deck__shade {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(1280px, 92%);
+  height: var(--card-h, 100%);
+  margin-left: calc(min(1280px, 92%) / -2);
+  border-radius: 32px;
+  pointer-events: none;
+}
+.pg-deck__back {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  opacity: var(--fade, 1);
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 34px),
+    linear-gradient(165deg, #1d1d1d 0%, #0e0e0e 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transform: rotateX(180deg);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.pg-deck__back-t {
+  font-family: var(--s-serif);
+  font-size: clamp(60px, 9vw, 150px);
+  line-height: 1;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.14);
+  white-space: nowrap;
+}
+
+/* leaves lower in the stack are dimmer; the one on top is full light */
+.pg-deck__shade {
+  background: #000;
+  opacity: var(--shade, 0);
+  /* no translateZ here: in a preserve-3d stack a plane 1px forward beats z-index, and the shades of the
+     leaves underneath would then be drawn over the leaf on top. Depth order comes from the sheets. */
+}
+
+/* the binding: loops across the top of the stage, in front of the leaves */
+.pg-deck__rings {
+  position: absolute;
+  z-index: 60;
+  top: -17px;
+  left: 50%;
+  display: flex;
+  justify-content: space-between;
+  width: min(62%, 720px);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.pg-deck__ring {
+  width: 11px;
+  height: 36px;
+  border: 3px solid #cfcfd2;
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0) 60%);
+  box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+/* nothing in the deck should react to the pointer unless it is the leaf on top (also set `inert`) */
+.pg-deck__sheet[inert] { pointer-events: none; }
+
+/* ---------- deck mode: a tighter card ----------
+   A leaf has to fit under the sticky bars in one screen, so the card is compacted (less padding,
+   slightly smaller type, denser rows) instead of being shrunk to half size. Same content. */
+.pg-deck-on .pg-prod--desk .et_pb_row { padding: 30px 44px 32px !important; gap: 0 40px; }
+.pg-deck-on .pg-prod--desk h1 { font-size: clamp(36px, 3.5vw, 54px) !important; margin-bottom: 2px !important; }
+.pg-deck-on .pg-prod--desk h1::before { margin-bottom: 10px; }
+.pg-deck-on .pg-prod--desk .et_pb_text_inner > p:first-of-type { margin-top: 6px !important; font-size: 13px; }
+.pg-deck-on .pg-prod--desk hr { margin: 14px 0 !important; }
+.pg-deck-on .pg-prod--desk h5 { margin-bottom: 8px !important; }
+.pg-deck-on .pg-prod--desk ul { margin-bottom: 6px !important; }
+.pg-deck-on .pg-prod--desk li { padding: 6px 0 6px 22px !important; }
+.pg-deck-on .pg-prod--desk li::before { top: 0.95em; }
+.pg-deck-on .pg-prod--desk h6 { font-size: 13.5px !important; line-height: 1.4 !important; }
+.pg-deck-on .pg-prod--desk .pg-areas { padding-top: 12px !important; }
+.pg-deck-on .pg-prod--desk .pg-areas > p { margin-bottom: 8px !important; }
+.pg-deck-on .pg-prod--desk .pg-areas tbody { gap: 8px 8px; }
+.pg-deck-on .pg-prod--desk .pg-areas td { min-width: 44px; font-size: 10px; }
+.pg-deck-on .pg-prod--desk .pg-areas td img { width: 44px !important; height: 44px !important; margin-bottom: 4px; border-radius: 13px; }
+.pg-deck-on .pg-prod--desk .et_pb_column_1_5:nth-child(2) { min-height: 0; }
+.pg-deck-on .pg-prod--desk table:not(:has(img)) td { padding-top: 6.5px !important; padding-bottom: 6.5px !important; }
+.pg-deck-on .pg-prod--desk table:not(:has(img)) td:first-child:not(:last-child) { font-size: 12.5px; line-height: 1.35; }
+.pg-deck-on .pg-prod--desk table:not(:has(img)) td:last-child:not(:first-child) { font-size: 13.5px; }
+.pg-deck-on .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:first-child table[border="0"] td { padding: 9px 20px !important; }
+.pg-deck-on .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:first-child table[border="0"] { margin-top: 2px; }
+.pg-deck-on .pg-fig { padding: 12px 18px 11px; bottom: 18px; }
+.pg-deck-on .pg-fig__n { font-size: 22px; }
+
+/* Some models carry inline styles on their application table (`width: 20px`, image `height: 75px`) and a
+   <br> before each caption; without these the icons stack in one narrow column and the card doubles in height */
+.pg-series .pg-prod .pg-areas table { width: auto !important; }
+.pg-series .pg-prod .pg-areas br { display: none; }
+.pg-series .pg-prod .pg-areas td { width: auto !important; }
+
+.pg-series .pg-prod td.pg-empty { display: none !important; }
+
+/* leaves under the top one: a lighter edge so the stack reads as a stack on the dark ground */
+.pg-series .pg-deck .pg-deck__sheet .et_pb_row { border-color: rgba(255, 255, 255, 0.17); }
+.pg-series .pg-deck .pg-deck__sheet .et_pb_row:hover { border-color: rgba(255, 255, 255, 0.26); }

@@ -264,5 +264,12 @@ figure card read from the spec table, areas-of-application moved under the featu
 Run `node tools/sprayguns-series.mjs pages/<page>.html` (paths relative to pilotindia-clone). Divi traps:
 its scripts/scroll fight any custom sticky or anchor scroll - see the persistent memory note.
 
+
+### series page calendar deck (2026-10-07)
+Wide screens turn the nine model cards into one pinned stack of calendar leaves flipped by scroll (pg-series.js
+`deckCtl`, deck styles at the end of pg-series.css). Sections are moved into `.pg-deck__scaler`; plain list below
+1101px, on phones, with reduced motion, or if the card would need scale < 0.66. In a preserve-3d stack never use
+translateZ for "in front" (it beats z-index) and never put opacity/backdrop-filter on the 3D element.
+
 ## Work done
 See `BUILD_LOG.md`.

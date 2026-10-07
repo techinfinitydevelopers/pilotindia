@@ -597,19 +597,26 @@ body.pg-series { overflow-x: clip !important; }
   .pg-series .pg-prod--desk .et_pb_image, .pg-series .pg-prod .et_pb_row, .pg-fig { transition: none !important; }
 }
 
-/* ---------- the calendar deck ----------
-   Built by pg-series.js on wide, tall screens: the desktop model sections are moved into one
-   pinned stage and stacked like the leaves of a desk calendar. Scrolling flips the top leaf up
-   and over its hinge (the JS writes transform / --fade / --shade each frame). Everything here
-   is inert until `body.pg-deck-on` exists. */
+/* ---------- Stack Scroll Reveal (Framer component) ----------
+   Built by pg-series.js on desktop screens: model cards are pinned in a 3D sticky stack.
+   As you scroll, the top card tilts back (rotateX: 15deg with bottom hinge) and glides up,
+   while background cards scale up and rise into place. Everything here is inert until
+   `body.pg-deck-on` exists. */
 
 .pg-deck { position: relative; }
+
+/* Never render calendar binder rings or backface elements */
+.pg-deck__rings,
+.pg-deck__ring,
+.pg-deck__back {
+  display: none !important;
+}
 
 .pg-deck__sticky {
   position: sticky;
   z-index: 1;
-  perspective: 2600px;
-  perspective-origin: 50% 0%;
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
 }
 
 /* the whole stage is scaled as one piece so a tall card still fits under the sticky bars */
@@ -621,7 +628,7 @@ body.pg-series { overflow-x: clip !important; }
   transform-style: preserve-3d;
 }
 
-/* each model section becomes a leaf: same size, stacked, hinged at its top edge */
+/* each model section becomes a card sheet in the 3D stack: hinged at bottom edge */
 .pg-series .pg-deck .et_pb_section.pg-deck__sheet {
   position: absolute !important;
   inset: 0;
@@ -630,23 +637,25 @@ body.pg-series { overflow-x: clip !important; }
   justify-content: center;
   margin: 0 !important;
   padding: 0 !important;
-  transform-origin: 50% 0;
+  transform-origin: 50% 100%;
   transform-style: preserve-3d;
-  will-change: transform;
+  will-change: transform, opacity;
+  transition: none;
 }
 
-/* the card face: all leaves share one height, and it must not show when it has turned away */
+/* the card face: all sheets share one height */
 .pg-series .pg-deck .pg-deck__sheet .et_pb_row {
   min-height: var(--card-h, 0px);
-  opacity: var(--fade, 1) !important;
   transform: none !important;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+  background: linear-gradient(165deg, #18191b 0%, #0e0f11 100%) !important;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 40px 90px -25px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.06) !important;
+  overflow: hidden;
   transition: border-color 0.4s ease;
 }
 
-/* the reverse of the leaf, seen while it is in the air */
-.pg-deck__back,
+/* depth shade for cards deeper in the stack */
 .pg-deck__shade {
   position: absolute;
   top: 0;
@@ -655,62 +664,13 @@ body.pg-series { overflow-x: clip !important; }
   height: var(--card-h, 100%);
   margin-left: calc(min(1280px, 92%) / -2);
   border-radius: 32px;
-  pointer-events: none;
-}
-.pg-deck__back {
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  opacity: var(--fade, 1);
-  background:
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 34px),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 34px),
-    linear-gradient(165deg, #1d1d1d 0%, #0e0e0e 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transform: rotateX(180deg);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-}
-.pg-deck__back-t {
-  font-family: var(--s-serif);
-  font-size: clamp(60px, 9vw, 150px);
-  line-height: 1;
-  text-transform: uppercase;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.14);
-  white-space: nowrap;
-}
-
-/* leaves lower in the stack are dimmer; the one on top is full light */
-.pg-deck__shade {
   background: #000;
   opacity: var(--shade, 0);
-  /* no translateZ here: in a preserve-3d stack a plane 1px forward beats z-index, and the shades of the
-     leaves underneath would then be drawn over the leaf on top. Depth order comes from the sheets. */
-}
-
-/* the binding: loops across the top of the stage, in front of the leaves */
-.pg-deck__rings {
-  position: absolute;
-  z-index: 60;
-  top: -17px;
-  left: 50%;
-  display: flex;
-  justify-content: space-between;
-  width: min(62%, 720px);
-  transform: translateX(-50%);
   pointer-events: none;
-}
-.pg-deck__ring {
-  width: 11px;
-  height: 36px;
-  border: 3px solid #cfcfd2;
-  border-radius: 8px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0) 60%);
-  box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+  transition: opacity 0.15s linear;
 }
 
-/* nothing in the deck should react to the pointer unless it is the leaf on top (also set `inert`) */
+/* cards under the top one don't capture pointer events */
 .pg-deck__sheet[inert] { pointer-events: none; }
 
 /* ---------- deck mode: a tighter card ----------

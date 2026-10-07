@@ -265,11 +265,14 @@ Run `node tools/sprayguns-series.mjs pages/<page>.html` (paths relative to pilot
 its scripts/scroll fight any custom sticky or anchor scroll - see the persistent memory note.
 
 
-### series page calendar deck (2026-10-07)
-Wide screens turn the nine model cards into one pinned stack of calendar leaves flipped by scroll (pg-series.js
-`deckCtl`, deck styles at the end of pg-series.css). Sections are moved into `.pg-deck__scaler`; plain list below
-1101px, on phones, with reduced motion, or if the card would need scale < 0.66. In a preserve-3d stack never use
-translateZ for "in front" (it beats z-index) and never put opacity/backdrop-filter on the 3D element.
+### series page Framer Stack Scroll Reveal (2026-10-07)
+Modelled directly on Framer's `stack-scroll-reveal` component (https://stack-scroll-reveal.framer.ai).
+Wide screens turn the nine model cards into one pinned 3D stack. As you scroll, the top card tilts back
+(rotateX: 15deg with bottom hinge, originY: 1) and glides smoothly up out of view, while cards waiting beneath
+in the stack scale up and rise into place (scale 1 - d*0.075, translateY d*20px, translateZ -d*15px). Cards have
+opaque showroom background to prevent text bleed, smooth shadow layering, depth shading, and interactive
+model chips in the sticky navigation rail. Plain responsive list on tablets, phones, or reduced motion.
+Owned by `assets/js/pg-series.js` + `assets/css/pg-series.css`.
 
 ## Work done
 See `BUILD_LOG.md`.

@@ -1523,3 +1523,28 @@ under the bars; 1100x800 and 1024x700 -> plain list, no overflow; 420x900 -> mob
 75% of a flip and the next hold: the top card is fully lit at rest, tilts about its hinge with perspective, and the
 next model rises. Four model buttons (HP 64 N, HVLP 08, HP P-70 W/O CUP, HVLP 03) each land with exactly that leaf
 interactive and its button lit. End of the deck: last leaf holds, then the page flows on into the footer.
+
+---
+
+# evolution-series: Framer Stack Scroll Reveal (2026-10-07)
+
+**Reference:** `https://www.framer.com/marketplace/components/stack-scroll-reveal/` (demo: `https://stack-scroll-reveal.framer.ai`).
+
+Replaced the calendar binder-ring flip with the exact 3D **Stack Scroll Reveal** interaction from Framer.
+
+## What changed
+- **Physics & Motion (`assets/js/pg-series.js`)**:
+  - Hinge moved to bottom edge (`transform-origin: 50% 100%`).
+  - Active card tilts back in 3D perspective (`rotateX: 15deg`) and glides smoothly up out of view (`translateY` upwards) while fading gracefully.
+  - Stacked cards underneath rise and scale up into place (`scale: 1 - d*0.075`, `translateY: d*20px`, `translateZ: -d*15px`), perfectly mimicking Framer's layered peek.
+  - Removed calendar binder rings and 180° upside-down backface leaves.
+  - Smooth easing curve driven by passive rAF scroll.
+- **Card Aesthetics (`assets/css/pg-series.css`)**:
+  - Deep 1200px 3D perspective centered at 50% 50%.
+  - Opaque card background (`linear-gradient(165deg, #18191b, #0e0f11)`) with `rgba(255, 255, 255, 0.12)` border and `0 40px 90px -25px rgba(0,0,0,0.9)` box shadow, preventing underlying text bleed-through.
+  - Clean `--shade` overlay dimming cards deeper in the stack.
+  - Active model chips in the sticky navigation bar remain perfectly in sync with the top card.
+- **Verification**:
+  - Tested on `http://localhost:8080/pages/evolution-series.html` over CDP headless Chrome.
+  - Captured frames across initial rest, mid-scroll 3D tilt reveal, and subsequent settled card state.
+

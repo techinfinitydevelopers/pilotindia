@@ -1904,3 +1904,14 @@ computer only); edits are written into the site files and published with a norma
 - `auth.mjs`: `/admin/login` (password = ADMIN_PASSWORD, HMAC cookie 7 days, HttpOnly, SameSite=Lax, Secure behind https, 5 fails -> 10 min lockout), cross-origin POSTs rejected. Admin refuses to run in DB mode without ADMIN_PASSWORD. Sign-out button in the admin sidebar; 401 sends the dashboard to the login page.
 - `serve.mjs`: PORT from env. `railway.json`: start `node serve.mjs`, healthcheck `/`, 1 replica. `pg` dependency. `tools/db-pull.mjs` (`npm run db:pull`) copies DB edits into the tree for committing; `--clear` drops them afterwards.
 - Tested against a real Postgres 16 (embedded-postgres in the scratchpad): auth (302/401/403, wrong password), theme edit, image upload, new blog post (Blogs page + category rebuilt), visual text edit, undo, restart -> all edits still served, repo files untouched (git status clean for pilotindia-clone), db-pull --list correct, local mode unchanged.
+
+## Admin: site fonts and dashboard grid (2026-10-08)
+- The display serif (Italiana) made the dashboard figures unreadable (15 looked like I5, 0 like O). Admin headings, figures, product names and
+  drawer/modal titles now use the site theme's Roboto (Open Sans for text); font link in admin/index.html updated.
+- Dashboard: six stat cards in a 3 x 2 grid (2 columns under 1000 px, 1 under 560 px), figures in Roboto 800, 24px-corner cards as on the website.
+- Checked at 1527 and 800 px wide, and the Products and Blog screens: no overflow, Roboto in use.
+
+## Admin product tiles: square frames (2026-10-08)
+- Tall product photos (Legacy Series etc.) stretched their picture frame and made uneven cards. `.pcard__pic` is now a fixed square with the photo
+  fitted inside (absolute, object-fit contain); grid rows share one height and the Edit/View buttons sit at the bottom of each card.
+- Checked all 15 series screens in the admin: every frame is exactly square, no row has uneven cards.

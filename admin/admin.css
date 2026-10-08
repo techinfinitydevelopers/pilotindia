@@ -1,5 +1,5 @@
 /* Pilot India admin dashboard: the site's own palette (ink, Pilot orange, warm off-white) and type
-   (Italiana display serif for headings and figures, Open Sans for the interface) */
+   (Roboto for headings and figures, Open Sans for the interface: the site theme fonts) */
 :root {
   --side: #0a0a0a;
   --side-2: #141414;
@@ -381,3 +381,41 @@ a.stat:hover::after { transform: scaleX(1); }
 .side__out { margin-left: auto; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; color: var(--side-ink); }
 .side__out svg { width: 16px; height: 16px; fill: currentColor; }
 .side__out:hover { color: #fff; background: rgba(255, 255, 255, .08); }
+
+/* ---------- theme fonts and the website's card design ----------
+   The admin uses the site's own type: Roboto for headings and figures, Open Sans for text (the display serif made
+   digits hard to read: 15 looked like I5). Cards follow the website's cards: white, 24px corners, hairline border,
+   orange accent on hover. */
+:root { --display: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif; }
+.head h1 { font-size: clamp(30px, 3.4vw, 42px); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; }
+.eyebrow { letter-spacing: 0.24em; }
+.panel__head h2 { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; }
+.group > summary { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+.insp h3 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+.pcard__body b { font-size: 19px; font-weight: 700; line-height: 1.2; letter-spacing: -0.015em; }
+.drawer__head h2 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+.modal__head h2 { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; }
+.blog-ed .title-in { font-size: clamp(26px, 3vw, 34px); font-weight: 700; letter-spacing: -0.025em; }
+.rte--big h2, .rte--big h3 { font-weight: 700; letter-spacing: -0.02em; }
+
+/* dashboard: six cards in a 3 x 2 grid (no orphan row), big readable figures */
+.cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.stat { min-height: 180px; padding: 26px 28px 24px; border-radius: 24px; }
+.stat__label { font-size: 11.5px; letter-spacing: 0.2em; }
+.stat__n { margin: 18px 0 auto; font-size: 56px; font-weight: 800; line-height: 1; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.stat__open { margin-top: 20px; font-size: 13.5px; }
+.stat__ico { top: 22px; right: 22px; width: 44px; height: 44px; }
+.panel { padding: 26px 28px; border-radius: 24px; }
+.list li { padding: 15px 0; }
+.list b { font-weight: 600; font-size: 14.5px; }
+@media (max-width: 1000px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .cards { grid-template-columns: 1fr; } .stat__n { font-size: 46px; } }
+
+/* product tiles: the frame is always a square and the photo is fitted inside it, whatever the photo's own shape,
+   so tall photos no longer stretch their card and every card in a row is the same height */
+.pcard__pic { position: relative; display: block; aspect-ratio: 1 / 1; padding: 0; overflow: hidden; }
+.pcard__pic img { position: absolute; inset: 18px; width: calc(100% - 36px) !important; height: calc(100% - 36px) !important; max-width: none !important; object-fit: contain; }
+.pgrid { grid-auto-rows: 1fr; }
+.pcard { height: 100%; }
+.pcard__body { flex: 1 1 auto; }
+.pcard__acts { margin-top: auto; padding-top: 12px; }

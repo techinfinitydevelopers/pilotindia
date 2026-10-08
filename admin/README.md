@@ -14,4 +14,25 @@ Local dashboard for editing the static site.
 - **Theme & UI**: edits the tokens in `theme/theme.css` (`:root`) and `assets/css/pg-series.css` (`.pg-series`).
 
 Every save keeps the previous file in `admin-backups/` (not committed); "Undo to here" on the dashboard restores it.
-Publish by committing and pushing. There is no login: do not expose this server to a network.
+Locally there is no login unless `ADMIN_PASSWORD` is set.
+
+## Production (Railway + Postgres)
+
+Railway rebuilds the disk from git on every deploy, so in production admin edits are kept in Postgres
+(`store.mjs`, table `site_files`): every file the admin writes, uploads or deletes becomes a database row,
+and that row wins over the copy in git. Pages nobody edited are served straight from the repo.
+
+Set on the Railway web service:
+
+| variable | value |
+|---|---|
+| `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` (reference to the Postgres service) |
+| `ADMIN_PASSWORD` | a long password; required, `/admin` stays disabled without it |
+| `SESSION_SECRET` | optional, random string; sessions are signed with it |
+| `PGSSL` | `require` only when connecting through Railway's public proxy |
+
+Run **one replica** (railway.json sets this): edited files are cached in memory per process.
+
+Getting production edits back into git: `DATABASE_URL=<public url> npm run db:pull` writes them into the
+working tree; commit them, then `npm run db:pull -- --clear` removes those rows so git is the only copy
+again. Until you clear them, a later git change to the same file is hidden by the database copy.

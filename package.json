@@ -2,11 +2,16 @@
   "name": "pilotindia-clone",
   "private": true,
   "type": "module",
-  "description": "Local tooling for the Pilot India static site: dev server with the admin dashboard at /admin.",
+  "description": "Pilot India site: static pages served by serve.mjs, admin dashboard at /admin (edits stored in Postgres in production).",
   "scripts": {
-    "start": "node serve.mjs 8080"
+    "start": "node serve.mjs",
+    "db:pull": "node tools/db-pull.mjs"
   },
   "dependencies": {
-    "parse5": "^8.0.1"
+    "parse5": "^8.0.1",
+    "pg": "^8.23.1"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

@@ -19,6 +19,7 @@
   function api(path, body, raw) {
     var opt = body === undefined ? {} : { method: 'POST', headers: raw ? { 'Content-Type': 'application/octet-stream' } : { 'Content-Type': 'application/json' }, body: raw ? body : JSON.stringify(body) };
     return fetch('/admin/api' + path, opt).then(function (r) {
+      if (r.status === 401) { location.href = '/admin/login'; throw new Error('signed out'); }
       return r.json().then(function (j) { if (!r.ok || j.error) throw new Error(j.error || ('HTTP ' + r.status)); return j; });
     });
   }
@@ -193,6 +194,7 @@
   var ROUTES = {};
   ROUTES['/'] = function (view) {
     return api('/summary').then(function (s) {
+      if (s.storage === 'postgres') $('#storage').textContent = 'live site · saved to database';
       var hr = new Date().getHours();
       var hi = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
       var c = s.counts;

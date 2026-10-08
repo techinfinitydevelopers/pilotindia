@@ -5,8 +5,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'pilotindia-clone');
-const PORT = Number(process.argv[2] || 8080);
+const REPO = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.join(REPO, 'pilotindia-clone');
+const PORT = Number(process.env.PORT || process.argv[2] || 8080);
+
+// Production (Railway): admin edits live in Postgres, see store.mjs. Must run before anything reads files.
+import { initStore, dbMode } from './store.mjs';
+import { authEnabled, isAuthed, handleAuth, sameOrigin } from './auth.mjs';
+await initStore(REPO);
+if (dbMode() && !authEnabled()) console.warn('admin disabled: set ADMIN_PASSWORD to use /admin in production');
 
 // the admin dashboard (admin/server.mjs) - optional: the site still serves if it cannot load
 let admin = null;
@@ -70,6 +77,19 @@ function serveFile(req, res, fp) {
 }
 
 http.createServer(async (req, res) => {
+  // admin: login when ADMIN_PASSWORD is set; never open in production without one
+  const wantsAdmin = req.url.startsWith("/admin") || /[?&]__cms=1(&|$)/.test(req.url);
+  if (wantsAdmin && dbMode() && !authEnabled()) {
+    res.writeHead(503, { "Content-Type": "text/plain" }).end("admin disabled: ADMIN_PASSWORD is not set");
+    return;
+  }
+  if (req.url.startsWith("/admin/login") || req.url.startsWith("/admin/logout")) { await handleAuth(req, res); return; }
+  if (wantsAdmin && !isAuthed(req)) {
+    if (req.url.startsWith("/admin/api/")) res.writeHead(401, { "Content-Type": "application/json" }).end('{"error":"signed out"}');
+    else res.writeHead(302, { Location: "/admin/login" }).end();
+    return;
+  }
+  if (wantsAdmin && req.method !== "GET" && !sameOrigin(req)) { res.writeHead(403).end("forbidden"); return; }
   if (req.url.startsWith("/admin")) {
     if (admin && await admin.handleAdmin(req, res)) return;
     res.writeHead(503, { "Content-Type": "text/plain" }).end("admin dashboard unavailable: run npm install");
@@ -124,4 +144,4 @@ http.createServer(async (req, res) => {
     return;
   }
   serveFile(req, res, fp);
-}).listen(PORT, () => console.log('pilotindia clone -> http://localhost:' + PORT + '/   admin -> http://localhost:' + PORT + '/admin/'));
+}).listen(PORT, () => console.log('pilotindia clone -> http://localhost:' + PORT + '/   admin -> http://localhost:' + PORT + '/admin/' + (dbMode() ? '   (edits stored in Postgres)' : '')));

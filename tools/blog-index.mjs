@@ -8,9 +8,11 @@
 //   node tools/blog-index.mjs
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = path.join(process.cwd(), 'pilotindia-clone');
-const SOURCES = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'tools', 'blog-sources.json'), 'utf8'));   // slug -> the Pilot domains it is on
+const REPO = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');   // not cwd: the admin also runs this in-process
+const ROOT = path.join(REPO, 'pilotindia-clone');
+const SOURCES = JSON.parse(fs.readFileSync(path.join(REPO, 'tools', 'blog-sources.json'), 'utf8'));   // slug -> the Pilot domains it is on
 const slugs = Object.keys(SOURCES);
 const LABEL = { 'pilotindia.com': 'Pilot India', 'pilotsprayguns.com': 'Spray Guns', 'pilotairless.com': 'Airless', 'pilotwelding.com': 'Welding', 'pilotofficeproducts.com': 'Office' };
 const decode = s => s.replace(/&#(\d+);/g, (m, d) => String.fromCharCode(+d)).replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&nbsp;/g, ' ');

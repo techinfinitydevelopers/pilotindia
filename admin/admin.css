@@ -376,3 +376,8 @@ a.stat:hover::after { transform: scaleX(1); }
 .panel__head { flex-wrap: wrap; gap: 10px 16px; }
 .panel__head h2 { flex: 1 1 auto; min-width: 0; }
 .panel__head .actions { flex: 0 0 auto; align-items: center; }
+
+/* sign out (production login) */
+.side__out { margin-left: auto; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; color: var(--side-ink); }
+.side__out svg { width: 16px; height: 16px; fill: currentColor; }
+.side__out:hover { color: #fff; background: rgba(255, 255, 255, .08); }

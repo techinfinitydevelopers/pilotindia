@@ -28,6 +28,8 @@ import path from 'node:path';
 import { parse } from 'parse5';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
+import { flush, track, dbMode } from '../store.mjs';
 
 let ROOT = '';
 let ADMIN_DIR = '';
@@ -47,7 +49,12 @@ export function initAdmin(siteRoot, repoRoot) {
 const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png' };
 const IMG_EXT = /\.(png|jpe?g|gif|webp|svg|avif)$/i;
 
+// Answers only after any database writes made while handling the request have landed (store.mjs), so
+// "saved" in the dashboard means saved. Without a database flush() resolves at once.
 function send(res, code, obj) {
+  flush().then(() => reply(res, code, obj), err => reply(res, 500, { error: 'not saved, database write failed: ' + (err.message || err) }));
+}
+function reply(res, code, obj) {
   const body = typeof obj === 'string' ? obj : JSON.stringify(obj);
   res.writeHead(code, { 'Content-Type': typeof obj === 'string' ? 'text/plain; charset=utf-8' : 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
   res.end(body);
@@ -801,6 +808,8 @@ function registerPost(slug) {
   if (src[slug]) return;
   src[slug] = ['pilotindia.com'];
   fs.writeFileSync(SOURCES_FILE(), JSON.stringify(src, null, 1) + '\n');
+  // In database mode the tool must run in this process, so its writes go through store.mjs and not to disk.
+  if (dbMode()) { track(import(pathToFileURL(path.join(REPO, 'tools', 'blog-index.mjs')).href + '?t=' + Date.now())); return; }
   try { execFileSync(process.execPath, [path.join(REPO, 'tools', 'blog-index.mjs')], { cwd: REPO, stdio: 'ignore' }); } catch (e) { /* the page can be rebuilt with: node tools/blog-index.mjs */ }
 }
 
@@ -948,7 +957,7 @@ export async function handleAdmin(req, res) {
     const route = req.method + ' ' + p.slice('/admin/api'.length);
     const q = k => url.searchParams.get(k);
     switch (route) {
-      case 'GET /summary': return send(res, 200, summary()), true;
+      case 'GET /summary': return send(res, 200, Object.assign({}, summary(), { storage: dbMode() ? 'postgres' : 'local' })), true;
       case 'GET /pages': return send(res, 200, listPages()), true;
       case 'POST /edit': { const b = await readJson(req); applyVisualEdits(sitePath(b.path), b.edits || [], b.version); return send(res, 200, { ok: true }), true; }
       case 'GET /page-model': return send(res, 200, pageModel(sitePath(q('path')))), true;

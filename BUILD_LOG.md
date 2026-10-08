@@ -1574,3 +1574,260 @@ Requested: undo the product animation and use a white-theme background.
 Verified (headless Chrome, localhost:8080): 1631x800 at three scroll positions, 420x900, no overflow; the four
 model buttons (HP 64 N, HVLP 08, HP P-70, HVLP 06) land with the card at 196px under the 92-188px bar and the
 right chip lit.
+
+## Removed the grey "tab" above every product photo (2026-10-07)
+The translucent band peeking above each photo tile (`.et_pb_column_1_5:nth-child(2)::before` in
+`pg-series.css`, a leftover of the hero comp's card-tab motif) is deleted for all nine models; two comments that
+described it were updated. Checked in the browser: `::before` content is `none` on all 9 stages.
+
+---
+
+# Series redesign rolled out to every series and product page (2026-10-07)
+
+`node tools/sprayguns-series.mjs pages/<page>.html` run on 16 pages (all idempotent, all div-balanced), same white
+product look as evolution-series:
+
+spray guns: evolution (9 models), legacy (8), air brush (7), electric spray guns (2), service guns (9),
+pressure feed tanks (1) | airless: electric (1), electro hydraulic (1), pneumatic (1), professional (title only,
+no products) | welding: gas welding & brazing torches (3), gas cutting torches (1), gas regulators (2) |
+office: currency counters (5), currency sorters (1), paper shredders (9, mobile copy has 4).
+Verified against the committed versions: visible text and every link/image/PDF reference identical on all 16.
+Not converted: `power-tools` (a different Elementor build, no Divi sections). Not touched on purpose: the
+Evolution-style pages' hero banners stay dark photo bands.
+
+## Tool changes (tools/sprayguns-series.mjs)
+- A model counts if it has a name AND (a FEATURES heading OR a table): currency sorters/counters have none.
+- Service Guns keeps its menu and first model in ONE Divi section. The tool splits it (new section number
+  1000+N, which no Divi rule targets) so the sticky bar is the menu only, not menu + a 600px card.
+
+## Page-specific fixes (CSS/JS, pg-series.*)
+- "Buy Now" (Divi button module): accent pill with an arrow; its icon font and `data-icon` are neutralised.
+- YouTube module: rounded, ringed.
+- Long model names ("PILOT - 12 CC", "Single Stage Regulator (Oxygen)") get a smaller size class by length.
+- Wide spec grids (gas regulators' 6-column pressure matrix): marked `pg-wide` and kept as a real table that
+  scrolls sideways; the label | value style would have mangled it.
+- The areas-of-application block is found by its LABEL, not by position (regulators put it beside the downloads);
+  download pills are styled wherever they sit.
+- Phones: desktop twins hidden by role (`.pg-prod--desk { display:none }` under 768px) since the split Service
+  Guns model had lost Divi's per-section hide; fixed-width inline tables forced to the card width; icon rows wrap;
+  long spec values wrap instead of widening the table.
+- One face for every series menu (some pages carried a condensed theme font).
+
+## Traps (again)
+- Backslashes in regexes were eaten twice more when the script was written through a template string
+  (`/s+/g`, `/^s*areas/i`): silently wrong, passes `node --check`. Now grep for `/s+/` after every such write.
+- The sweep script reported "0 chips" on slow pages - a load-timing artefact (they are heavy), not a bug. Wait for
+  the page before counting.
+
+## Sweep (headless Chrome, 16 pages x 1440px and 420px)
+No sideways overflow, no script errors, no card wider than its container after the fixes. Known and left as is:
+paper-shredders has 9 desktop cards but only 4 mobile cards because the ORIGINAL page only ships 4 mobile twins
+(models 5-9 are not shown on phones, as on the live site); professional-series has no product cards; YouTube
+thumbnails show as black until they load from YouTube.
+
+---
+
+# Series pages: product gallery + one page per product (2026-10-07)
+
+Every series/product page with 2+ models now opens as a **gallery of product images** (tile: photo on a warm
+tile, No. 0X, name, subtitle, "View details"). Clicking a tile opens that product's **own page**:
+`<series>.html?model=<id>` shows only that model's full card, a "All <Series> models" back link, "Model N of M",
+and previous / next. The series banner is hidden on product pages so they open on the card. Model buttons in
+the sticky bar navigate between product pages; the current one is lit. All in `assets/js/pg-series.js` +
+`assets/css/pg-series.css`; no HTML was copied or generated (one URL per product, same file).
+
+Applies to 9 pages: evolution (9), legacy (8), air brush (7), electric spray guns (2), service guns (9), gas
+regulators (2), gas welding & brazing torches (3), currency counters (5), paper shredders (9). The 6 single-product
+pages (pressure feed tanks, electric, electro hydraulic, pneumatic, gas cutting torches, currency sorters) keep
+showing their one card directly - a one-tile gallery would only add a click.
+
+Details: tile image is read from the card itself (Divi background-image or the lazy `bv-data-src`); the
+"No. 0X" CSS counter skips hidden cards, so the product page sets `counter-set` to its real number; on phones the
+product page shows the desktop card in one column (paper shredders only ship 4 phone twins, so models 5-9 were
+not reachable on phones before; now they are); "(Approx.)" is no longer shown as a unit in the figure card.
+
+Verified (headless Chrome): all 9 galleries with every image present and none broken; following a tile lands on
+a page with exactly that card, correct number, back link, pager, lit chip, no script errors; phone gallery (2
+columns) and phone product page OK; no sideways overflow.
+
+**Found, not fixed (needs a decision):** injected gambling spam mirrored from the live sites - a casino paragraph
+on `pages/legacy-series.html`, a link to `wazamba-pl.sobre-japon.com` on `spray-guns/index.html`, and spam post
+listings ("free spins", Polish "kasyno") on `category/blog.html`, `category/blog-page-2.html`,
+`category/pilot-office-products-page-3.html`, `pages/author-workrahulsinhagmail-com-page-11.html`. The live
+WordPress sites appear compromised.
+
+## Series gallery restyled as a shop listing (2026-10-07)
+Modelled on a supplied catalogue screenshot: centred serif title, type pills that filter (built from each page's
+own product subtitles, e.g. Evolution: "High Volume Low Pressure" / "High Performance"; pages with one type show
+only "All models"), a Sort by control (Featured / Name A-Z / Z-A), "Showing X of N", and a grid of hairline-bordered
+cells with alternating square / round cream image panels. In place of price + rating each cell shows a key spec
+from the card's own table (cup capacity, capacity, counting/sorting speed or weight) and the code number.
+Verified: Evolution filter "High Performance" -> 5 of 9, then Z-A reorders, "All models" restores 9; phone layout
+is two columns; no script errors.
+
+## Listing tweaks (2026-10-07)
+- Product pages (`?model=`) no longer show the series menu or the Models row; they open on the back link and card.
+- The Models row under the series menu is removed everywhere (`.pg-rail { display: none }`; the listing replaces it).
+- All image panels in the listing are square (no alternating circles).
+- Search box beside Sort: matches name, type and code number, combined with the type pills; shows
+  "No models match ..." when empty. Verified: "p-70" -> 2 of 9, "64000" -> HP 64 N, "xyz" -> no match, clear -> 9.
+
+## Duplicate series pages in blog/ removed (2026-10-07)
+User saw `blog/air-brush.html` and `pages/air-brush.html` give different results. Cause: the site merge left old,
+unconverted copies of four series pages in `blog/` (air-brush, electric-spray-guns, service-guns,
+pressure-feed-tanks); 8 blog posts and `spray-guns/index.html` linked to them (59 links). All 59 now point at the
+redesigned `pages/` copies, and the four stale files were deleted (`git rm`; recoverable from history).
+`tools/verify-refs.mjs`: no missing reference involves the deleted files (the 30 missing targets it reports are
+pre-existing: icon SVGs referenced by old theme CSS and `index.html/<x>/` links in leftover test pages such as
+home-copy, a1, home-2).
+
+## Redirects for the removed blog/ copies (2026-10-07)
+The user still hit 404s from old buttons (cached pages, bookmarks, live-site links: nothing in the current pages
+links there any more). Each removed address is back as a tiny redirect page: `blog/air-brush.html`,
+`blog/electric-spray-guns.html`, `blog/service-guns.html`, `blog/pressure-feed-tanks.html` each send to
+`../pages/<same>.html` (meta refresh + `location.replace`, keeping any `?model=` and `#hash`; `noindex`,
+canonical to the new page). Verified in a browser: all four land on the right page, and
+`blog/service-guns.html?model=model-fg-17` lands on the FG-17 product page.
+Side note: midway the local server process died on its own (no crash on these URLs when replayed); it now runs
+with stderr logged to the session scratchpad (`serve-err.log`) to catch the cause if it happens again.
+
+## Admin dashboard at /admin (2026-10-07)
+Local CMS for the static site, served by `serve.mjs` at http://localhost:8080/admin. No login (runs on this
+computer only); edits are written into the site files and published with a normal git push.
+- Files: `admin/server.mjs` (API, parse5 byte-offset edits), `admin/index.html|admin.css|admin.js` (UI),
+  `admin/overlay.js|overlay.css` (click-to-edit inside the preview iframe). `package.json` adds `parse5`
+  (`npm install` once). Every save backs up the old file to `admin-backups/` (git-ignored); the dashboard's
+  "Undo to here" restores any backup.
+- Views: Dashboard (counts, recent edits, quick actions) · Pages (grouped, searchable) · Visual editor
+  (`/page?__cms=1`; click text/image/background, live preview, Hero jump, desktop/tablet/phone, Save) ·
+  Products (by line > series; edit name, subtitle, features, specs, image, PDFs, Buy link; add = duplicate;
+  delete; desktop and phone copies kept in sync) · Blog (list, edit, new post added to listings) ·
+  Media (library, search, drag-drop upload to `assets/img/uploads/`) · Theme & UI (token form with live
+  preview of home, spray-guns, series page and a blog post; writes `theme/theme.css` and `pg-series.css`).
+- Verified: 12/12 write-path tests (`scratchpad/admin-write-test.mjs`), every view in headless Chrome,
+  pick + live edit in the editor, theme preview injection.
+- Fixes during build: blog list took 10.5 s (parsed 179 full pages) -> regex summary + mtime cache, 0.4 s;
+  slow responses of a view already left overwrote the next view -> each route renders into its own container;
+  Divi sticky script in the preview iframe calls `window.top.jQuery` -> admin page exposes a delegate.
+- Known: Professional Series has no model cards in its source (also at HEAD), so it shows 0 products.
+  Home `index.html` is generated by `tools/home.mjs`; the editor warns that re-running it overwrites edits.
+- Grouping fixes (2026-10-07): Professional Series moved to Spray Guns (its menu is the spray-gun menu; page is
+  "coming soon", 0 models, linked from nowhere). Currency Sorters is no longer its own series: the office menu
+  has only Currency Counters + Paper Shredders, so sorters is shown as a part of Currency Counters (`PART_OF`
+  in admin/server.mjs; Products view shows one block per page, 5 + 1 = 6).
+- Removed `pages/professional-series.html` + `assets/img/professional-series-pg.png` (2026-10-07): unlinked
+  "COMING SOON" WordPress page; live URL 301s to home. Orphan scan (`scratchpad/orphans.mjs`) found 15 more
+  unlinked pages (drafts/copies/tests; 13 redirect to home on the live site, `test` and `testing` still live),
+  awaiting the user's decision.
+
+## Power Tools converted to the series layout (2026-10-08)
+- `pages/power-tools.html` was Elementor, so the series script never applied; a separate attempt
+  (`assets/js/pg-powertools.js` + inline `<style>`, made outside this session, model data hard-coded) rendered
+  the raw Elementor block with a "NEXT" card. Replaced by `tools/power-tools-series.mjs`: reads each Elementor
+  model block (#pt-hg-25, #pt-bl-25, #pt-bl-26vs) and rewrites it as the Divi desk + phone sections the
+  shared `pg-series.css/js` expect (name, type, features, photo, spec rows, 2 PDFs, application photos; all read
+  from the page). Inline style and the pg-powertools.js tag removed; the file itself is left unused.
+- `pg-series.js`: series name can come from `<body data-pg-series>` (this page has no series menu).
+- Admin: new line "Power Tools" (15 series, 63 products); all 3 models read with phone twins.
+- Verified in headless Chrome: gallery 3 tiles + filters, product pages at 1440 and 504 px, no overflow, no JS
+  errors from the page's scripts. Idempotent (second run is a no-op).
+
+## Admin restyled in the site theme (2026-10-08)
+- `admin/admin.css` rewritten on the site palette: ink-black sidebar (white pill for the active item, orange icon),
+  Pilot orange #f58634 accents, warm off-white #f7f5f1 ground, cream #f3efe8 photo panels, black pill buttons
+  that turn orange on hover, Italiana display serif for headings/figures/product names, Open Sans UI. Editor bar,
+  drawers, modals and theme preview bar are black like the site's floating nav. Overlay boxes in orange.
+- Dashboard: eyebrow, dark "Edits today" card and dark Quick actions panel; product-line count now live (5);
+  recent edits of removed pages show "Page removed" with no Open/Undo.
+- Speed: page facts cached per file mtime and warmed at start; /summary 3.3-4.5 s -> 0.1-0.25 s.
+
+## Old navbar on the four product-site home pages (2026-10-08)
+- spray-guns/, airless/, welding/, office/ index.html still carried the first navbar's markup (`pi-nav__*`
+  classes) while `assets/css/pi-nav.css` now only styles the floating pill (`framer-dyn-*`), so the nav rendered
+  as raw HTML (huge phone/burger icons, open dropdown list). Cause: `tools/navbar.mjs` skips those four folders
+  unless run with `--only=`. Fixed: `node tools/navbar.mjs --only=spray-guns,airless,welding,office`.
+- Verified: no page left with `class="pi-nav"` markup (296 pages scanned); pill nav at 657 px and 1440 px,
+  menu hidden + burger on narrow screens; div balance kept (+6 = the new nav's own divs).
+
+## Technical Excellence (pg-tech) on all four product sites (2026-10-08)
+- airless, welding and office still had the stock Elementor block; `tools/sprayguns-technical.mjs` now runs on
+  all four sites (default list; finds the block by its "Technical Excellence" heading, links the shared
+  `assets/css/pg-tech.css` + `assets/js/pg-tech.js`).
+- Its template now emits the hand-refined spray-guns layout (2 cards | focus carousel | 2 cards); slides read
+  from each site's own Elementor carousel (airless 5, welding 9, office 11 images). A page that already has
+  pg-tech is left untouched (spray-guns md5 unchanged), so hand edits survive re-runs.
+- Verified in headless Chrome at 1440: 4 cards each, carousel running (loop clones added by pg-tech.js), no JS errors.
+  Power Tools has no Technical Excellence block.
+
+## Airless "Applications" block -> chain carousel (2026-10-08)
+- `tools/airless-chain.mjs` replaces the Elementor intro + 3 series cards on airless/index.html with `section.pg-chain`
+  (`assets/css/pg-chain.css`, `assets/js/pg-chain.js`). Content read from the block: heading (coloured span ->
+  accent), intro, SELECT SERIES button, and per card image / title (+ its original link) / description as the quote /
+  "Check out solutions" link; series name from the card's own link target. Idempotent (base64 payload in data-pg-src).
+- Behaviour per brief: state classes from circular distance, rAF autoplay 3000 ms with dot progress fill, hover
+  pause + resume from elapsed time, pill/dot click, Pointer Events drag with dragMoved click guard, arrow keys,
+  reduced motion = no autoplay; <=1024 near pills hidden, <=768 single card, image first.
+- Site tokens, not the reference's: ink text, Pilot orange number/dot fill/rule, cream card on darker cream page,
+  Italiana titles, Cormorant Garamond italic quote (already in the site's display-font stack).
+- Deviation: product photos are shown whole (contain on white) in the big card; cropping a machine cuts it off.
+  Pills use the cover crop. Theme `img{height:auto}` had to be overridden for both.
+- Verified in headless Chrome: 1440/900/504 no overflow, autoplay advances, hover freezes the fill, pill click and
+  drag change slide, drag does not follow links, no JS errors.
+- Revision (user): side pills are now small squares (150 px near, 112 px far), vertically centred on the card, photo
+  cover-cropped and zoomed 1.18 past its white margin; placed card/2 + 28px gap + pill/2 from centre. Fonts switched
+  to the theme's Roboto (headings, number) + Open Sans (quote, text); the extra Cormorant/Italiana font link removed.
+  CSS/JS links versioned (?v=3 / ?v=2) so browsers drop the cached first version.
+
+## Chain carousel on all four product sites (2026-10-08)
+- `tools/product-chain.mjs` (replaces `airless-chain.mjs`) builds `section.pg-chain` on spray-guns, airless, welding, office.
+  Content source per page: own payload (re-runs) > luboss sticky-scroll block + its intro container (spray-guns 3 slides,
+  welding 3, office 2) > Elementor cards (airless 3). Heading, intro, SELECT SERIES button, titles, text, images and
+  links are all read from the page; the by-line is the series from the card's "N°01 - SERIES" tag or its link target.
+- This REPLACES the luboss sticky horizontal scroll on spray-guns, welding and office (style block, section and script
+  removed; welding keeps its parent-closing `</div>`s). Originals are in `admin-backups/pre-chain/<site>.html`.
+- Image fit: spray-guns photos fill the card (`data-fit=cover`); product shots on the other sites are shown whole.
+  Side pills are 150 px squares centred on the card; fonts are the theme's Roboto + Open Sans.
+- Verified in headless Chrome (1440, 1100, 504): no overflow, section full width, states correct (office has 2 slides =
+  one pill), no JS errors; div balance equal on all four; second run of the tool changes nothing.
+
+## FAQ section revamp (2026-10-08)
+- `assets/css/pg-faq.css` rewritten (CSS only; questions and answers untouched). Applies to every page with the Elementor
+  accordion: spray-guns, office, power-tools (airless and welding have no FAQ). Layout: two columns (sticky "Got questions?"
+  eyebrow + large Roboto "FAQs" heading + orange rule | questions as rounded white cards on a warm off-white band); open
+  card gets orange border/edge, lift and a black marker with an orange sign; answer under a hairline. Marker is two CSS bars
+  (the Font Awesome glyph font does not load offline). Single column <= 900 px. Links versioned `pg-faq.css?v=3`.
+- Elementor's per-container padding beat the stylesheet, so answer spacing is set on the text container instead.
+- Verified at 1440 and 504 px on all three pages: no overflow, 1 open item, no JS errors.
+- Found, NOT changed: casino spam paragraph below the FAQ on spray-guns (and one in pages/legacy-series.html) linking to
+  wazamba-pl.sobre-japon.com - present in the first crawl, absent from the live site now; and the "Why Choose ..." block above
+  the FAQ on spray-guns renders unstyled (same in the committed version).
+
+## Admin page editor (sections | form | live preview) (2026-10-08)
+- New admin screen `#/page?path=<page>` (sidebar "Home page", Pages list rows): top bar (back, title, Content / SEO tabs, hide
+  preview, Visual editor, View, Reset, Save with count), left list of sections (numbered, drag to reorder), centre form card
+  for the selected section (title, Up / Down / Duplicate / Remove, fields), right live preview (Desktop / Mobile, reload).
+- Server (`admin/server.mjs`): `GET /page-model` reads a page into sections and fields (text, rich text, images + alt, inline
+  backgrounds, links with text) using the same element ids as the visual editor; `POST /page/section` = up / down / move /
+  duplicate (copy loses its id) / remove; new `attr` edit op for SEO tags; link edits keep a trailing slash and `#hash`.
+- Behaviour: typing updates the preview live; a click in the preview selects that section and jumps to the field; structural
+  actions save pending edits first; Reset discards. Home `index.html` is generated by tools/home.mjs: a banner warns that a
+  re-run overwrites edits. Home sections: Hero, Stats, Product range, About, Capabilities, Industries, Insights, Closing band.
+- Verified: 10/10 write checks on a throwaway copy (text, SEO, link, move down, move last to first, duplicate, remove, stale
+  version refused, div balance unchanged, section count) + UI run in headless Chrome. Bug found and fixed: sections were
+  compared across two separate parses.
+- Products screen: series title and its buttons now share one row (two-page series like Currency Counters get a row per page).
+
+## Smoothness / loading pass before the push (2026-10-08)
+- Rule from the user: NO image is reduced. An image-recompression attempt (sharp) was started, stopped by the user's instruction
+  and fully reverted: originals restored byte-identical (md5 checked against git), no reference ever rewritten, tool and
+  dependency removed.
+- Measured (headless Chrome, cache off, 1440 px): product pages scroll at 60 fps, first paint 0.25-0.5 s; the home page (6.4 MB
+  of photos) dropped to 46 fps with a 233 ms hitch where big photos first scrolled into view.
+- Added (images untouched): `tools/perf-hints.mjs` -> decoding="async" on all images, loading="lazy" below the first three, and
+  `assets/js/pg-warm.js` (idle-time fetch + decode of the lazy images, one at a time; skipped on save-data / 2G) on home, the
+  4 product sites, power tools, about, contact and the 15 series pages. Result: home scroll 60 fps, worst frame 17 ms.
+- `serve.mjs`: brotli/gzip for text (page 228 KB -> 42 KB), ETag + 304 on repeat visits, 5-minute reuse for images/fonts.
+- Carousel (pg-chain.css): shadow and corner radius no longer animate (repainting the shadow each frame was the costliest part);
+  trying will-change/containment made it worse and clipped the shadow, so it was reverted.
+- Interaction check: FAQ open/close ~50-58 fps, Technical Excellence hover 53-60, Series filter ok, capabilities 60. Software
+  rendering (no GPU) makes these numbers pessimistic: the carousel's size animation measured 40-50 fps here.

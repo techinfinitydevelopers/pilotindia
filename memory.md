@@ -277,5 +277,29 @@ Owned by `assets/js/pg-series.js` + `assets/css/pg-series.css`.
 ### series page: deck removed, white theme (2026-10-07)
 The scroll deck (calendar flip, then Stack Scroll Reveal) was removed at the user's request; models are plain cards on a white theme. Theme is the `--s-*` tokens at the top of pg-series.css. Hero banner stays dark. If a deck is ever wanted again: commits 79b21bf (calendar) and cf6e44b (stack).
 
+### series redesign on all series/product pages (2026-10-07)
+`tools/sprayguns-series.mjs` has been run on 16 pages (spray guns, airless, welding, office series pages) - see BUILD_LOG. power-tools (Elementor) is converted by tools/power-tools-series.mjs, which rewrites its model blocks into the Divi desk+phone markup; series name via <body data-pg-series>. New page = add it to the command and run the sweep. paper-shredders only has 4 mobile twins in the original.
+
 ## Work done
 See `BUILD_LOG.md`.
+
+### Admin dashboard (built 2026-10-07)
+- `http://localhost:8080/admin`, code in `admin/`, routed by `serve.mjs`; needs `npm install` (parse5).
+- Edits are byte-offset splices (parse5 source locations), so untouched markup stays byte-identical.
+  Element ids = document order; a version hash refuses stale saves -> reload the editor after each save.
+- Products: desktop copy + phone twin edited together (twin paired by position when counts match).
+- Backups in `admin-backups/` (git-ignored). Restore = POST /admin/api/restore {path, stamp}.
+- Restart the server after editing `admin/server.mjs` (module is cached); UI files reload on refresh.
+
+### Navbar (2026-10-08)
+- Only one navbar exists now: the floating pill (`header.pi-nav.framer-dyn-nav`), styled by `assets/css/pi-nav.css`.
+  Any page still holding old `pi-nav__*` markup renders unstyled. `tools/navbar.mjs` SKIPS spray-guns/airless/
+  welding/office unless given `--only=spray-guns,airless,welding,office`; run both forms after nav changes.
+  Check: `grep -rl 'class="pi-nav"' pilotindia-clone` must return nothing.
+
+### Admin page editor + loading pass (2026-10-08)
+- Admin `#/page?path=` = sections | form | live preview (Trinity-style). Server `pageModel` / `sectionAction` in admin/server.mjs;
+  field ids = visual-editor element ids; structural ops re-read the page first. Home index.html is generated: edits are lost if tools/home.mjs re-runs.
+- USER RULE: never reduce / recompress / resize any image. Speed work = lazy + async decode + idle warm-up (pg-warm.js) + server compression only.
+- Headless Chrome here has no GPU: frame rates measured there are pessimistic; do not chase them with will-change/contain (made the carousel worse and clipped shadows).
+- Re-run after edits: `node tools/perf-hints.mjs` (idempotent), `node tools/product-chain.mjs`, `node tools/sprayguns-technical.mjs`.

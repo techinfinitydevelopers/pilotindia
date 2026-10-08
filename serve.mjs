@@ -12,6 +12,7 @@ const PORT = Number(process.env.PORT || process.argv[2] || 8080);
 // Production (Railway): admin edits live in Postgres, see store.mjs. Must run before anything reads files.
 import { initStore, dbMode } from './store.mjs';
 import { authEnabled, isAuthed, handleAuth, sameOrigin } from './auth.mjs';
+import { rateLimit, securityHeaders, forbiddenPath, hardenServer, SVG_HEADERS } from './security.mjs';
 await initStore(REPO);
 if (dbMode() && !authEnabled()) console.warn('admin disabled: set ADMIN_PASSWORD to use /admin in production');
 
@@ -52,6 +53,7 @@ function serveFile(req, res, fp) {
     'Last-Modified': st.mtime.toUTCString(),
     'Cache-Control': REUSE.has(ext) ? 'public, max-age=300' : 'no-cache',
     'Vary': 'Accept-Encoding',
+    ...(ext === '.svg' ? SVG_HEADERS : {}),
   };
   if (req.headers['if-none-match'] === etag) { res.writeHead(304, headers).end(); return; }
   let body = fs.readFileSync(fp);
@@ -76,7 +78,23 @@ function serveFile(req, res, fp) {
   res.end(body);
 }
 
-http.createServer(async (req, res) => {
+const server = http.createServer(async (req, res) => {
+  try { await handle(req, res); } catch (err) {
+    console.error('request failed:', req.method, req.url, err);
+    if (!res.headersSent) res.writeHead(500, { 'Content-Type': 'text/plain' });
+    res.end('server error');
+  }
+});
+hardenServer(server);
+process.on('unhandledRejection', err => console.error('unhandled rejection:', err));
+
+async function handle(req, res) {
+  securityHeaders(req, res);
+  if (!['GET', 'HEAD', 'POST'].includes(req.method)) { res.writeHead(405, { Allow: 'GET, HEAD, POST' }).end(); return; }
+  const isAdmin = req.url.startsWith('/admin') || /[?&]__cms=1(&|$)/.test(req.url);
+  if (!rateLimit(req, res, isAdmin ? 'admin' : 'site')) return;
+  if (isAdmin && req.method === 'POST' && !req.url.startsWith('/admin/login') && !rateLimit(req, res, 'write')) return;
+  if (!isAdmin && req.method === 'POST') { res.writeHead(405, { Allow: 'GET, HEAD' }).end(); return; }
   // admin: login when ADMIN_PASSWORD is set; never open in production without one
   const wantsAdmin = req.url.startsWith("/admin") || /[?&]__cms=1(&|$)/.test(req.url);
   if (wantsAdmin && dbMode() && !authEnabled()) {
@@ -95,7 +113,9 @@ http.createServer(async (req, res) => {
     res.writeHead(503, { "Content-Type": "text/plain" }).end("admin dashboard unavailable: run npm install");
     return;
   }
-  let p = decodeURIComponent(req.url.split('?')[0].split('#')[0]);
+  let p;
+  try { p = decodeURIComponent(req.url.split('?')[0].split('#')[0]); } catch { res.writeHead(400).end('bad request'); return; }
+  if (forbiddenPath(p)) { res.writeHead(404, { 'Content-Type': 'text/html' }).end('<h1>404</h1>'); return; }
   if (p.endsWith('/')) p += 'index.html';
   let fp = path.join(ROOT, path.normalize(p).replace(/^([/\\])+/, ''));
   if (!fp.startsWith(ROOT)) { res.writeHead(403).end('forbidden'); return; }
@@ -144,4 +164,5 @@ http.createServer(async (req, res) => {
     return;
   }
   serveFile(req, res, fp);
-}).listen(PORT, () => console.log('pilotindia clone -> http://localhost:' + PORT + '/   admin -> http://localhost:' + PORT + '/admin/' + (dbMode() ? '   (edits stored in Postgres)' : '')));
+}
+server.listen(PORT, () => console.log('pilotindia clone -> http://localhost:' + PORT + '/   admin -> http://localhost:' + PORT + '/admin/' + (dbMode() ? '   (edits stored in Postgres)' : '')));

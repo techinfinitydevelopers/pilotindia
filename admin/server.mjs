@@ -27,13 +27,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { parse } from 'parse5';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 
 let ROOT = '';
 let ADMIN_DIR = '';
+let REPO = '';
 let BACKUPS = '';
 
 export function initAdmin(siteRoot, repoRoot) {
   ROOT = siteRoot;
+  REPO = repoRoot;
   ADMIN_DIR = path.join(repoRoot, 'admin');
   BACKUPS = path.join(repoRoot, 'admin-backups');
   // fill the page cache in the background so the first dashboard load is quick
@@ -107,7 +110,8 @@ function recentEdits(limit = 14) {
   const out = [];
   for (const d of fs.readdirSync(BACKUPS)) {
     const dir = path.join(BACKUPS, d);
-    if (!fs.statSync(dir).isDirectory()) continue;
+    // only page backups (named after the page, ending .html); other folders here are one-off safety copies
+    if (!fs.statSync(dir).isDirectory() || !/\.html$/.test(d)) continue;
     for (const f of fs.readdirSync(dir)) {
       const st = fs.statSync(path.join(dir, f));
       out.push({ path: d.replace(/__/g, '/'), stamp: f, time: st.mtimeMs });
@@ -786,6 +790,20 @@ function blogReps(abs, html, P, f, isNew) {
   for (const [el, set] of sets) reps.push(startTagWith(html, el, set));
   return reps;
 }
+// which Pilot domain(s) each post is on (tools/blog-sources.json, built by tools/blog-sources.mjs); the Blogs page lists these posts
+const SOURCES_FILE = () => path.join(REPO, 'tools', 'blog-sources.json');
+function blogSources() {
+  try { return JSON.parse(fs.readFileSync(SOURCES_FILE(), 'utf8')); } catch (e) { return {}; }
+}
+// a post created in the admin belongs to the main site: list it on the Blogs page too
+function registerPost(slug) {
+  const src = blogSources();
+  if (src[slug]) return;
+  src[slug] = ['pilotindia.com'];
+  fs.writeFileSync(SOURCES_FILE(), JSON.stringify(src, null, 1) + '\n');
+  try { execFileSync(process.execPath, [path.join(REPO, 'tools', 'blog-index.mjs')], { cwd: REPO, stdio: 'ignore' }); } catch (e) { /* the page can be rebuilt with: node tools/blog-index.mjs */ }
+}
+
 function saveBlog(f) {
   if (f.path) {
     const abs = sitePath(f.path);
@@ -804,6 +822,7 @@ function saveBlog(f) {
   const out = applyReplacements(html, blogReps(abs, html, blogParts(parseDoc(html)), f, true));
   fs.writeFileSync(abs, out, 'utf8');
   addToListings(abs, f, slug);
+  registerPost(slug);
   return relOf(abs);
 }
 function addToListings(abs, f, slug) {
@@ -902,7 +921,7 @@ function summary() {
       series: series.reduce((n, g) => n + g.series.length, 0),
       lines: series.length,
       products: series.reduce((n, g) => n + g.series.reduce((m, s) => m + s.products, 0), 0),
-      posts: pages.filter(p => p.group === 'Blog posts').length,
+      posts: blogFiles().length,
       media: listMedia().length,
       editsToday: edits.filter(e => new Date(e.time).toDateString() === today).length,
     },
@@ -939,7 +958,7 @@ export async function handleAdmin(req, res) {
       case 'POST /product': { const b = await readJson(req); const changed = saveProduct(sitePath(b.path), b); return send(res, 200, { ok: true, changed }), true; }
       case 'POST /product/duplicate': { const b = await readJson(req); return send(res, 200, { ok: true, id: duplicateProduct(sitePath(b.path), b.id) }), true; }
       case 'POST /product/delete': { const b = await readJson(req); deleteProduct(sitePath(b.path), b.id); return send(res, 200, { ok: true }), true; }
-      case 'GET /blog': return send(res, 200, blogFiles().map(blogSummary).sort((a, b) => b.mtime - a.mtime)), true;
+      case 'GET /blog': { const src = blogSources(); return send(res, 200, blogFiles().map(blogSummary).map(m => Object.assign({}, m, { sources: src[path.basename(m.path, '.html')] || [] })).sort((a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0))), true; }
       case 'GET /blog/post': return send(res, 200, blogModel(sitePath(q('path')))), true;
       case 'POST /blog/post': { const b = await readJson(req); return send(res, 200, { ok: true, path: saveBlog(b) }), true; }
       case 'GET /theme': return send(res, 200, getTheme()), true;

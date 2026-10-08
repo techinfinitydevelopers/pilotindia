@@ -52,17 +52,7 @@
   letter-spacing: -0.035em;
   color: var(--pi-ink-token, #111114);
 }
-.e-con-inner:has(> .e-con > .elementor-widget-n-accordion) > .e-con:first-child .elementor-heading-title::before {
-  content: "Got questions?";
-  display: block;
-  margin-bottom: 18px;
-  font-family: var(--pi-font-body, "Open Sans", system-ui, sans-serif);
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: var(--pi-accent, #f58634);
-}
+
 .e-con-inner:has(> .e-con > .elementor-widget-n-accordion) > .e-con:first-child .elementor-heading-title::after {
   content: "";
   display: block;

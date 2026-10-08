@@ -1831,3 +1831,68 @@ computer only); edits are written into the site files and published with a norma
   trying will-change/containment made it worse and clipped the shadow, so it was reverted.
 - Interaction check: FAQ open/close ~50-58 fps, Technical Excellence hover 53-60, Series filter ok, capabilities 60. Software
   rendering (no GPU) makes these numbers pessimistic: the carousel's size animation measured 40-50 fps here.
+
+## Removed casino advert and unlinked pages (2026-10-08)
+- Deleted the two `<p>` paragraphs advertising wazamba-pl.sobre-japon.com from `spray-guns/index.html` (under the FAQ) and `pages/legacy-series.html`. No other file references the domain.
+- Deleted 14 unlinked draft/test pages: a1, currency-counters-copy, home-2, home-2-old, home-copy, home-old-airless, home-old-office, home-old-welding, hvlp-technology, hvlp-technology-2, paper-shredders-copy, sample-page, test-page, test, testing. (The earlier count of 15 included home-2, which was already gone.)
+- Kept the two FAQ drafts as text in `docs/saved-faqs/` (not published). Decision still open: add them to the real pages or drop them.
+
+## Welding "Built With Trust" -> bento grid (2026-10-08)
+- `welding/index.html`: the dark `pg-feat` block (heading + 5 cards, scroll-pinned) replaced by `section.bento` with the same
+  heading, titles, texts and icons. Styles in `assets/css/bento-trust.css` (scoped to `.bento`, linked ?v=8): warm off-white
+  ground, white rounded cards, Roboto headings + Open Sans text, orange eyebrow/number/hover icon chip.
+- Layout: 6 columns; row 1 = 01 (4) + 02 (2); row 2 = 03 (2) + 04 (4); row 3 = 05 (full). Tablet 2 columns, phone 1.
+- Checked at 1440 / 900 / 390 px: no overflow from the section, 5 cards, div balance unchanged vs HEAD.
+- Found, not changed: on this page the scroll width is 1548 px at 1440 because of the existing marquee strip and the
+  Applications carousel body (`pg-chain__body`); the bento itself fits its 1240 px wrapper.
+- Revision (user: "I want the original content, do it for all products"): the welding build had added a label ("Why Pilot welding")
+  that is not on the original site; removed. `tools/bento-trust.mjs` now builds the bento on spray-guns, welding, office and
+  power-tools (airless has no such block) from each page's own pg-feat content. Verified word for word against the committed
+  originals: heading, 5 titles, 5 texts, 5 icons identical on all four pages. Icons blend into the chip (multiply) so white
+  icon boxes do not show. Section id is now `trust` (not `pg-feat`) so pg-features.js no longer touches it.
+- Other labels I added earlier that are not original text: "Applications" (chain carousel eyebrow), "Got questions?" (FAQ eyebrow),
+  the series name / "Pilot ..." by-line under each carousel quote. Awaiting the user's decision.
+
+## Only original text (2026-10-08, per user)
+- Removed labels I had added that are not on the original site: "Got questions?" (FAQ, CSS), the "Applications" eyebrow
+  above the carousel heading, and the role and series lines under each carousel quote. Carousels rebuilt from their payloads.
+- Checked the spray-guns, airless, welding, office and power-tools pages: every visible text line is present in the committed originals.
+- Kept: "Built in house" (in the original Technical Excellence block), luboss tags, and the "Pilot" wording in the original headings.
+
+## Blogs page lists the real site's posts (2026-10-08)
+- The nav/footer "Blogs" link goes to `pages/blogs.html`, which had no post list; `/blog/` returned 404 locally. Now
+  `tools/blog-index.mjs` builds the list into `pages/blogs.html` (83 cards, newest first, search, show more, 12 at a time) and
+  writes `blog/index.html` so `/blog/` redirects there. Styles `assets/css/pi-blogs.css`, script `assets/js/pi-blogs.js`.
+- Which posts: `tools/real-blog-posts.txt` = the 83 slugs in the live site's post sitemap; all 83 exist here. Title, date,
+  picture (og:image) and summary are read from each post file.
+- NOT listed: 96 extra post files (not in the live sitemap; they came from the product sub-sites; only 1 shares a title with a
+  real post; linked from category / author archive pages) plus 4 redirect stubs. Not deleted: awaiting the user's decision.
+- Verified in headless Chrome at 1440 and 390 px: 12 shown, "Show more" reaches 83, search "paper shredder" gives 6, no overflow.
+- Checked against the live site: all 83 posts in its sitemap fetched and compared with the clone, same title and date on every one, none missing.
+- Admin: Blog screen has tabs "Live site (83)" / "Other posts (96)", newest first by post date; dashboard shows 83 (+96 others). A post created
+  in the admin is appended to `tools/real-blog-posts.txt` and `tools/blog-index.mjs` is re-run, so it appears on the Blogs page (tested, then removed).
+
+## 2026-10-08 — Technical Excellence (pg-tech) revamp, all 4 product pages
+- `assets/css/pg-tech.css`: appended override block only; markup, content, carousel JS and reveal unchanged.
+- Centre "stage" (warm radial glow, dashed rings, 440x400 slides, images `mix-blend-mode:multiply` so white photo backgrounds vanish); cards numbered 01-04, left column mirrored (right-aligned) towards product, amber edge bar on hover; columns stretch so cards line up.
+- Reveal ranges moved to `entry` so cards are not half-faded when in view.
+- Gotcha: `flex: 1 1 0` on cards + overflow hidden clipped text and squashed icons; use `flex: 1 0 auto`.
+- Headless Chrome won't go below ~500px wide; verify mobile in the browser pane (375px: no overflow).
+- Same day, redo (user: "looks bad, content cropped"): cause was fixed `--slide-w:440px` wider than the centre column below ~1300px. Replaced the block with an editorial layout: no boxed cards, hairline-divided feature lists, plain warm stage; `--slide-w: calc(100cqi - 64px)` with `container-type:inline-size` on `.pg-tech__visual`, so slide = column width at every size (checked 375/1280/1366/1600, 0 clipped).
+
+## Blog posts of all five Pilot domains (2026-10-08)
+- Correction of the earlier step: the 96 "extra" posts were not extras. Pilot is five WordPress sites (pilotindia.com, pilotsprayguns.com,
+  pilotairless.com, pilotwelding.com, pilotofficeproducts.com); the merge kept one copy of every post and the product domains carry their own.
+- Checked against the live sites (post sitemaps): pilotindia.com 83, pilotairless.com 96, pilotwelding.com 82, pilotofficeproducts.com 93, all present in blog/
+  (two slugs differ only by a non-breaking hyphen, also present). Shared posts (69) sampled against the domain copies: title and date identical (26/26 fetched).
+- pilotsprayguns.com: post sitemap returns HTTP 500 and its live blog listing is now only casino spam, so its 22 real posts are the ones captured in
+  the first crawl (blog files on no other list); cannot be re-verified live. No casino file is on disk.
+- `tools/blog-sources.mjs` -> `tools/blog-sources.json` (slug -> domains; 179 posts, 69 on several domains). `tools/blog-index.mjs` builds the
+  Blogs page from it: 179 cards, newest first, filter by site (All / Pilot India / Spray Guns / Airless / Welding / Office), search, show more.
+- Admin Blog screen: same filter pills with counts, each row shows its source sites; dashboard counts 179; new admin posts are tagged Pilot India.
+  Dashboard "Recent edits" no longer lists non-page backup folders.
+- Verified: each filter shows its full count after show-more (83/22/96/82/93), /blog/ lands on the Blogs page.
+
+## Product pages: bento -> Applications seam (2026-10-08)
+- `bento-trust.css`: bottom padding 112 -> 72px; `.bento + .pg-chain` top padding 120 -> 72px; when the carousel follows, the bento ground fades into its #f3efe8 (`:has(+ .pg-chain)`) instead of a hard colour band. Gap last card -> heading 232 -> 144px on spray-guns and office; welding/power-tools (white section follows) only get the padding trim.
+- Cache busting: bento-trust.css ?v=11, pg-tech.css ?v=4 on all product pages so browsers pick up the Technical Excellence redo.

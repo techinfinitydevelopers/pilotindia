@@ -205,7 +205,7 @@
         card('#/pages', 'Pages', c.pages, 'Open pages', I.pages, 'indigo') +
         card('#/products', 'Series', c.series, 'Across ' + c.lines + ' product lines', I.layers, 'blue') +
         card('#/products', 'Products', c.products, 'Open products', I.box, 'green') +
-        card('#/blog', 'Blog posts', c.posts, 'Open blog', I.blog, 'amber') +
+        card('#/blog', 'Blog posts', c.posts, 'Across the Pilot sites', I.blog, 'amber') +
         card('#/media', 'Media', c.media, 'Images in the library', I.image, 'rose') +
         card('#/', 'Edits today', c.editsToday, 'Every save keeps a backup', I.clock, 'dark') +
         '</div>' +
@@ -756,17 +756,26 @@
   // ================================================================ BLOG
   ROUTES['/blog'] = function (view) {
     return api('/blog').then(function (posts) {
-      view.innerHTML = head('Blog', posts.length + ' posts. Edit one, or write a new post.', '<a class="btn btn--primary" href="#/blog/edit">' + I.plus + 'New post</a>') +
-        '<div class="bar"><label class="search">' + I.search + '<input placeholder="Search posts" /></label></div><div class="posts"></div>';
+      var LABEL = { 'pilotindia.com': 'Pilot India', 'pilotsprayguns.com': 'Spray Guns', 'pilotairless.com': 'Airless', 'pilotwelding.com': 'Welding', 'pilotofficeproducts.com': 'Office' };
+      var tab = '';
+      function countOf(d) { return posts.filter(function (p) { return !d || (p.sources || []).indexOf(d) >= 0; }).length; }
+      view.innerHTML = head('Blog', posts.length + ' posts across the Pilot sites. Edit one, or write a new post.', '<a class="btn btn--primary" href="#/blog/edit">' + I.plus + 'New post</a>') +
+        '<div class="bar"><div class="seg" data-btab><button class="is-on" data-v="">All (' + countOf('') + ')</button>' + Object.keys(LABEL).map(function (d) { return '<button data-v="' + d + '">' + LABEL[d] + ' (' + countOf(d) + ')</button>'; }).join('') + '</div><label class="search">' + I.search + '<input placeholder="Search posts" /></label></div><div class="posts"></div>';
       var host = $('.posts', view);
       function draw(q) {
-        host.innerHTML = posts.filter(function (p) { return !q || (p.title + ' ' + p.path).toLowerCase().indexOf(q) >= 0; }).map(function (p) {
+        host.innerHTML = posts.filter(function (p) { return (!tab || (p.sources || []).indexOf(tab) >= 0) && (!q || (p.title + ' ' + p.path).toLowerCase().indexOf(q) >= 0); }).map(function (p) {
           return '<div class="post">' + (p.image ? '<img loading="lazy" src="' + esc(url(p.image)) + '" alt="" />' : '<img alt="" />') +
-            '<span><b>' + esc(p.title) + '</b><small>' + esc(p.date || '') + ' · ' + esc(p.path) + '</small></span>' +
+            '<span><b>' + esc(p.title) + '</b><small>' + esc(p.date || '') + ' · ' + (p.sources || []).map(function (d) { return LABEL[d] || d; }).join(', ') + '</small></span>' +
             '<span class="actions" style="margin:0"><a class="btn btn--sm" href="/' + esc(p.path) + '" target="_blank">View</a><a class="btn btn--sm btn--primary" href="#/blog/edit?path=' + encodeURIComponent(p.path) + '">' + I.edit + 'Edit</a></span></div>';
         }).join('') || '<div class="empty">No posts match.</div>';
       }
       $('input', view).addEventListener('input', function (e) { draw(e.target.value.trim().toLowerCase()); });
+      $('[data-btab]', view).addEventListener('click', function (e) {
+        var b = e.target.closest('button'); if (!b) return;
+        tab = b.dataset.v;
+        $$('[data-btab] button', view).forEach(function (x) { x.classList.toggle('is-on', x === b); });
+        draw($('input', view).value.trim().toLowerCase());
+      });
       draw('');
     });
   };

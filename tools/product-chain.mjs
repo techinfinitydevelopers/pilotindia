@@ -20,7 +20,7 @@ const CLONE = path.join(process.cwd(), 'pilotindia-clone');
 const SITES = process.argv.slice(2).length ? process.argv.slice(2) : ['spray-guns', 'airless', 'welding', 'office'];
 const ROLE = { 'spray-guns': 'Pilot Spray Guns', airless: 'Pilot Airless', welding: 'Pilot Welding Equipment', office: 'Pilot Office Products' };
 // how an image sits inside the large card: photos fill it, product shots on white are shown whole
-const FIT = { 'spray-guns': 'cover', airless: 'contain', welding: 'contain', office: 'contain' };
+const FIT = { 'spray-guns': 'cover', airless: 'contain', welding: 'cover', office: 'contain' };
 
 const text = s => s.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 const attr = (tag, k) => (tag.match(new RegExp('\\s' + k + '="([^"]*)"')) || [])[1] || '';
@@ -144,10 +144,6 @@ function rebuild(site) {
             <span class="pg-chain__num">${pad(i)}</span>
             <h3 class="pg-chain__title">${s.titleHref ? `<a href="${esc(s.titleHref)}" target="_blank" rel="noopener">${s.title}</a>` : s.title}</h3>
             <p class="pg-chain__quote">&ldquo;${s.quote}&rdquo;</p>
-            <div class="pg-chain__by">
-              <span class="pg-chain__name">${s.series}</span>
-              ${role ? `<span class="pg-chain__role">${role}</span>` : ''}
-            </div>
             <a class="pg-chain__cta" href="${esc(s.href)}">${s.cta}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3z"/></svg></a>
           </div>
           <div class="pg-chain__media" data-fit="${fit}"><img src="${esc(s.image)}" alt="${esc(s.alt || s.title)}" loading="lazy" decoding="async" draggable="false"></div>
@@ -157,7 +153,6 @@ function rebuild(site) {
 
   const section = `<section class="pg-chain" id="pg-chain" data-pg-src="${payload}">
   <div class="pg-chain__intro">
-    <span class="pg-chain__eyebrow">Applications</span>
     <h2 class="pg-chain__h2">${data.heading}</h2>
     ${data.intro ? `<p class="pg-chain__lead">${data.intro}</p>` : ''}
     ${data.button ? `<a class="pg-chain__ghost" href="${esc(data.button.href)}">${data.button.label}</a>` : ''}
@@ -173,7 +168,11 @@ function rebuild(site) {
   html = html.slice(0, from) + keep + section + html.slice(to);
 
   // the section uses the theme's own fonts (Roboto headings, Open Sans text): no extra font is loaded
-  if (!html.includes('pg-chain.css')) html = html.replace('</head>', '<link rel="stylesheet" href="../assets/css/pg-chain.css?v=6" />\n</head>');
+  if (!html.includes('pg-chain.css')) {
+    html = html.replace('</head>', '<link rel="stylesheet" href="../assets/css/pg-chain.css?v=7" />\n</head>');
+  } else {
+    html = html.replace(/pg-chain\.css(?:\?v=\d+)?/g, 'pg-chain.css?v=7');
+  }
   if (!html.includes('pg-chain.js')) html = html.replace(/<\/body>(?![\s\S]*<\/body>)/, '<script src="../assets/js/pg-chain.js?v=2" defer></script>\n</body>');
 
   fs.writeFileSync(FILE, html, 'utf8');

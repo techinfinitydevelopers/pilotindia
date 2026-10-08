@@ -1,0 +1,12 @@
+{
+  "name": "pilotindia-clone",
+  "private": true,
+  "type": "module",
+  "description": "Local tooling for the Pilot India static site: dev server with the admin dashboard at /admin.",
+  "scripts": {
+    "start": "node serve.mjs 8080"
+  },
+  "dependencies": {
+    "parse5": "^8.0.1"
+  }
+}

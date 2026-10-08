@@ -8,6 +8,15 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'pilotindia-clone');
 const PORT = Number(process.argv[2] || 8080);
 
+// the admin dashboard (admin/server.mjs) - optional: the site still serves if it cannot load
+let admin = null;
+try {
+  admin = await import("./admin/server.mjs");
+  admin.initAdmin(ROOT, path.dirname(fileURLToPath(import.meta.url)));
+} catch (err) {
+  console.warn("admin dashboard unavailable (run \"npm install\"): " + err.message);
+}
+
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
@@ -18,7 +27,54 @@ const TYPES = {
   '.pdf': 'application/pdf', '.mp4': 'video/mp4', '.webm': 'video/webm', '.xml': 'application/xml',
 };
 
-http.createServer((req, res) => {
+// ---- static files: validators, compression, caching ----
+// Text files are sent compressed (brotli or gzip); every file carries an ETag so a repeat visit is answered with a
+// 304 and no body; images and fonts may be reused for a few minutes without asking at all. Stylesheets, scripts and
+// pages are always revalidated, so an edit shows on the next refresh.
+import zlib from 'node:zlib';
+const COMPRESSIBLE = new Set(['.html', '.css', '.js', '.mjs', '.json', '.svg', '.xml', '.ttf', '.eot', '.otf']);
+const REUSE = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.ico', '.woff', '.woff2', '.mp4', '.webm', '.pdf']);
+const squeezed = new Map();     // path + mtime + encoding -> compressed bytes
+function serveFile(req, res, fp) {
+  const ext = path.extname(fp).toLowerCase();
+  const st = fs.statSync(fp);
+  const etag = 'W/"' + st.size.toString(16) + '-' + Math.floor(st.mtimeMs).toString(16) + '"';
+  const headers = {
+    'Content-Type': TYPES[ext] || 'application/octet-stream',
+    'ETag': etag,
+    'Last-Modified': st.mtime.toUTCString(),
+    'Cache-Control': REUSE.has(ext) ? 'public, max-age=300' : 'no-cache',
+    'Vary': 'Accept-Encoding',
+  };
+  if (req.headers['if-none-match'] === etag) { res.writeHead(304, headers).end(); return; }
+  let body = fs.readFileSync(fp);
+  if (COMPRESSIBLE.has(ext) && body.length > 1024) {
+    const accept = String(req.headers['accept-encoding'] || '');
+    const enc = /\bbr\b/.test(accept) ? 'br' : /\bgzip\b/.test(accept) ? 'gzip' : '';
+    if (enc) {
+      const key = fp + '|' + st.mtimeMs + '|' + enc;
+      let z = squeezed.get(key);
+      if (!z) {
+        z = enc === 'br'
+          ? zlib.brotliCompressSync(body, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 5, [zlib.constants.BROTLI_PARAM_SIZE_HINT]: body.length } })
+          : zlib.gzipSync(body, { level: 6 });
+        if (squeezed.size > 400) squeezed.clear();
+        squeezed.set(key, z);
+      }
+      body = z; headers['Content-Encoding'] = enc;
+    }
+  }
+  headers['Content-Length'] = body.length;
+  res.writeHead(200, headers);
+  res.end(body);
+}
+
+http.createServer(async (req, res) => {
+  if (req.url.startsWith("/admin")) {
+    if (admin && await admin.handleAdmin(req, res)) return;
+    res.writeHead(503, { "Content-Type": "text/plain" }).end("admin dashboard unavailable: run npm install");
+    return;
+  }
   let p = decodeURIComponent(req.url.split('?')[0].split('#')[0]);
   if (p.endsWith('/')) p += 'index.html';
   let fp = path.join(ROOT, path.normalize(p).replace(/^([/\\])+/, ''));
@@ -59,11 +115,13 @@ http.createServer((req, res) => {
     fp = hit;
   }
 
-  const body = fs.readFileSync(fp);
-  res.writeHead(200, {
-    'Content-Type': TYPES[path.extname(fp).toLowerCase()] || 'application/octet-stream',
-    'Content-Length': body.length,
-    'Cache-Control': 'no-cache',
-  });
-  res.end(body);
-}).listen(PORT, () => console.log('pilotindia clone -> http://localhost:' + PORT + '/'));
+  // the visual editor loads pages with ?__cms=1: same address (so relative links work), plus
+  // element ids and the editor overlay
+  if (admin && /[?&]__cms=1(&|$)/.test(req.url) && fp.endsWith(".html")) {
+    const html = admin.instrument(fs.readFileSync(fp, "utf8"));
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" });
+    res.end(html);
+    return;
+  }
+  serveFile(req, res, fp);
+}).listen(PORT, () => console.log('pilotindia clone -> http://localhost:' + PORT + '/   admin -> http://localhost:' + PORT + '/admin/'));

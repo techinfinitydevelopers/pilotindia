@@ -8,7 +8,7 @@
 
    Look: a dark showroom, taken from the home hero. Near-black ground with soft
    orange glows, serif model names, glass panels for the data, and each gun on a
-   white "stage" card with a tab peeking above it and a white figure card
+   white "stage" card with a white figure card
    overlapping its corner. White pills for the actions.
 
    Divi ships every model twice, a three-column desktop copy and a stacked mobile
@@ -402,7 +402,7 @@ body.pg-series { overflow-x: clip !important; }
 .pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner { flex: 1 1 auto; display: flex; flex-direction: column; }
 .pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .pg-areas { margin-top: auto; padding-top: 26px; }
 
-/* second column: the white stage. A tab peeks above it, a figure card overlaps its corner. */
+/* second column: the white stage, with a figure card overlapping its corner. */
 .pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) {
   position: relative;
   display: flex !important;
@@ -411,19 +411,6 @@ body.pg-series { overflow-x: clip !important; }
   background: radial-gradient(120% 90% at 50% 38%, #fff 0%, #f3efe8 70%, #e8e2d6 100%);
   box-shadow: 0 26px 50px -30px rgba(25, 18, 8, 0.35), 0 0 0 1px rgba(17, 17, 20, 0.05);
   isolation: isolate;
-}
-.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2)::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: 12%;
-  right: 12%;
-  top: -16px;
-  height: 40px;
-  border-radius: 20px 20px 0 0;
-  background: rgba(17, 17, 20, 0.06);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
 }
 .pg-series .pg-prod--desk .et_pb_image {
   flex: 1 1 auto;
@@ -498,9 +485,9 @@ body.pg-series { overflow-x: clip !important; }
 
 /* downloads: two white pills side by side (a model with one document leaves an empty cell, dropped) */
 .pg-series .pg-prod--desk table[border="0"] td:not(:has(*)) { display: none !important; }
-.pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:first-child table[border="0"] { width: auto; margin-top: 6px; }
-.pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:first-child table[border="0"] tr { display: flex; flex-wrap: wrap; gap: 10px; }
-.pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:first-child table[border="0"] td {
+.pg-series .pg-prod--desk table[border="0"] { width: auto; margin-top: 6px; }
+.pg-series .pg-prod--desk table[border="0"] tr { display: flex; flex-wrap: wrap; gap: 10px; }
+.pg-series .pg-prod--desk table[border="0"] td {
   display: inline-flex;
   align-items: center;
   padding: 11px 22px !important;
@@ -510,7 +497,7 @@ body.pg-series { overflow-x: clip !important; }
   box-shadow: 0 0 0 1px var(--s-line);
   transition: background 0.3s ease, transform 0.4s var(--s-ease), box-shadow 0.4s ease;
 }
-.pg-series .pg-prod--desk .et_pb_text_inner > div[style*="flex"] > div:first-child table[border="0"] td:hover {
+.pg-series .pg-prod--desk table[border="0"] td:hover {
   background: var(--s-accent) !important;
   transform: translateY(-2px);
   box-shadow: 0 14px 28px -12px rgba(245, 134, 52, 0.6);
@@ -606,3 +593,413 @@ body.pg-series { overflow-x: clip !important; }
 .pg-series .pg-prod .pg-areas td { width: auto !important; }
 
 .pg-series .pg-prod td.pg-empty { display: none !important; }
+
+/* ---------- things only some series pages carry ---------- */
+
+/* long model names ("PILOT - 12 CC", "Single Stage Regulator (Oxygen)"): pg-series.js sizes them down by length */
+.pg-series .pg-prod h1.pg-h1--long { font-size: clamp(30px, 3.1vw, 46px) !important; line-height: 1.04 !important; }
+.pg-series .pg-prod h1.pg-h1--xl { font-size: clamp(26px, 2.5vw, 36px) !important; line-height: 1.08 !important; }
+
+/* a few pages centre the "areas of application" label */
+.pg-series .pg-prod .pg-areas > p { text-align: left !important; margin-left: 0 !important; padding-left: 0 !important; }
+
+/* the YouTube module some models carry */
+.pg-series .pg-prod .et_pb_video {
+  margin: 18px 0 0 !important;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #111114;
+  box-shadow: 0 0 0 1px var(--s-line);
+}
+.pg-series .pg-prod .et_pb_video .et_pb_video_overlay { border-radius: 18px; }
+
+/* "Buy Now": the primary action, in the accent colour (the download links are the quiet white pills) */
+.pg-series .pg-prod .et_pb_button_module_wrapper { margin: 14px 0 0 !important; }
+.pg-series .pg-prod a.et_pb_button,
+.pg-series .pg-prod a.et_pb_button:hover {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 26px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: var(--s-accent) !important;
+  color: #0a0a0a !important;
+  font-family: inherit !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em;
+  line-height: 1.2 !important;
+  text-decoration: none;
+  transition: transform 0.4s var(--s-ease), box-shadow 0.4s ease, background 0.3s ease;
+}
+.pg-series .pg-prod a.et_pb_button::before { display: none !important; }
+.pg-series .pg-prod a.et_pb_button::after {
+  position: static !important;
+  margin: 0 !important;
+  opacity: 1 !important;
+  font-family: inherit !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  content: "\2192" !important;
+  transition: transform 0.35s var(--s-ease);
+}
+.pg-series .pg-prod a.et_pb_button:hover {
+  background: #e8731d !important;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -12px rgba(245, 134, 52, 0.6);
+}
+.pg-series .pg-prod a.et_pb_button:hover::after { transform: translateX(3px); }
+
+/* wide spec grids (gas regulators): keep a table look, scroll sideways rather than squeeze */
+.pg-series .pg-prod table.pg-wide {
+  display: block;
+  overflow-x: auto;
+  width: 100% !important;
+  border: 1px solid var(--s-line) !important;
+  border-radius: 14px;
+  scrollbar-width: thin;
+}
+.pg-series .pg-prod table.pg-wide tbody { display: table; width: 100%; min-width: 520px; }
+.pg-series .pg-prod table.pg-wide td {
+  padding: 10px 10px !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--s-line) !important;
+  border-right: 1px solid var(--s-line) !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  line-height: 1.4;
+  text-align: center !important;
+  white-space: normal !important;
+  color: var(--s-text) !important;
+}
+.pg-series .pg-prod table.pg-wide td:last-child { border-right: 0 !important; }
+.pg-series .pg-prod table.pg-wide tr:last-child td { border-bottom: 0 !important; }
+.pg-series .pg-prod table.pg-wide tr:first-child td { font-weight: 700 !important; color: var(--s-ink) !important; background: rgba(17, 17, 20, 0.04) !important; }
+.pg-series .pg-prod table.pg-wide tr:hover { background: transparent; }
+
+/* phones: the model twins Divi hides by section number need hiding by role too (the first Service Guns
+   model got a new section number when its menu was split off, so Divi's list no longer covers it), and
+   fixed-width inline tables must not be wider than the card */
+@media (max-width: 767px) {
+  .pg-series .pg-prod--desk { display: none !important; }
+  .pg-series .pg-prod--mob table { width: 100% !important; max-width: 100% !important; table-layout: auto; }
+  .pg-series .pg-prod--mob td { word-break: break-word; }
+}
+@media (max-width: 767px) {
+  /* the application icons: wrap into rows instead of one long line */
+  .pg-series .pg-prod--mob table:has(img:not([src*="pdf"])) { display: block; }
+  .pg-series .pg-prod--mob table:has(img:not([src*="pdf"])) tbody { display: flex; flex-wrap: wrap; gap: 12px 10px; width: 100%; }
+  .pg-series .pg-prod--mob table:has(img:not([src*="pdf"])) tr { display: contents; }
+  .pg-series .pg-prod--mob table:has(img:not([src*="pdf"])) td { display: block; width: auto !important; min-width: 56px; padding: 0 !important; border: 0 !important; font-size: 11px; }
+  .pg-series .pg-prod--mob table:has(img:not([src*="pdf"])) td:not(:has(img)) { display: none; }
+  .pg-series .pg-prod--mob table:has(img:not([src*="pdf"])) br { display: none; }
+}
+@media (max-width: 767px) {
+  /* long spec values wrap on a phone instead of forcing the table wider than the card */
+  .pg-series .pg-prod--mob table:not(:has(img)) td:last-child:not(:first-child) { white-space: normal; text-align: right; }
+}
+
+/* some pages' series menus carry a condensed face from the old theme; use one face on every page */
+.pg-series .pg-nav .et_pb_menu ul li a,
+.pg-series .pg-nav .et_pb_menu .et-menu-nav a {
+  font-family: var(--pi-font-body, "Open Sans", system-ui, sans-serif) !important;
+  text-transform: uppercase;
+}
+
+/* ======================= gallery + product pages =======================
+   Built by pg-series.js on pages with two or more models.
+   Gallery (no ?model): a grid of product images, every card hidden.
+   Product (?model=<id>): only that model's card, a back link above it and previous / next below. */
+
+.pg-view-gallery .pg-prod,
+.pg-view-model .pg-prod:not(.is-shown) { display: none !important; }
+
+/* the listing: modelled on a shop catalogue - centred serif title, a row of type pills with a sort
+   control at its end, a "Showing X of N" line, then a grid of cells divided by hairlines (no gaps,
+   no rounded cards). Image panels alternate between a soft square and a soft circle. */
+.pg-gallery {
+  width: min(1320px, 94%);
+  margin: 0 auto;
+  padding: 56px 0 80px;
+}
+.pg-gallery__head { margin: 0 0 34px; text-align: center; }
+.pg-gallery__eyebrow {
+  display: block;
+  margin: 0 0 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--s-accent);
+}
+.pg-gallery__title {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: var(--s-serif) !important;
+  font-size: clamp(40px, 4.6vw, 68px) !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  text-transform: capitalize;
+  color: var(--s-ink) !important;
+}
+
+.pg-gallery__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 18px;
+}
+.pg-gallery__pills {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px;
+}
+.pg-gallery__pills::-webkit-scrollbar { display: none; }
+.pg-series .pg-pill {
+  flex: 0 0 auto;
+  padding: 9px 18px;
+  border: 1px solid var(--s-line);
+  border-radius: 999px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--s-mute);
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+.pg-series .pg-pill:hover { border-color: rgba(17, 17, 20, 0.28); color: var(--s-ink); }
+.pg-series .pg-pill[aria-pressed="true"] { background: #f3efe8; border-color: #e3dccf; color: var(--s-ink); font-weight: 600; }
+.pg-series .pg-pill:focus-visible { outline: 2px solid var(--s-accent); outline-offset: 2px; }
+
+.pg-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  padding: 0 6px 0 18px;
+  border: 1px solid rgba(17, 17, 20, 0.22);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 13px;
+  color: var(--s-ink);
+}
+.pg-sort__label { font-weight: 600; white-space: nowrap; }
+.pg-series .pg-sort__select {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  padding: 9px 30px 9px 4px;
+  border: 0;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23111114'%3E%3Cpath d='M12 15.4 5.6 9l1.4-1.4 5 5 5-5L18.4 9z'/%3E%3C/svg%3E") no-repeat right 8px center / 16px 16px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--s-mute);
+  cursor: pointer;
+}
+.pg-series .pg-sort__select:focus-visible { outline: 2px solid var(--s-accent); outline-offset: 2px; border-radius: 999px; }
+
+.pg-gallery__count { margin: 0 0 14px !important; padding: 0 !important; font-size: 13px; color: var(--s-mute) !important; }
+
+/* hairline grid: every cell draws its right and bottom rule, the grid draws the top and left */
+.pg-gallery__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  border-top: 1px solid var(--s-line);
+  border-left: 1px solid var(--s-line);
+}
+
+.pg-series a.pg-tile {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 16px 18px;
+  border-right: 1px solid var(--s-line);
+  border-bottom: 1px solid var(--s-line);
+  background: #fff;
+  color: var(--s-ink);
+  text-decoration: none;
+  transition: background 0.35s ease;
+}
+.pg-series a.pg-tile[hidden] { display: none; }
+.pg-series a.pg-tile:hover { background: #fcfaf7; }
+.pg-series a.pg-tile:focus-visible { outline: 2px solid var(--s-accent); outline-offset: -2px; }
+
+.pg-tile__pic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1.1;
+  padding: 26px;
+  background: #f3efe8;
+  isolation: isolate;
+  overflow: hidden;
+}
+.pg-tile__pic--round { border-radius: 50%; aspect-ratio: 1 / 1.1; }
+.pg-tile__pic img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  transition: transform 0.7s var(--s-ease);
+}
+.pg-series a.pg-tile:hover .pg-tile__pic img { transform: scale(1.06); }
+
+.pg-tile__meta { display: flex; flex-direction: column; gap: 10px; flex: 1; padding: 20px 2px 0; }
+.pg-tile__name {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: var(--s-ink);
+}
+.pg-tile__line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  font-size: 13px;
+  color: var(--s-mute);
+}
+.pg-tile__key b { font-size: 15px; font-weight: 700; color: var(--s-ink); }
+.pg-tile__code {
+  flex: 0 0 auto;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--s-mute);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- a product's own page ---- */
+
+/* the series banner is the gallery's header; a product page opens straight on its card */
+.pg-view-model .et_pb_section.pg-hero,
+.pg-view-model .et_pb_section_1.et_pb_with_background { display: none !important; }
+.pg-view-model .et_pb_section.pg-nav { margin-top: var(--pg-top) !important; }
+
+.pg-crumb,
+.pg-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: min(1280px, 92%);
+  margin: 0 auto;
+}
+.pg-crumb { padding: 34px 0 6px; }
+.pg-series a.pg-crumb__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border: 1px solid var(--s-line);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--s-ink);
+  text-decoration: none;
+  transition: border-color 0.3s ease, transform 0.4s var(--s-ease);
+}
+.pg-series a.pg-crumb__back::before { content: "\2190"; color: var(--s-accent); }
+.pg-series a.pg-crumb__back:hover { border-color: var(--s-accent); transform: translateX(-3px); }
+.pg-crumb__pos { font-size: 11.5px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--s-mute); }
+
+.pg-pager { padding: 8px 0 72px; }
+.pg-pager__gap { flex: 1; }
+.pg-series a.pg-pager__link {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 48%;
+  padding: 18px 22px;
+  border: 1px solid var(--s-line);
+  border-radius: 20px;
+  background: #fff;
+  text-decoration: none;
+  transition: border-color 0.3s ease, transform 0.4s var(--s-ease);
+}
+.pg-series a.pg-pager__link--next { align-items: flex-end; text-align: right; }
+.pg-series a.pg-pager__link:hover { border-color: var(--s-accent); transform: translateY(-3px); }
+.pg-pager__dir { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--s-accent); }
+.pg-pager__link--prev .pg-pager__dir::before { content: "\2190  "; }
+.pg-pager__link--next .pg-pager__dir::after { content: "  \2192"; }
+.pg-pager__name { font-family: var(--s-serif); font-size: 24px; line-height: 1.1; text-transform: uppercase; color: var(--s-ink); }
+
+/* phones: the product page shows the desktop card in one column (not every model has a phone twin) */
+@media (max-width: 767px) {
+  .pg-gallery { padding: 32px 0 56px; }
+  .pg-gallery__head { margin-bottom: 24px; }
+  .pg-gallery__bar { flex-direction: column; align-items: stretch; }
+  .pg-sort { align-self: flex-start; }
+  .pg-gallery__grid { grid-template-columns: repeat(2, 1fr); }
+  .pg-series a.pg-tile { padding: 10px 10px 14px; }
+  .pg-tile__pic { padding: 12px; }
+  .pg-tile__meta { gap: 6px; padding-top: 12px; }
+  .pg-tile__name { font-size: 12.5px; }
+  .pg-tile__line { flex-direction: column; align-items: flex-start; gap: 2px; font-size: 12px; }
+  .pg-tile__key b { font-size: 13.5px; }
+
+  .pg-view-model .pg-prod--desk.is-shown { display: block !important; }
+  .pg-view-model .pg-prod--desk.is-shown .et_pb_row { grid-template-columns: 1fr !important; padding: 26px 20px !important; gap: 0 !important; }
+  .pg-view-model .pg-prod--desk.is-shown .et_pb_column_1_5:nth-child(2) { order: -1; min-height: 300px; margin-bottom: 26px !important; }
+  .pg-view-model .pg-prod--desk.is-shown .et_pb_column_3_5 { margin-top: 26px !important; }
+  .pg-view-model .pg-prod--desk.is-shown .pg-fig { right: 12px; bottom: 12px; }
+  .pg-view-model .pg-prod--desk.is-shown table:not(:has(img)) td:last-child:not(:first-child) { white-space: normal; }
+  .pg-crumb { padding-top: 22px; }
+  .pg-crumb__pos { display: none; }
+  .pg-pager { flex-direction: column; align-items: stretch; }
+  .pg-series a.pg-pager__link { max-width: none; }
+  .pg-pager__gap { display: none; }
+}
+.pg-tile__key { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+/* square image panels only */
+.pg-tile__pic--round { border-radius: 0; }
+
+/* search box beside the sort control */
+.pg-gallery__tools { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+.pg-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px 0 14px;
+  border: 1px solid rgba(17, 17, 20, 0.22);
+  border-radius: 999px;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236b6b73'%3E%3Cpath d='M10 4a6 6 0 1 0 3.7 10.7l4.8 4.8 1.4-1.4-4.8-4.8A6 6 0 0 0 10 4zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8z'/%3E%3C/svg%3E") no-repeat 14px center / 16px 16px;
+  transition: border-color 0.25s ease;
+}
+.pg-search:focus-within { border-color: var(--s-accent); }
+.pg-series .pg-search__input {
+  width: 220px;
+  margin: 0;
+  padding: 9px 0 9px 24px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--s-ink);
+}
+.pg-series .pg-search__input::placeholder { color: var(--s-mute); }
+
+/* a product's own page: no series menu / model buttons; it opens on the back link and the card */
+.pg-view-model .et_pb_section.pg-nav { display: none !important; }
+.pg-view-model .pg-crumb { padding-top: calc(var(--pg-top) + 26px); }
+
+@media (max-width: 767px) {
+  .pg-gallery__tools { flex-wrap: wrap; }
+  .pg-search { flex: 1 1 100%; }
+  .pg-series .pg-search__input { width: 100%; }
+}
+
+/* the "Models" row under the series menu is removed: the listing below does that job */
+.pg-series .pg-rail { display: none !important; }

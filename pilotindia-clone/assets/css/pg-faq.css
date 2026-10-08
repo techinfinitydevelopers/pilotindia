@@ -1,192 +1,244 @@
 /* ==========================================================================
-   Pilot India — FAQ accordion (product pages)
+   Pilot India - FAQ accordion (product pages), second design
 
    Restyles the Elementor nested-accordion widget in place. The markup is native
    <details>/<summary>, so open/close needs no JavaScript and keyboard and screen
-   reader behaviour already work — this file only changes how it looks.
+   reader behaviour already work; this file only changes how it looks. The questions and
+   answers are the page's own and are not touched.
 
-   What it replaces: every row boxed in its own grey outline, so four questions
-   read as four separate cards stacked with gaps, and the whole block fought the
-   calm of the page. Now one ruled list, the way the rest of the site sets lists.
+   Layout: the section becomes two columns - a sticky heading on the left, the questions
+   on the right as separate rounded cards (the same card language as the series pages and
+   the Applications carousel). The open card gets an orange edge, a soft lift and a black
+   marker with an orange sign.
 
-   Palette is the site's own: accent #f58634 and ink, pulled from theme.css
-   tokens. No new colours.
+   Palette is the site's own: accent #f58634, ink, cream. Type: theme Roboto + Open Sans.
 
-   Scoped to .elementor-widget-n-accordion, which on these pages is the FAQ and
-   nothing else (verified one accordion widget per page).
+   Scoped to the section that holds an accordion widget (one per page: the FAQ).
    ========================================================================== */
+
+/* ---------- section ---------- */
+
+.e-parent:has(.elementor-widget-n-accordion) {
+  background: #f7f5f1;
+  padding-block: clamp(56px, 8vw, 112px) !important;
+}
+
+.e-con-inner:has(> .e-con > .elementor-widget-n-accordion) {
+  display: grid !important;
+  grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1.6fr);
+  gap: clamp(28px, 6vw, 96px);
+  align-items: start;
+  width: min(1240px, 100%);
+  margin-inline: auto;
+  padding-inline: clamp(16px, 3vw, 32px) !important;
+  box-sizing: border-box;
+}
+
+/* left column: eyebrow + large heading, stays in view while the list is read */
+.e-con-inner:has(> .e-con > .elementor-widget-n-accordion) > .e-con:first-child {
+  position: sticky;
+  top: 120px;
+  width: 100% !important;
+  align-self: start;
+}
+.e-con-inner:has(> .e-con > .elementor-widget-n-accordion) > .e-con:first-child .e-con { width: 100% !important; }
+.e-con-inner:has(> .e-con > .elementor-widget-n-accordion) > .e-con:first-child .elementor-heading-title {
+  margin: 0;
+  padding: 0;
+  font-family: var(--pi-font-heading, "Roboto", system-ui, sans-serif);
+  font-size: clamp(40px, 5.2vw, 72px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  color: var(--pi-ink-token, #111114);
+}
+.e-con-inner:has(> .e-con > .elementor-widget-n-accordion) > .e-con:first-child .elementor-heading-title::before {
+  content: "Got questions?";
+  display: block;
+  margin-bottom: 18px;
+  font-family: var(--pi-font-body, "Open Sans", system-ui, sans-serif);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--pi-accent, #f58634);
+}
+.e-con-inner:has(> .e-con > .elementor-widget-n-accordion) > .e-con:first-child .elementor-heading-title::after {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 3px;
+  margin-top: 26px;
+  border-radius: 3px;
+  background: var(--pi-accent, #f58634);
+}
+
+/* right column fills its track */
+.e-con-inner:has(> .e-con > .elementor-widget-n-accordion) > .e-con:has(> .elementor-widget-n-accordion) { width: 100% !important; min-width: 0; }
+
+/* ---------- widget knobs ---------- */
 
 .elementor-widget.elementor-widget.elementor-widget-n-accordion {
   --faq-accent: var(--pi-accent, #f58634);
-  --faq-ink: var(--pi-ink, #0a0a0a);
-  --faq-body: #55575c;
-  --faq-rule: rgba(10, 10, 10, 0.12);
+  --faq-ink: #111114;
+  --faq-body: #4d4f55;
+  --faq-line: rgba(17, 17, 20, 0.09);
 
-  /* the widget's own knobs, set so its base CSS cooperates instead of fighting */
   --n-accordion-border-width: 0px;
   --n-accordion-border-style: none;
   --n-accordion-padding: 0px;
   --n-accordion-border-radius: 0px;
   --n-accordion-item-title-space-between: 0px;
   --n-accordion-item-title-distance-from-content: 0px;
-  /* marker stays on the right, where it was: order 1 puts it last in the flex row
-     and the header grows to push it there */
+  /* marker stays on the right: order 1 puts it last and the header grows to push it there */
   --n-accordion-title-icon-order: 1;
   --n-accordion-title-normal-color: var(--faq-ink);
   --n-accordion-title-hover-color: var(--faq-accent);
-  --n-accordion-title-active-color: var(--faq-accent);
+  --n-accordion-title-active-color: var(--faq-ink);
 }
 
-/* ---------- the list ---------- */
+/* ---------- the cards ---------- */
 
 .elementor-widget.elementor-widget-n-accordion .e-n-accordion {
-  border-top: 1px solid var(--faq-rule);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border: 0;
 }
 
 .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item {
   position: relative;
-  border-bottom: 1px solid var(--faq-rule);
-  background: transparent;
+  overflow: hidden;
+  border: 1px solid var(--faq-line);
+  border-radius: 22px;
+  background: #ffffff;
+  transition: border-color 0.35s ease, box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
-/* an accent edge that appears on the open row, so the eye can find its place in
-   a long list without the row needing a box */
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item:hover { border-color: rgba(17, 17, 20, 0.2); }
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item[open] {
+  border-color: rgba(245, 134, 52, 0.55);
+  box-shadow: 0 28px 54px -34px rgba(17, 17, 20, 0.35), 0 8px 22px -16px rgba(17, 17, 20, 0.12);
+}
+/* an orange edge on the open card */
 .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item::before {
   content: "";
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: 18px;
+  bottom: 18px;
   left: 0;
-  width: 2px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
   background: var(--faq-accent);
   transform: scaleY(0);
-  transform-origin: 50% 0;
-  transition: transform 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: 50% 50%;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item[open]::before { transform: scaleY(1); }
 
 /* ---------- the question ---------- */
 
 .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title {
-  gap: 24px;
-  padding: 22px 8px 22px 22px;
+  gap: 20px;
+  padding: 24px 22px 24px 30px;
   border: 0;
   border-radius: 0;
   background: transparent;
-  transition: background 0.26s ease, padding-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
 }
-.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title:hover {
-  background: rgba(245, 134, 52, 0.05);
-  padding-left: 28px;
-}
-.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item[open] > .e-n-accordion-item-title {
-  background: rgba(245, 134, 52, 0.06);
-  padding-left: 28px;
-}
-
-.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-header {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-header { flex: 1 1 auto; min-width: 0; }
 .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-text {
-  font-size: clamp(15.5px, 1.25vw, 18px);
+  font-family: var(--pi-font-heading, "Roboto", system-ui, sans-serif);
+  font-size: clamp(16px, 1.35vw, 19px);
   font-weight: 600;
-  line-height: 1.45;
-  letter-spacing: -0.005em;
-  transition: color 0.24s ease;
+  line-height: 1.4;
+  letter-spacing: -0.012em;
+  transition: color 0.25s ease;
 }
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title:hover .e-n-accordion-item-title-text { color: var(--faq-accent); }
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title:focus-visible { outline: 2px solid var(--faq-accent); outline-offset: -4px; border-radius: 22px; }
 
-/* keyboard users get a real focus ring; the widget ships none */
-.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title:focus-visible {
-  outline: 2px solid var(--faq-accent);
-  outline-offset: -3px;
-}
+/* ---------- the + / - marker ---------- */
 
-/* ---------- the +/- marker ---------- */
-
-/* Elementor swaps a plus span for a minus span. Both are wrapped in a tile here,
-   so the control reads as a button rather than as a stray glyph. */
+/* Drawn with CSS (two bars), not the icon font: it needs no font file and cannot fail to load. Elementor's own
+   plus / minus glyphs are hidden. Open = the vertical bar folds away, leaving a minus. */
 .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-icon {
+  position: relative;
   flex: none;
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border: 1px solid var(--faq-rule);
-  border-radius: 999px;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: #f3efe8;
   color: var(--faq-ink);
-  transition: background 0.26s ease, border-color 0.26s ease,
-              color 0.26s ease, transform 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background 0.3s ease, color 0.3s ease;
 }
-.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-icon span,
-.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-icon span > i {
-  color: currentColor;
-  font-size: 12px;
-  line-height: 1;
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-icon > span { display: none !important; }
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-icon::before,
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 2px;
+  margin: -1px 0 0 -7px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title:hover .e-n-accordion-item-title-icon {
-  border-color: var(--faq-accent);
-  color: var(--faq-accent);
-}
-.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item[open] .e-n-accordion-item-title-icon {
-  background: var(--faq-accent);
-  border-color: var(--faq-accent);
-  color: #ffffff;
-  transform: rotate(180deg);
-}
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-icon::after { transform: rotate(90deg); }
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title:hover .e-n-accordion-item-title-icon { background: var(--faq-ink); color: var(--faq-accent); }
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item[open] .e-n-accordion-item-title-icon { background: var(--faq-ink); color: var(--faq-accent); }
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item[open] .e-n-accordion-item-title-icon::after { transform: rotate(0deg); }
 
 /* ---------- the answer ---------- */
 
-/* Elementor emits a per-element padding rule for this container at (0,3,0), so the
-   selector needs the extra class+attribute weight to win. */
-.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item > .e-con[role="region"] {
-  --padding-top: 0px;
-  --padding-right: 64px;
-  --padding-bottom: 26px;
-  --padding-left: 28px;
-  padding: 0 64px 26px 28px;
+/* the region's own padding is overridden by Elementor's container rules, so the spacing sits on the text container */
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item > .e-con[role="region"] { padding: 0 !important; }
+.elementor-widget.elementor-widget-n-accordion .e-n-accordion-item > .e-con[role="region"] .elementor-widget-container {
+  margin: 0 30px;
+  padding: 20px 48px 28px 0;
+  border-top: 1px solid var(--faq-line);
 }
 .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item > .e-con[role="region"] p {
   margin: 0;
-  font-size: 15px;
+  font-family: var(--pi-font-body, "Open Sans", system-ui, sans-serif);
+  font-size: 15.5px;
   line-height: 1.75;
   color: var(--faq-body);
 }
 
-/* Height animation without JS. ::details-content is the only way to transition a
-   <details> open, and it needs interpolate-size to reach `auto`; both are recent,
-   so this is additive — where it is unsupported the panel simply snaps open, which
-   is the behaviour the page has today. */
+/* Height animation without JS: ::details-content needs interpolate-size to reach `auto`. Both are recent, so
+   this is additive; where unsupported the panel simply opens without the slide. */
 @supports selector(::details-content) {
   .elementor-widget.elementor-widget.elementor-widget-n-accordion { interpolate-size: allow-keywords; }
-
   .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item::details-content {
     block-size: 0;
     overflow: hidden;
     opacity: 0;
-    transition: block-size 0.42s cubic-bezier(0.16, 1, 0.3, 1),
-                opacity 0.3s ease,
-                content-visibility 0.42s allow-discrete;
+    transition: block-size 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, content-visibility 0.45s allow-discrete;
     transition-behavior: allow-discrete;
   }
-  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item[open]::details-content {
-    block-size: auto;
-    opacity: 1;
-  }
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item[open]::details-content { block-size: auto; opacity: 1; }
 }
 
+/* ---------- smaller screens ---------- */
+
+@media (max-width: 900px) {
+  .e-con-inner:has(> .e-con > .elementor-widget-n-accordion) { grid-template-columns: 1fr; gap: 28px; }
+  .e-con-inner:has(> .e-con > .elementor-widget-n-accordion) > .e-con:first-child { position: static; }
+  .e-con-inner:has(> .e-con > .elementor-widget-n-accordion) > .e-con:first-child .elementor-heading-title { font-size: clamp(36px, 9vw, 52px); }
+}
 @media (max-width: 680px) {
-  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title { gap: 14px; padding: 18px 6px 18px 16px; }
-  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title:hover,
-  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item[open] > .e-n-accordion-item-title { padding-left: 20px; }
-  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item > [role="region"] { padding: 0 16px 22px 20px; }
-  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-icon { width: 30px; height: 30px; }
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion { gap: 12px; }
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item { border-radius: 18px; }
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title { gap: 14px; padding: 18px 16px 18px 20px; }
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item > .e-con[role="region"] .elementor-widget-container { margin: 0 20px; padding: 16px 0 22px; }
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-icon { width: 34px; height: 34px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item,
   .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item::before,
-  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title,
   .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item-title-icon { transition: none; }
-  .elementor-widget.elementor-widget-n-accordion .e-n-accordion-item[open] .e-n-accordion-item-title-icon { transform: none; }
 }

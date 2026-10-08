@@ -28,8 +28,33 @@ for (const rel of files) {
   const file = path.join(CLONE, rel);
   let html = fs.readFileSync(file, 'utf8');
 
+  // ---- split a menu section that also holds the first model ----------------
+  // Service Guns keeps its series menu and its first model in one Divi section. A sticky bar made of
+  // that whole section would be as tall as the model, so it is split between the menu row and the
+  // product row. The new section gets a number no Divi rule targets (1000 + the old one).
+  for (let guard = 0; guard < 4; guard++) {
+    let split = false;
+    const all = [...html.matchAll(/<div class="(et_pb_section et_pb_section_(\d+)(?: [^"]*)?)"( id="[^"]*")?( ?)>/g)];
+    for (let i = 0; i < all.length && !split; i++) {
+      const m = all[i];
+      if (+m[2] === 0 || !/pg-nav|et_pb_sticky_module/.test(m[1])) continue;
+      const end = i + 1 < all.length ? all[i + 1].index : html.indexOf('<footer', m.index);
+      const seg = html.slice(m.index, end);
+      if (!/et_pb_menu/.test(seg) || !/<h1>/.test(seg) || !/FEATURES|<table/.test(seg)) continue;
+      const rowRe = /<div class="et_pb_row /g;
+      rowRe.lastIndex = m.index + m[0].length;
+      rowRe.exec(html);                          // the menu's row
+      const second = rowRe.exec(html);           // the first product row
+      if (!second || second.index >= end) continue;
+      const piece = '</div>\n\t\t<div class="et_pb_section et_pb_section_' + (1000 + (+m[2])) + ' et_section_regular" >\n\t\t\t\t';
+      html = html.slice(0, second.index) + piece + html.slice(second.index);
+      split = true;
+    }
+    if (!split) break;
+  }
+
   // ---- tag sections -------------------------------------------------------
-  const re = /<div class="(et_pb_section et_pb_section_(\d+)(?: [^"]*)?)"( id="[^"]*")?( ?)>/g;
+  const re =/<div class="(et_pb_section et_pb_section_(\d+)(?: [^"]*)?)"( id="[^"]*")?( ?)>/g;
   const opens = [...html.matchAll(re)];
   const edits = [];
   const seen = new Map();
@@ -43,7 +68,9 @@ for (const rel of files) {
 
     const hasRow = /class="et_pb_row /.test(seg);
     const h1 = (seg.match(/<h1>([^<]*)<\/h1>/) || [])[1];
-    const isModel = !!h1 && /FEATURES/.test(seg);
+    // a model has a name and either a features list or a data table (some twins and some products,
+    // e.g. the currency sorters, have no FEATURES heading)
+    const isModel = !!h1 && (/FEATURES/.test(seg) || /<table/.test(seg));
     const desk = /et_pb_column_1_5/.test(seg);
 
     if (!hasRow) add.push('pg-skip');

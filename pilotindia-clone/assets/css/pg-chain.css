@@ -1,0 +1,271 @@
+/* Chain carousel (airless "applications"): one large card in the centre, neighbours peek out as image
+   pills. Cards are stacked absolutely in the stage and moved by state classes set in pg-chain.js:
+   is-active | is-prev-1 | is-next-1 | is-prev-2 | is-next-2 | is-hidden.
+   Site tokens: ink text, Pilot orange accent, cream surfaces, Italiana display + Cormorant italic. */
+.pg-chain {
+  --c-ink: #111114;
+  --c-text: #3d3d44;
+  --c-mute: #8b8b93;
+  --c-accent: var(--pi-accent, #f58634);
+  --c-page: #f3efe8;
+  --c-card: #fbf9f5;
+  --c-line: rgba(17, 17, 20, 0.08);
+  --c-display: var(--pi-font-display, "Italiana", "Cormorant Garamond", Georgia, serif);
+  --c-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --c-sans: var(--pi-font-body, "Open Sans", system-ui, sans-serif);
+  --c-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  padding: clamp(64px, 9vw, 120px) 16px clamp(56px, 7vw, 96px);
+  background: var(--c-page);
+  color: var(--c-ink);
+  font-family: var(--c-sans);
+}
+
+/* ---------- intro ---------- */
+.pg-chain__intro { max-width: 820px; margin: 0 auto clamp(36px, 5vw, 56px); text-align: center; }
+.pg-chain__eyebrow { display: inline-block; margin-bottom: 18px; color: var(--c-accent); font-size: 11.5px; font-weight: 700; letter-spacing: 0.26em; text-transform: uppercase; }
+.pg-chain__h2 { margin: 0 0 18px; padding: 0; font-family: var(--c-display); font-size: clamp(34px, 4.6vw, 60px); font-weight: 400; line-height: 1.06; letter-spacing: 0.005em; color: var(--c-ink); }
+.pg-chain__h2 em { font-style: normal; color: var(--c-accent); }
+.pg-chain__lead { max-width: 680px; margin: 0 auto 26px; color: var(--c-text); font-size: 15.5px; line-height: 1.7; }
+.pg-chain__ghost {
+  display: inline-flex; align-items: center; padding: 11px 24px;
+  border: 1px solid rgba(17, 17, 20, 0.22); border-radius: 999px;
+  color: var(--c-ink) !important; font-size: 12.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none !important;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+.pg-chain__ghost:hover { border-color: var(--c-ink); background: var(--c-ink); color: #fff !important; }
+
+/* ---------- stage ---------- */
+.pg-chain__stage {
+  position: relative;
+  max-width: 1360px;
+  height: clamp(480px, 58vh, 540px);
+  margin: 0 auto;
+  perspective: 1200px;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.pg-chain__stage.is-dragging { cursor: grabbing; }
+.pg-chain__stage.is-settling { transition: transform 0.4s var(--c-ease); }
+.pg-chain__stage img, .pg-chain__stage a { -webkit-user-drag: none; user-drag: none; }
+
+.pg-chain__card {
+  --x: 0px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  overflow: hidden;
+  box-sizing: border-box;
+  transform: translate(-50%, -50%) translateX(var(--x)) scale(var(--s, 1));
+  /* size, position and fade animate; the shadow and corner radius switch with the state instead. Repainting a large
+     blurred shadow on every frame of a size change was the most expensive part of the animation. */
+  transition:
+    transform 0.65s var(--c-ease),
+    width 0.65s var(--c-ease),
+    height 0.65s var(--c-ease),
+    opacity 0.55s var(--c-ease);
+  outline: none;
+}
+.pg-chain__card:focus-visible { box-shadow: 0 0 0 3px var(--c-accent) !important; }
+
+/* the large card */
+.pg-chain__card.is-active {
+  z-index: 10;
+  width: clamp(340px, 66vw, 840px);
+  height: 100%;
+  border: 1px solid var(--c-line);
+  border-radius: 32px;
+  background: var(--c-card);
+  box-shadow: 0 30px 70px -25px rgba(17, 17, 20, 0.22), 0 10px 30px -15px rgba(17, 17, 20, 0.10);
+  cursor: inherit;
+}
+
+/* side pills: only the cropped image */
+.pg-chain__card.is-prev-1, .pg-chain__card.is-next-1,
+.pg-chain__card.is-prev-2, .pg-chain__card.is-next-2 {
+  border: 2px solid #fdfcfa;
+  background: #fff;
+  cursor: pointer;
+}
+.pg-chain__card.is-prev-1, .pg-chain__card.is-next-1 {
+  z-index: 6;
+  width: clamp(90px, 10vw, 130px);
+  height: clamp(320px, 42vh, 410px);
+  border-radius: 28px;
+  opacity: 0.95;
+  box-shadow: 0 18px 40px -22px rgba(17, 17, 20, 0.35);
+}
+.pg-chain__card.is-prev-1 { --x: calc(-1 * clamp(230px, 38vw, 490px)); }
+.pg-chain__card.is-next-1 { --x: clamp(230px, 38vw, 490px); }
+.pg-chain__card.is-prev-2, .pg-chain__card.is-next-2 {
+  z-index: 3;
+  --s: 0.95;
+  width: clamp(70px, 7vw, 100px);
+  height: clamp(260px, 34vh, 330px);
+  border-radius: 24px;
+  opacity: 0.65;
+  box-shadow: 0 12px 30px -20px rgba(17, 17, 20, 0.3);
+}
+.pg-chain__card.is-prev-2 { --x: calc(-1 * clamp(310px, 47vw, 610px)); }
+.pg-chain__card.is-next-2 { --x: clamp(310px, 47vw, 610px); }
+.pg-chain__card.is-prev-1:hover, .pg-chain__card.is-next-1:hover { opacity: 1; box-shadow: 0 22px 46px -20px rgba(17, 17, 20, 0.42); }
+
+.pg-chain__card.is-hidden {
+  z-index: 1;
+  --s: 0.7;
+  width: clamp(70px, 7vw, 100px);
+  height: clamp(260px, 34vh, 330px);
+  border-radius: 24px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* the pill image (cropped), shown on every non-active card */
+.pg-chain__pill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 1;
+  transition: opacity 0.35s ease;
+}
+.pg-chain__card.is-active .pg-chain__pill { opacity: 0; pointer-events: none; }
+
+/* ---------- the active card's content ---------- */
+.pg-chain__body {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 36px;
+  height: 100%;
+  padding: 24px 24px 24px 44px;
+  box-sizing: border-box;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0s linear 0.2s;
+}
+.pg-chain__card.is-active .pg-chain__body {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.4s ease 0.15s, visibility 0s;
+}
+/* the text column is laid out at the active width so it never reflows while a card grows or shrinks */
+.pg-chain__card:not(.is-active) .pg-chain__body { width: clamp(340px, 66vw, 840px); }
+
+.pg-chain__text { display: flex; flex-direction: column; min-width: 0; padding: 18px 0 8px; }
+.pg-chain__num { margin-top: auto; margin-bottom: 14px; color: var(--c-accent); font-family: var(--c-serif); font-size: 18px; font-style: italic; font-weight: 500; letter-spacing: 0.04em; }
+.pg-chain__title { margin: 0 0 18px; padding: 0; font-family: var(--c-display); font-size: clamp(24px, 2.7vw, 36px); font-weight: 400; line-height: 1.1; letter-spacing: 0.005em; color: var(--c-ink); }
+.pg-chain__title a { color: inherit !important; text-decoration: none !important; }
+.pg-chain__quote { margin: 0; padding: 0; color: var(--c-text); font-family: var(--c-serif); font-size: clamp(17px, 1.6vw, 20px); font-style: italic; font-weight: 400; line-height: 1.45; }
+.pg-chain__by { display: flex; flex-direction: column; gap: 2px; margin-top: auto; padding: 2px 0 2px 14px; border-left: 2px solid var(--c-accent); }
+.pg-chain__name { color: var(--c-ink); font-size: 14px; font-weight: 700; }
+.pg-chain__role { color: var(--c-mute); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+.pg-chain__cta {
+  display: inline-flex; align-items: center; gap: 10px; align-self: flex-start;
+  margin-top: 22px; padding: 11px 20px;
+  border-radius: 999px; background: var(--c-ink);
+  color: #fff !important; font-size: 12.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none !important;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.pg-chain__cta svg { width: 16px; height: 16px; fill: var(--c-accent); transition: transform 0.3s ease, fill 0.3s ease; }
+.pg-chain__cta:hover { background: var(--c-accent); color: #111 !important; }
+.pg-chain__cta:hover svg { fill: #111; transform: translateX(3px); }
+
+/* product photos on white: shown whole in the card (cropping a machine cuts it off), cropped only in the pills */
+.pg-chain__media { position: relative; min-width: 0; height: 100%; overflow: hidden; border-radius: 22px; background: #fff; box-shadow: inset 0 0 0 1px var(--c-line); }
+.pg-chain__media img { position: absolute; inset: 0; width: 100%; height: 100%; padding: 22px; box-sizing: border-box; object-fit: contain; }
+
+/* ---------- dots with progress ---------- */
+.pg-chain__dots { display: flex; justify-content: center; gap: 8px; margin-top: 30px; }
+.pg-chain__dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(17, 17, 20, 0.18);
+  cursor: pointer;
+  transition: width 0.45s var(--c-ease), background 0.3s ease;
+}
+.pg-chain__dot:hover { background: rgba(17, 17, 20, 0.32); }
+.pg-chain__dot.is-active { width: 38px; background: rgba(17, 17, 20, 0.14); }
+.pg-chain__fill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: inherit; background: var(--c-accent); }
+.pg-chain__dot:not(.is-active) .pg-chain__fill { width: 0 !important; }
+.pg-chain__dot:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 3px; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1024px) {
+  .pg-chain__stage { height: 520px; }
+  .pg-chain__card.is-active { width: 84vw; }
+  .pg-chain__card:not(.is-active) .pg-chain__body { width: 84vw; }
+  .pg-chain__card.is-prev-1, .pg-chain__card.is-next-1 { opacity: 0; pointer-events: none; }
+  .pg-chain__body { gap: 20px; padding: 20px 20px 20px 28px; }
+}
+
+@media (max-width: 768px) {
+  .pg-chain__stage { height: auto; perspective: none; }
+  .pg-chain__card { display: none; }
+  .pg-chain__card.is-active {
+    position: relative; top: auto; left: auto; display: block;
+    width: 100%; height: auto; border-radius: 24px; transform: none;
+  }
+  .pg-chain__body { display: flex; flex-direction: column; gap: 18px; height: auto; padding: 16px 16px 24px; }
+  .pg-chain__media { order: -1; height: 280px; flex: 0 0 auto; }
+  .pg-chain__text { padding: 4px 6px 0; }
+  .pg-chain__num { margin-top: 0; }
+  .pg-chain__title { font-size: 24px; }
+  .pg-chain__quote { font-size: 15.5px; }
+  .pg-chain__by { margin-top: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-chain__card, .pg-chain__body, .pg-chain__pill, .pg-chain__dot, .pg-chain__stage.is-settling { transition: none !important; }
+}
+
+/* the theme sets img { height: auto; max-width: 100% }, which undoes the crop and the fit */
+.pg-chain .pg-chain__pill,
+.pg-chain .pg-chain__media img { width: 100% !important; height: 100% !important; max-width: none !important; }
+.pg-chain .pg-chain__num { font-size: 20px; }
+
+/* ---------- revision: theme fonts, square side pills ---------- */
+/* the page's own type: Roboto headings (as Technical Excellence), Open Sans text */
+.pg-chain { --c-display: var(--pi-font-heading, Roboto, system-ui, sans-serif); --c-serif: var(--pi-font-body, "Open Sans", system-ui, sans-serif); }
+.pg-chain .pg-chain__h2 { font-size: clamp(30px, 3.6vw, 44px); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; }
+.pg-chain .pg-chain__title { font-size: clamp(22px, 2.2vw, 30px); font-weight: 700; line-height: 1.2; letter-spacing: -0.015em; }
+.pg-chain .pg-chain__num { font-family: var(--c-display); font-size: 14px; font-style: normal; font-weight: 700; letter-spacing: 0.14em; }
+.pg-chain .pg-chain__quote { font-size: clamp(15px, 1.2vw, 16.5px); font-style: normal; line-height: 1.7; }
+
+/* side pills: small squares, centred on the card's middle, filled by the product */
+.pg-chain .pg-chain__card.is-prev-1, .pg-chain .pg-chain__card.is-next-1 {
+  width: clamp(110px, 11vw, 150px);
+  height: clamp(110px, 11vw, 150px);
+  border-radius: 24px;
+}
+.pg-chain .pg-chain__card.is-prev-2, .pg-chain .pg-chain__card.is-next-2,
+.pg-chain .pg-chain__card.is-hidden {
+  width: clamp(84px, 8vw, 112px);
+  height: clamp(84px, 8vw, 112px);
+  border-radius: 20px;
+}
+/* the photos carry white margins: cover the square and zoom past the margin so no empty white shows */
+.pg-chain .pg-chain__pill { object-fit: cover; transform: scale(1.18); }
+/* place the squares just beside the big card (offset = half the card + a gap + half the square) */
+.pg-chain { --c-active-w: clamp(340px, 66vw, 840px); --c-near: clamp(110px, 11vw, 150px); --c-far: clamp(84px, 8vw, 112px); --c-gap: 28px; }
+.pg-chain .pg-chain__card.is-next-1 { --x: calc(var(--c-active-w) / 2 + var(--c-gap) + var(--c-near) / 2); }
+.pg-chain .pg-chain__card.is-prev-1 { --x: calc(-1 * (var(--c-active-w) / 2 + var(--c-gap) + var(--c-near) / 2)); }
+.pg-chain .pg-chain__card.is-next-2 { --x: calc(var(--c-active-w) / 2 + var(--c-gap) * 2 + var(--c-near) + var(--c-far) / 2); }
+.pg-chain .pg-chain__card.is-prev-2 { --x: calc(-1 * (var(--c-active-w) / 2 + var(--c-gap) * 2 + var(--c-near) + var(--c-far) / 2)); }
+
+/* photographs fill the large card's image frame; product shots on white are shown whole (default) */
+.pg-chain .pg-chain__media[data-fit="cover"] img { padding: 0 !important; object-fit: cover; }
+.pg-chain .pg-chain__media[data-fit="cover"] { background: #111; }
+/* the block sits inside Elementor containers: take the full width */
+.pg-chain { width: 100%; align-self: stretch; flex: 0 0 auto; box-sizing: border-box; }
+.pg-chain .pg-chain__media[data-fit="contain"] img { padding: 10px !important; }
+

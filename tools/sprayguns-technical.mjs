@@ -16,15 +16,31 @@
 // Idempotent: reads either the original Elementor markup or its own previous
 // output, so it is safe to re-run.
 //
-//   node tools/sprayguns-technical.mjs [siteDir]
+// The four product sites (spray-guns, airless, welding, office) all carry the same Elementor block, so
+// the same rebuild runs on each; the block is found by its "Technical Excellence" heading.
+//
+//   node tools/sprayguns-technical.mjs [site folders...]     default: spray-guns airless welding office
 import fs from 'node:fs';
 import path from 'node:path';
 
-const CLONE = process.argv[2] || path.join(process.cwd(), 'pilotindia-clone');
-const FILE = path.join(CLONE, 'spray-guns', 'index.html');
-const BLOCK_ID = 'elementor-element-a3a9452'; // outer container of the whole section
+const CLONE = path.join(process.cwd(), 'pilotindia-clone');
+const SITES = process.argv.slice(2).length ? process.argv.slice(2) : ['spray-guns', 'airless', 'welding', 'office'];
+for (const site of SITES) rebuild(site);
 
+function rebuild(site) {
+const FILE = path.join(CLONE, site, 'index.html');
 let html = fs.readFileSync(FILE, 'utf8');
+
+// the outer Elementor container (e-parent) that holds the "Technical Excellence" heading
+function elementorBlockClass() {
+  const t = html.search(/<h2[^>]*elementor-heading-title[^>]*>\s*Technical Excellence/i);
+  if (t < 0) return null;
+  const parent = html.lastIndexOf('e-parent', t);
+  const open = parent < 0 ? -1 : html.lastIndexOf('<div class="elementor-element ', parent);
+  const m = open < 0 ? null : html.slice(open, open + 120).match(/elementor-element-[0-9a-f]+/);
+  return m ? m[0] : null;
+}
+const BLOCK_ID = elementorBlockClass() || 'elementor-element-none';
 
 function spanOf(src, startIdx) {
   const open = /<div\b/gi, close = /<\/div\s*>/gi;
@@ -53,8 +69,11 @@ const clean = (s) => s
 const origStart = html.indexOf('<div class="elementor-element ' + BLOCK_ID);
 const mineStart = html.indexOf('<section class="pg-tech" id="pg-tech"');
 
+// a page that already has the section keeps it: the live markup was refined by hand after this tool
+// first ran (three columns, focus carousel), so a rebuild would only throw those edits away
+if (origStart < 0 && mineStart >= 0) { console.log(site + '/index.html: pg-tech already in place, left as is'); return; }
 const blockStart = origStart >= 0 ? origStart : mineStart;
-if (blockStart < 0) { console.error('neither the Elementor section nor a previous pg-tech block was found'); process.exit(1); }
+if (blockStart < 0) { console.error(site + ': neither the Elementor section nor a previous pg-tech block was found'); return; }
 
 let block;
 if (origStart >= 0) {
@@ -111,6 +130,29 @@ const cardHtml = (c, i) => `
           <p class="pg-tech__desc">${c.desc}</p>
         </div>`;
 
+// the carousel's images, in order, from the Elementor widget (its own loop copies are added at runtime)
+const seen = new Set();
+const slides = [...carousel.matchAll(/<img\b[^>]*>/g)].map(m => {
+  const tag = m[0];
+  const a = k => (tag.match(new RegExp('\\s' + k + '="([^"]*)"')) || [])[1] || '';
+  const src = a('bv-data-src') || (/^data:/.test(a('src')) ? '' : a('src'));
+  return { src, alt: a('alt'), title: a('title') };
+}).filter(s => s.src && !seen.has(s.src) && seen.add(s.src));
+if (!slides.length) { console.error(site + ': no images in the carousel'); return; }
+
+const SITE_NAME = { 'spray-guns': 'Spray Guns', airless: 'Airless Spray Systems', welding: 'Welding Equipment', office: 'Office Products' }[site] || site;
+const n = slides.length;
+const slideHtml = (s, i) => {
+  const state = i === 0 ? ' is-active' : i === 1 ? ' is-next' : i === n - 1 ? ' is-prev' : '';
+  return `
+              <div class="focus-carousel__slide${state}" data-index="${i}" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${n}">
+                <img src="${s.src}" decoding="async" alt="${s.alt}"${s.title ? ` title="${s.title}"` : ''}>
+              </div>`;
+};
+const dotHtml = (s, i) => `
+              <button class="focus-carousel__dot${i === 0 ? ' is-active' : ''}" data-index="${i}" role="tab" aria-selected="${i === 0}" aria-label="Slide ${i + 1}"></button>`;
+
+// same layout as the hand-refined spray-guns section: two cards | focus carousel | two cards
 const newBlock = `<section class="pg-tech" id="pg-tech" data-pg-src="${payload}">
   <div class="pg-tech__wrap">
     <div class="pg-tech__head">
@@ -119,10 +161,19 @@ const newBlock = `<section class="pg-tech" id="pg-tech" data-pg-src="${payload}"
       <p class="pg-tech__lead">${subhead}</p>
     </div>
     <div class="pg-tech__grid">
-      <div class="pg-tech__cards">${cards.map(cardHtml).join('')}
+      <div class="pg-tech__col pg-tech__col--left">${cards.slice(0, 2).map(cardHtml).join('')}
       </div>
-      <div class="pg-tech__visual">
-        ${carousel}
+      <div class="pg-tech__col pg-tech__col--center">
+        <div class="pg-tech__visual">
+          <div class="focus-carousel" id="pg-focus-carousel" role="region" aria-roledescription="carousel" aria-label="Pilot ${SITE_NAME} Gallery">
+            <div class="focus-carousel__track" id="pg-focus-track">${slides.map(slideHtml).join('')}
+            </div>
+            <div class="focus-carousel__dots" role="tablist" aria-label="Carousel pagination">${slides.map(dotHtml).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pg-tech__col pg-tech__col--right">${cards.slice(2).map((c, i) => cardHtml(c, i + 2)).join('')}
       </div>
     </div>
   </div>
@@ -131,11 +182,10 @@ const newBlock = `<section class="pg-tech" id="pg-tech" data-pg-src="${payload}"
 
 html = html.slice(0, blockStart) + newBlock + html.slice(blockStart + block.length);
 
-// ---- wire the stylesheet in, once ----
-if (!html.includes('pg-tech.css')) {
-  html = html.replace('<link rel="stylesheet" href="assets/css/pg-features.css" />',
-    '<link rel="stylesheet" href="assets/css/pg-features.css" />\n<link rel="stylesheet" href="assets/css/pg-tech.css" />');
-}
+// ---- wire the shared stylesheet and script in, once (the sites live one folder down from assets/) ----
+if (!html.includes('pg-tech.css')) html = html.replace('</head>', '<link rel="stylesheet" href="../assets/css/pg-tech.css?v=3" />\n</head>');
+if (!html.includes('pg-tech.js')) html = html.replace(/<\/body>(?![\s\S]*<\/body>)/, '<script src="../assets/js/pg-tech.js?v=3" defer></script>\n</body>');
 
 fs.writeFileSync(FILE, html, 'utf8');
-console.log('spray-guns/index.html: Technical Excellence rebuilt as pg-tech (' + cards.length + ' cards)');
+console.log(site + '/index.html: Technical Excellence rebuilt as pg-tech (' + cards.length + ' cards)');
+}

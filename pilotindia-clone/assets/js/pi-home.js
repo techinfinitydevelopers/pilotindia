@@ -39,6 +39,29 @@
       }
     }
 
+    /* Nothing is open when the page loads. The first item opens by itself the moment the list is reached, so the
+       section "unfolds" for the visitor instead of sitting open off screen; after that, hover / tap / focus take over. */
+    var reduceCaps = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var revealed = false;
+    function revealFirst() {
+      if (revealed) return;
+      revealed = true;
+      // leave it alone if the visitor already hovered or focused an item
+      if (!capList.querySelector('.pi-cap.is-open')) setActiveCard(caps[0]);
+    }
+    if ('IntersectionObserver' in window && !reduceCaps) {
+      var capIo = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          capIo.disconnect();
+          setTimeout(revealFirst, 280);
+        });
+      }, { threshold: 0.45 });
+      capIo.observe(capList);
+    } else {
+      revealFirst();
+    }
+
     caps.forEach(function (card) {
       card.addEventListener('mouseenter', function () {
         setActiveCard(card);

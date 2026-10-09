@@ -12,9 +12,9 @@ const ONLY = (args.find(a => a.startsWith('--only=')) || '').slice(7).split(',')
 const ROOT = args.find(a => !a.startsWith('--')) || path.join(process.cwd(), 'pilotindia-clone');
 
 // By default the mirrored satellite sites keep their own header exactly as published.
-// --only= opts a named folder in, so the home page and main-site pages are not rewritten.
+// Setting skipMirrors = false ensures the navbar is applied across all pages site-wide.
 const MIRRORS = ['spray-guns', 'airless', 'welding', 'office'];
-const skipMirrors = ONLY.length === 0;
+const skipMirrors = false;
 
 const files = [];
 function walk(d) {
@@ -37,6 +37,7 @@ const XMARK = '<svg class="pi-nav__x" viewBox="0 0 24 24" aria-hidden="true"><pa
 function buildNav(p, rel) {
   const onHome = rel === 'index.html' || rel === '';
   const onAbout = rel === 'pages/about-us.html';
+  const onBlog = rel === 'pages/blogs.html' || rel.startsWith('blog/');
   const onContact = rel === 'pages/contact-us.html';
   const onProduct = rel === 'pages/power-tools.html' || rel.startsWith('spray-guns') || rel.startsWith('airless') || rel.startsWith('welding') || rel.startsWith('office');
 
@@ -72,6 +73,9 @@ function buildNav(p, rel) {
 						<a class="framer-dyn-link${onAbout ? ' is-active' : ''}" href="${p}pages/about-us.html"${onAbout ? ' aria-current="page"' : ''}>About Us</a>
 					</li>
 					<li class="framer-dyn-item">
+						<a class="framer-dyn-link${onBlog ? ' is-active' : ''}" href="${p}pages/blogs.html"${onBlog ? ' aria-current="page"' : ''}>Blog</a>
+					</li>
+					<li class="framer-dyn-item">
 						<a class="framer-dyn-link${onContact ? ' is-active' : ''}" href="${p}pages/contact-us.html"${onContact ? ' aria-current="page"' : ''}>Contact</a>
 					</li>
 				</ul>
@@ -83,12 +87,6 @@ function buildNav(p, rel) {
 			</div>
 
 			<div class="framer-dyn-actions">
-				<a class="framer-dyn-phone-icon" href="tel:+912266047000" aria-label="Call Pilot India">
-					${PHONE}
-				</a>
-				<a class="framer-dyn-cta" href="${p}pages/contact-us.html"${onContact ? ' aria-current="page"' : ''}>
-					<span>Connect with Pilot</span>
-				</a>
 				<button class="framer-dyn-burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="framer-dyn-mobile-drawer">
 					<span class="framer-burger-line"></span>
 					<span class="framer-burger-line"></span>
@@ -112,6 +110,7 @@ function buildNav(p, rel) {
 						</div>
 					</li>
 					<li><a href="${p}pages/about-us.html">About Us</a></li>
+					<li><a href="${p}pages/blogs.html">Blog</a></li>
 					<li><a href="${p}pages/contact-us.html">Contact</a></li>
 				</ul>
 				<div class="framer-dyn-mobile-footer">

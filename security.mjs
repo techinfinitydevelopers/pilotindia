@@ -13,6 +13,7 @@ const LIMITS = {
   site: Number(process.env.RATE_SITE || 900),        // pages + assets per minute (a page pulls in ~100 files)
   admin: Number(process.env.RATE_ADMIN || 240),      // admin dashboard + API per minute
   write: Number(process.env.RATE_WRITE || 60),       // admin saves/uploads per minute
+  lead: Number(process.env.RATE_LEAD || 8),          // catalogue-download form submissions per minute
 };
 const hits = new Map();   // bucket|ip -> { n, reset }
 setInterval(() => { const now = Date.now(); for (const [k, v] of hits) if (v.reset <= now) hits.delete(k); }, 60000).unref();

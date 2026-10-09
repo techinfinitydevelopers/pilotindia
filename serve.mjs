@@ -14,6 +14,9 @@ import { initStore, dbMode } from './store.mjs';
 import { authEnabled, isAuthed, handleAuth, sameOrigin } from './auth.mjs';
 import { rateLimit, securityHeaders, forbiddenPath, hardenServer, SVG_HEADERS } from './security.mjs';
 await initStore(REPO);
+// catalogue downloads need the short form first (leads.mjs)
+import { initLeads, handleLeadPost, isCatalogue, hasAccess, gatePage } from './leads.mjs';
+await initLeads(REPO, ROOT);
 if (dbMode() && !authEnabled()) console.warn('admin disabled: set ADMIN_PASSWORD to use /admin in production');
 
 // the admin dashboard (admin/server.mjs) - optional: the site still serves if it cannot load
@@ -43,10 +46,20 @@ import zlib from 'node:zlib';
 const COMPRESSIBLE = new Set(['.html', '.css', '.js', '.mjs', '.json', '.svg', '.xml', '.ttf', '.eot', '.otf']);
 const REUSE = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.ico', '.woff', '.woff2', '.mp4', '.webm', '.pdf']);
 const squeezed = new Map();     // path + mtime + encoding -> compressed bytes
-function serveFile(req, res, fp) {
+// every page gets the catalogue-download form script (pi-lead), added here so no page file has to carry it
+const LEAD_TAGS = '<link rel="stylesheet" href="/assets/css/pi-lead.css?v=1" />\n<script src="/assets/js/pi-lead.js?v=1" defer></script>\n';
+function withLeadGate(buf) {
+  const html = buf.toString('utf8');
+  if (html.includes('pi-lead.js')) return buf;
+  const at = html.lastIndexOf('</body>');
+  return Buffer.from(at < 0 ? html + LEAD_TAGS : html.slice(0, at) + LEAD_TAGS + html.slice(at), 'utf8');
+}
+
+function serveFile(req, res, fp, extra = {}) {
   const ext = path.extname(fp).toLowerCase();
   const st = fs.statSync(fp);
-  const etag = 'W/"' + st.size.toString(16) + '-' + Math.floor(st.mtimeMs).toString(16) + '"';
+  // "-l1": pages carry the injected form script, so their validator changes with it
+  const etag = 'W/"' + st.size.toString(16) + '-' + Math.floor(st.mtimeMs).toString(16) + (ext === '.html' ? '-l1' : '') + '"';
   const headers = {
     'Content-Type': TYPES[ext] || 'application/octet-stream',
     'ETag': etag,
@@ -54,9 +67,11 @@ function serveFile(req, res, fp) {
     'Cache-Control': REUSE.has(ext) ? 'public, max-age=300' : 'no-cache',
     'Vary': 'Accept-Encoding',
     ...(ext === '.svg' ? SVG_HEADERS : {}),
+    ...extra,
   };
   if (req.headers['if-none-match'] === etag) { res.writeHead(304, headers).end(); return; }
   let body = fs.readFileSync(fp);
+  if (ext === '.html') body = withLeadGate(body);
   if (COMPRESSIBLE.has(ext) && body.length > 1024) {
     const accept = String(req.headers['accept-encoding'] || '');
     const enc = /\bbr\b/.test(accept) ? 'br' : /\bgzip\b/.test(accept) ? 'gzip' : '';
@@ -94,6 +109,13 @@ async function handle(req, res) {
   const isAdmin = req.url.startsWith('/admin') || /[?&]__cms=1(&|$)/.test(req.url);
   if (!rateLimit(req, res, isAdmin ? 'admin' : 'site')) return;
   if (isAdmin && req.method === 'POST' && !req.url.startsWith('/admin/login') && !rateLimit(req, res, 'write')) return;
+  // the one public form: catalogue downloads (leads.mjs)
+  if (!isAdmin && req.method === 'POST' && req.url.split('?')[0] === '/api/leads') {
+    if (!sameOrigin(req)) { res.writeHead(403).end('forbidden'); return; }
+    if (!rateLimit(req, res, 'lead')) return;
+    await handleLeadPost(req, res);
+    return;
+  }
   if (!isAdmin && req.method === 'POST') { res.writeHead(405, { Allow: 'GET, HEAD' }).end(); return; }
   // admin: login when ADMIN_PASSWORD is set; never open in production without one
   const wantsAdmin = req.url.startsWith("/admin") || /[?&]__cms=1(&|$)/.test(req.url);
@@ -161,6 +183,16 @@ async function handle(req, res) {
     const html = admin.instrument(fs.readFileSync(fp, "utf8"));
     res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" });
     res.end(html);
+    return;
+  }
+  // a catalogue PDF opened without having filled the form: show the form instead
+  if (isCatalogue(p)) {
+    if (!hasAccess(req)) {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' });
+      res.end(req.method === 'HEAD' ? '' : gatePage(p));
+      return;
+    }
+    serveFile(req, res, fp, { 'Cache-Control': 'private, no-store' });
     return;
   }
   serveFile(req, res, fp);

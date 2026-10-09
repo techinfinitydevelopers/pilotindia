@@ -68,6 +68,7 @@
     ['#/products', 'Products', I.box],
     ['#/blog', 'Blog', I.blog],
     ['#/media', 'Media', I.image],
+    ['#/leads', 'Leads', '<svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-3.3 0-8 1.7-8 5v1h16v-1c0-3.3-4.7-5-8-5z"/></svg>'],
     ['#/theme', 'Theme & UI', I.palette],
   ];
   $('#nav').innerHTML = NAV.map(function (n) { return '<a href="' + n[0] + '">' + n[2] + '<span>' + n[1] + '</span></a>'; }).join('');
@@ -818,6 +819,39 @@
   };
 
   // ================================================================ MEDIA
+  // ================================================================ LEADS (catalogue downloads)
+  ROUTES['/leads'] = function (view) {
+    return api('/leads').then(function (d) {
+      var leads = d.leads || [];
+      function pad(n) { return n < 10 ? '0' + n : String(n); }
+      function dateOf(iso) { var t = new Date(iso); return t.getFullYear() + '-' + pad(t.getMonth() + 1) + '-' + pad(t.getDate()); }
+      function timeOf(iso) { var t = new Date(iso); return pad(t.getHours()) + ':' + pad(t.getMinutes()) + ':' + pad(t.getSeconds()); }
+      function fileOf(u) { try { return decodeURIComponent(String(u || '').split('/').pop()); } catch (e) { return u || ''; } }
+      var today = dateOf(new Date().toISOString());
+      view.innerHTML = head('Leads', 'People who filled the form to download a catalogue. Newest first; times are in this computer’s time zone.',
+        '<a class="btn btn--primary" href="/admin/api/leads.csv"><svg viewBox="0 0 24 24"><path d="M11 4h2v8.2l3.6-3.6L18 10l-6 6-6-6 1.4-1.4 3.6 3.6zM5 18h14v2H5z"/></svg>Export CSV</a>') +
+        '<div class="cards cards--leads">' +
+        '<div class="stat"><span class="stat__label">Total leads</span><span class="stat__n">' + leads.length + '</span><span class="stat__open">All time</span></div>' +
+        '<div class="stat"><span class="stat__label">Today</span><span class="stat__n">' + leads.filter(function (l) { return dateOf(l.created_at) === today; }).length + '</span><span class="stat__open">' + today + '</span></div>' +
+        '<div class="stat"><span class="stat__label">Catalogues behind the form</span><span class="stat__n">' + (d.catalogues || 0) + '</span><span class="stat__open">Stored in ' + (d.storage === 'postgres' ? 'Postgres' : 'a local file (not in git)') + '</span></div>' +
+        '</div>' +
+        '<div class="bar"><label class="search">' + I.search + '<input placeholder="Search name, email, phone or catalogue" /></label><span class="pill" data-n></span></div>' +
+        '<div class="leads-wrap"><table class="leads"><thead><tr><th>Date</th><th>Time</th><th>Name</th><th>Email</th><th>Phone</th><th>Catalogue</th><th>Page</th></tr></thead><tbody></tbody></table></div>';
+      var body = $('tbody', view), n = $('[data-n]', view);
+      function draw(q) {
+        var rows = leads.filter(function (l) { return !q || [l.name, l.email, l.phone, l.file, l.page].join(' ').toLowerCase().indexOf(q) >= 0; });
+        n.textContent = rows.length + ' of ' + leads.length;
+        body.innerHTML = rows.map(function (l) {
+          return '<tr><td>' + dateOf(l.created_at) + '</td><td>' + timeOf(l.created_at) + '</td><td>' + esc(l.name) + '</td>' +
+            '<td><a href="mailto:' + esc(l.email) + '">' + esc(l.email) + '</a></td><td><a href="tel:' + esc(String(l.phone).replace(/[^\d+]/g, '')) + '">' + esc(l.phone) + '</a></td>' +
+            '<td title="' + esc(l.file) + '">' + esc(fileOf(l.file)) + '</td><td>' + esc(l.page || '') + '</td></tr>';
+        }).join('') || '<tr><td colspan="7" class="leads__empty">' + (leads.length ? 'No leads match.' : 'No leads yet. They appear here as soon as someone fills the catalogue form.') + '</td></tr>';
+      }
+      $('input', view).addEventListener('input', function (e) { draw(e.target.value.trim().toLowerCase()); });
+      draw('');
+    });
+  };
+
   ROUTES['/media'] = function (view) {
     return media(true).then(function (items) {
       view.innerHTML = head('Media', 'Every image the site uses. Upload new ones here; they go to assets/img/uploads/.') +

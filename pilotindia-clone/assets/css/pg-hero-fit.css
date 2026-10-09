@@ -45,3 +45,10 @@
      strip is inside, so each page ends on the strip at the foot of the screen. */
   #select-series-re.e-con:has(.pilot-marquee-section) { --padding-bottom: 0px; }
 }
+
+/* The floating navbar is a centred pill about 600px wide, and the hero headline sits at the top left. A long first
+   line (Airless: "NEED A PERFECT FINISH ?") ran underneath the pill and was hidden. On wider screens the headline now
+   starts below the navbar, so it can never collide with it, on all four product pages alike. */
+@media (min-width: 768px) {
+  #select-series-re > .elementor-widget-heading.elementor-absolute { transform: translateY(72px); }
+}

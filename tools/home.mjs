@@ -209,7 +209,7 @@ const main = `
       </div>
     </div>
     <div class="pi-cap__list" role="list">
-      ${CAPS.map(([n, t, d, img], i) => `<div class="pi-cap${i === 0 ? ' is-open' : ''}" role="listitem" tabindex="0" data-index="${i}">
+      ${CAPS.map(([n, t, d, img], i) => `<div class="pi-cap" role="listitem" tabindex="0" data-index="${i}">
         <div class="pi-cap__line-top" aria-hidden="true"></div>
         <span class="pi-cap__no">${n}</span>
         <div class="pi-cap__content">
@@ -416,7 +416,7 @@ if (!html.includes('data-pi-js')) {
 
 if (!html.includes('assets/js/pi-home.js')) {
   const at = html.lastIndexOf('</body>');
-  html = html.slice(0, at) + '<script src="assets/js/pi-home.js" defer></script>\n' + html.slice(at);
+  html = html.slice(0, at) + '<script src="assets/js/pi-home.js?v=3" defer></script>\n' + html.slice(at);
 }
 
 fs.writeFileSync(FILE, html, 'utf8');

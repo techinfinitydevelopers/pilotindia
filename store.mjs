@@ -33,6 +33,8 @@ const pending = new Set();      // database writes in flight
 let failure = null;             // first failed write since the last flush()
 
 export const dbMode = () => pool !== null;
+// the Postgres pool for modules that keep their own tables (leads.mjs); null when running on plain files
+export const dbPool = () => pool;
 
 export async function initStore(repoRoot) {
   REPO = path.resolve(repoRoot);

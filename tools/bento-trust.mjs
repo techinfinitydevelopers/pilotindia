@@ -10,7 +10,7 @@ import path from 'node:path';
 
 const ROOT = path.join(process.cwd(), 'pilotindia-clone');
 const PAGES = process.argv.slice(2).length ? process.argv.slice(2)
-  : ['spray-guns/index.html', 'welding/index.html', 'office/index.html', 'pages/power-tools.html'];
+  : ['spray-guns/index.html', 'airless/index.html', 'welding/index.html', 'office/index.html', 'pages/power-tools.html'];
 
 function endOf(src, at) {
   const re = /<(\/?)div\b[^>]*>/g; re.lastIndex = at;
@@ -38,6 +38,19 @@ for (const rel of PAGES) {
     const seg = html.slice(from, to);
     heading = seg.match(/<h[12][^>]*class="pg-feat__title"[^>]*>([\s\S]*?)<\/h[12]>/)[1];
     items = [...seg.matchAll(/<article class="pg-feat__item">\s*<span class="pg-feat__icon"><img src="([^"]+)"[^>]*>\s*<\/span>\s*<h3 class="pg-feat__t">([\s\S]*?)<\/h3>\s*<p class="pg-feat__d">([\s\S]*?)<\/p>\s*<\/article>/g)].map(m => ({ icon: m[1], t: m[2], d: m[3] }));
+  } else if (html.includes('elementor-image-box-title')) {
+    // Airless: the original Elementor build - a heading container followed by a container of five image-box cards
+    const hAt = html.search(/<h2 class="elementor-heading-title[^"]*">\s*Achieve A Perfect Finish/);
+    if (hAt < 0) { console.log(rel + ': heading not found, skipped'); continue; }
+    const c1 = html.lastIndexOf('<div', html.lastIndexOf('e-parent', hAt));
+    const e1 = endOf(html, c1);
+    const c2 = html.indexOf('<div class="elementor-element', e1);
+    const e2 = endOf(html, c2);
+    if (html.slice(e1, c2).replace(/\s+/g, '') !== '') throw new Error(rel + ': unexpected markup between the heading and the cards');
+    from = c1; to = e2;
+    heading = html.slice(c1, e1).match(/<h2[^>]*>([\s\S]*?)<\/h2>/)[1].replace(/\s+/g, ' ').trim();
+    const tidy = s => s.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+    items = [...html.slice(c2, e2).matchAll(/<img[^>]*bv-data-src="([^"]+)"[\s\S]*?elementor-image-box-title">([\s\S]*?)<\/h3>[\s\S]*?<p>([\s\S]*?)<\/p>/g)].map(m => ({ icon: m[1], t: tidy(m[2]), d: tidy(m[3]) }));
   } else { console.log(rel + ': no features block found, skipped'); continue; }
   if (items.length !== 5) throw new Error(rel + ': expected 5 cards, found ' + items.length);
 

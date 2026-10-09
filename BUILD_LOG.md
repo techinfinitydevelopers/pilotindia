@@ -1923,3 +1923,27 @@ computer only); edits are written into the site files and published with a norma
 - `auth.mjs` login limiter: 10 attempts/min per IP; 5 wrong -> 15 min lock, doubling each time up to ~24 h; >20 wrong in 10 min site-wide -> all logins paused 10 min. Client IP = LAST X-Forwarded-For entry (Railway appends it); the first entry and X-Real-IP are client-controlled. Malformed cookie no longer throws.
 - Tests: spoofed rotating XFF still locked after 5; distributed attempts pause logins; 950 requests from one IP -> 900 ok / 50 x 429, other IPs unaffected; .bak/.php/.env/traversal 404, PUT 405, bad URI 400.
 - Committed only the spam-removal hunks of the 5 pages (staged from HEAD); the other session's uncommitted navbar edits in those files are untouched.
+
+## Home caption + capabilities list, and the Airless hero (2026-10-09)
+- Home "Seventy years" section: the Manufacturing photo's caption was a vertical orange strip on the right edge; it is now a horizontal orange
+  strip under the photo, like the two photos below it (CSS only, pi-home.css; photo 260px high, caption reversed below it).
+- Capabilities list ("What sits behind the product"): no item is open on load (removed `is-open` from index.html and the generator tools/home.mjs).
+  pi-home.js opens the first item with an IntersectionObserver when the list is 45% in view (after 280 ms); hover / tap / focus then work as before.
+  Reduced motion: opened at once. Closing now takes the same 0.5 s as opening (it was a 0.25 s snap); layers hinted for the moving parts.
+  Measured: 60 fps, worst frame 17 ms, while it opens and while swapping items.
+- Airless home hero now ends like spray-guns / welding / office: the dark scrolling series strip replaces the three white boxes
+  (tools/airless-hero.mjs copies welding's strip markup; links = Airless's electric, electro hydraulic, pneumatic series). The existing
+  pg-hero-fit rules for pages with the strip now apply to it. Headline on all four heroes starts below the navbar on screens >= 768 px
+  (the long Airless first line ran under the navbar and was hidden). pg-hero-fit.css ?v=2, pi-home ?v=3.
+- Airless trust block converted too (correction: earlier note said Airless had none). Its "Achieve A Perfect Finish With Pilot Airless Paint Spray
+  Systems" heading + five Elementor image-box cards are now the same bento section as spray-guns / welding / office / power-tools, text and icons taken
+  from the page (tools/bento-trust.mjs reads the Elementor image-box format; titles only had line breaks collapsed). Div balance kept, idempotent.
+  Section comparison: all four product pages now share hero strip, bento grid, Technical Excellence and Applications carousel; FAQ exists only on
+  spray-guns and office (Airless and welding never had one).
+
+## 2026-10-09 - Catalogue download lead gate
+- leads.mjs: catalogue PDFs (54 found by scanning page links) need a short form first: name, email, phone. Signed `pi_dl` cookie (30 days) unlocks them. Saved to Postgres `leads` table in production, `data/leads.jsonl` locally (git-ignored).
+- serve.mjs: injects pi-lead.css/js into every page; `POST /api/leads` (same-origin, rate limit 8/min, honeypot); a direct catalogue URL without the cookie returns the form page.
+- pi-lead.js/css: modal card with a Privacy Policy link; validation; download starts after submit.
+- Admin: new Leads section (Date, Time, Name, Email, Phone, Catalogue, Page), search, CSV export.
+- Verified: locked PDF -> form, invalid 422, cross-origin 403, honeypot not stored, valid -> cookie -> PDF, forged cookie refused, admin list + CSV OK.

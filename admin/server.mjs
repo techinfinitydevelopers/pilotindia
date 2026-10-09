@@ -30,6 +30,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import { flush, track, dbMode } from '../store.mjs';
+import { listLeads, leadsCsv, catalogueCount } from '../leads.mjs';
 
 let ROOT = '';
 let ADMIN_DIR = '';
@@ -957,6 +958,14 @@ export async function handleAdmin(req, res) {
     const route = req.method + ' ' + p.slice('/admin/api'.length);
     const q = k => url.searchParams.get(k);
     switch (route) {
+      // catalogue-download leads (leads.mjs): the list, and a CSV export
+      case 'GET /leads': return send(res, 200, { leads: await listLeads(), catalogues: catalogueCount(), storage: dbMode() ? 'postgres' : 'local' }), true;
+      case 'GET /leads.csv': {
+        const csv = await leadsCsv();
+        res.writeHead(200, { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="pilot-catalogue-leads-' + new Date().toISOString().slice(0, 10) + '.csv"', 'Cache-Control': 'no-store' });
+        res.end('﻿' + csv);
+        return true;
+      }
       case 'GET /summary': return send(res, 200, Object.assign({}, summary(), { storage: dbMode() ? 'postgres' : 'local' })), true;
       case 'GET /pages': return send(res, 200, listPages()), true;
       case 'POST /edit': { const b = await readJson(req); applyVisualEdits(sitePath(b.path), b.edits || [], b.version); return send(res, 200, { ok: true }), true; }

@@ -2023,3 +2023,5 @@ computer only); edits are written into the site files and published with a norma
   - the open row closes when the pointer leaves the list, on a click anywhere outside it, and when focus leaves it
   - verified in a browser: hover opens, leaving closes, an outside click closes
 - Assets are v=5. After `node tools/home.mjs`, run `node tools/perf-hints.mjs index.html`.
+- Blog section follow-up: it now lists the six newest posts of the Blogs page. It uses the same source (tools/blog-sources.json) and the same newest-first order as pages/blogs.html, instead of a fixed list. Title, image, summary and date are read from each post file at build time, so re-run `node tools/home.mjs` (then perf-hints) after new posts.
+- Hovering or focusing a row in the list swaps the big card on the left to that post (image cross-fade, text swap, link, number). Wide screens with a pointer only; touch and narrow screens keep the newest post and the rows are plain links.

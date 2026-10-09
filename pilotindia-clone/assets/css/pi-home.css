@@ -1514,7 +1514,10 @@
 .pi-home a.pi-ins__feat-link { display: flex; flex-direction: column; height: 100%; color: var(--h-ink); text-decoration: none; }
 
 .pi-ins__img { position: relative; display: block; aspect-ratio: 16 / 8.5; overflow: hidden; background: var(--h-mute); }
-.pi-ins__img img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.pi-ins__img img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.35s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.pi-ins__img img.is-on { opacity: 1; }
+.pi-ins__body { transition: opacity 0.16s ease; }
+.pi-ins__feat.is-swap .pi-ins__body { opacity: 0; }
 .pi-ins__feat:hover .pi-ins__img img { transform: scale(1.04); }
 .pi-ins__chip {
   position: absolute; top: 12px; right: 12px;
@@ -1553,7 +1556,9 @@
   text-decoration: none;
   transition: background 0.25s ease;
 }
-.pi-home a.pi-ins__row:hover { background: rgba(245, 134, 52, 0.06); }
+.pi-home a.pi-ins__row:hover,
+.pi-home a.pi-ins__row.is-active { background: rgba(245, 134, 52, 0.07); }
+.pi-home a.pi-ins__row.is-active .pi-ins__n { color: var(--h-accent); }
 
 .pi-ins__n { font-size: 12.5px; font-weight: 700; letter-spacing: 0.08em; color: #a1a1aa; transition: color 0.2s ease; }
 .pi-home a.pi-ins__row:hover .pi-ins__n { color: var(--h-accent); }

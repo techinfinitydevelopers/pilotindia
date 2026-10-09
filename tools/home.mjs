@@ -28,6 +28,7 @@ function postMeta(slug) {
   const h = fs.readFileSync(path.join(CLONE, 'blog', slug + '.html'), 'utf8');
   const g = re => (h.match(re) || [])[1] || '';
   return {
+    title: unesc(g(/<h1[^>]*entry-title[^>]*>([\s\S]*?)<\/h1>/).replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim(),
     img: g(/property="og:image" content="([^"]+)"/).replace(/^\.\.\//, ''),
     desc: unesc(g(/name="description" content="([^"]+)"/)),
     date: g(/class="[^"]*published[^"]*"[^>]*>([^<]+)</).trim(),
@@ -90,15 +91,12 @@ const IND_ROWS = Array.from({ length: IND_BANDS },
 const IND_SPEEDS = [44, 54, 38];
 
 /* ---- real posts from the blog ---- */
-const POSTS_RAW = [
-  ['How Heat Guns Are Used in Automotive Car Wrapping', 'how-heat-guns-are-used-in-automotive-car-wrapping'],
-  ['Why Every Workshop Needs High-Quality Power Tools from Pilot India', 'why-every-workshop-needs-high-quality-power-tools-from-pilot-india'],
-  ['How Pilot India Supports Businesses with Innovative Industrial Solutions', 'how-pilot-india-supports-businesses-with-innovative-industrial-solutions'],
-  ['Why Investing in Quality Industrial Equipment Saves Money in the Long Run', 'why-investing-in-quality-industrial-equipment-saves-money-in-the-long-run'],
-  ['The Role of Quality Control in Industrial Equipment Performance', 'the-role-of-quality-control-in-industrial-equipment-performance'],
-  ['Essential Industrial Equipment Every Manufacturing Unit Needs', 'essential-industrial-equipment-every-manufacturing-unit-needs'],
-];
-const POSTS = POSTS_RAW.map(([t, s]) => [t, s, postMeta(s)]);
+/* the six newest posts on the Blogs page: the same source (tools/blog-sources.json) and the same newest-first order as
+   pages/blogs.html, so the home page follows the blog. Title, image, summary and date come from each post's own file. */
+const BLOG_SOURCES = JSON.parse(fs.readFileSync(path.join(CLONE, '..', 'tools', 'blog-sources.json'), 'utf8'));
+const POSTS = Object.keys(BLOG_SOURCES).map(slug => { const m = postMeta(slug); return [m.title, slug, m]; })
+  .sort((a, b) => (Date.parse(b[2].date) || 0) - (Date.parse(a[2].date) || 0) || a[0].localeCompare(b[0]))
+  .slice(0, 6);
 
 // Expanding panel: compact vertical column that grows on hover, revealing the
 // title, a line of copy and the link over full-bleed imagery with a dark scrim.
@@ -281,7 +279,7 @@ const main = `
       <div class="pi-ins__grid">
         ${(() => { const [t, s, m] = POSTS[0]; return `<article class="pi-ins__feat pi-reveal">
           <a class="pi-ins__feat-link" href="blog/${s}.html">
-            <span class="pi-ins__img"><img src="${m.img}" alt="${esc(t)}" loading="lazy" /><span class="pi-ins__chip">01</span></span>
+            <span class="pi-ins__img"><img class="is-on" src="${m.img}" alt="${esc(t)}" loading="lazy" /><img src="${m.img}" alt="" aria-hidden="true" loading="lazy" /><span class="pi-ins__chip">01</span></span>
             <span class="pi-ins__body">
               <span class="pi-ins__date">${m.date}</span>
               <h3 class="pi-ins__ft">${t}</h3>
@@ -291,8 +289,8 @@ const main = `
           </a>
         </article>`; })()}
         <ol class="pi-ins__rail pi-reveal">
-        ${POSTS.slice(1).map(([t, s, m], i) => `<li><a class="pi-ins__row" href="blog/${s}.html">
-          <span class="pi-ins__n">${String(i + 2).padStart(2, '0')}</span>
+        ${POSTS.map(([t, s, m], i) => `<li><a class="pi-ins__row${i === 0 ? ' is-active' : ''}" href="blog/${s}.html" data-n="${String(i + 1).padStart(2, '0')}" data-img="${m.img}" data-date="${esc(m.date)}" data-t="${esc(t)}" data-ex="${esc(m.desc)}">
+          <span class="pi-ins__n">${String(i + 1).padStart(2, '0')}</span>
           <span class="pi-ins__txt"><span class="pi-ins__date">${m.date}</span><h3 class="pi-ins__t">${t}</h3><span class="pi-ins__ex">${esc(m.desc)}</span></span>
           <svg class="pi-ins__go" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.4 11.8 6.8l4.2 4.2H4v2h12l-4.2 4.2 1.4 1.4L20 12z"/></svg>
         </a></li>`).join('\n        ')}
@@ -429,7 +427,7 @@ if (!html.includes('data-pi-js')) {
 
 if (!html.includes('assets/js/pi-home.js')) {
   const at = html.lastIndexOf('</body>');
-  html = html.slice(0, at) + '<script src="assets/js/pi-home.js?v=5" defer></script>\n' + html.slice(at);
+  html = html.slice(0, at) + '<script src="assets/js/pi-home.js?v=6" defer></script>\n' + html.slice(at);
 }
 
 fs.writeFileSync(FILE, html, 'utf8');

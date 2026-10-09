@@ -180,3 +180,67 @@
   }
   start();
 })();
+
+/* Blog section: hovering (or focusing) a post in the list swaps the big card on the left to that post: image, date,
+   title, summary and link. Wide screens with a pointer only; on touch and on narrow screens the card stays on the newest
+   post and each row is a plain link. */
+(function () {
+  var grid = document.querySelector('.pi-ins__grid');
+  if (!grid) return;
+  var feat = grid.querySelector('.pi-ins__feat');
+  var rows = grid.querySelectorAll('.pi-ins__row');
+  if (!feat || rows.length < 2) return;
+
+  var link = feat.querySelector('.pi-ins__feat-link');
+  var imgs = feat.querySelectorAll('.pi-ins__img img');
+  var chip = feat.querySelector('.pi-ins__chip');
+  var date = feat.querySelector('.pi-ins__date');
+  var title = feat.querySelector('.pi-ins__ft');
+  var ex = feat.querySelector('.pi-ins__ex');
+  var wide = window.matchMedia ? window.matchMedia('(hover: hover) and (min-width: 901px)') : { matches: false };
+  var current = grid.querySelector('.pi-ins__row.is-active') || rows[0];
+  var timer = null;
+
+  // warm the images once the pointer is anywhere near the section, so a swap never waits on the network
+  var warmed = false;
+  function warm() {
+    if (warmed) return;
+    warmed = true;
+    for (var i = 0; i < rows.length; i++) { var im = new Image(); im.decoding = 'async'; im.src = rows[i].getAttribute('data-img'); }
+  }
+  grid.addEventListener('pointerenter', warm, { once: true });
+
+  function show(row) {
+    if (!wide.matches || row === current) return;
+    current = row;
+    for (var i = 0; i < rows.length; i++) rows[i].classList.toggle('is-active', rows[i] === row);
+
+    // image: fade the hidden layer in over the visible one
+    var src = row.getAttribute('data-img');
+    var on = feat.querySelector('.pi-ins__img img.is-on');
+    var off = imgs[0] === on ? imgs[1] : imgs[0];
+    off.src = src;
+    off.alt = row.getAttribute('data-t') || '';
+    off.removeAttribute('aria-hidden');
+    on.setAttribute('aria-hidden', 'true'); on.alt = '';
+    off.classList.add('is-on');
+    on.classList.remove('is-on');
+
+    // text: dip, change, come back
+    feat.classList.add('is-swap');
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      link.setAttribute('href', row.getAttribute('href'));
+      chip.textContent = row.getAttribute('data-n');
+      date.textContent = row.getAttribute('data-date');
+      title.textContent = row.getAttribute('data-t');
+      ex.textContent = row.getAttribute('data-ex');
+      feat.classList.remove('is-swap');
+    }, 150);
+  }
+
+  rows.forEach(function (row) {
+    row.addEventListener('mouseenter', function () { show(row); });
+    row.addEventListener('focus', function () { show(row); });
+  });
+})();

@@ -7,7 +7,7 @@
 :root {
   --framer-nav-bg: #000000;
   --framer-nav-border: rgba(255, 255, 255, 0.14);
-  --framer-nav-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.75), 0 0 1px 1px rgba(255, 255, 255, 0.08);
+  --framer-nav-shadow: none;
   --framer-nav-text: rgba(255, 255, 255, 0.85);
   --framer-nav-text-hover: #ffffff;
   --framer-nav-accent: #F58634;
@@ -120,7 +120,7 @@
   padding: 8px 16px;
   gap: 14px;
   border-color: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.85), 0 0 1px 1px rgba(255, 255, 255, 0.12);
+  box-shadow: none;
 }
 
 /* --------------------------------------------------------------------------

@@ -59,8 +59,10 @@ for (const rel of PAGES) {
   html = html.slice(0, from) + block + html.slice(to);
 
   const up = '../'.repeat(rel.split('/').length - 1);
-  if (!html.includes('bento-trust.css')) html = html.replace('</head>', `<link rel="stylesheet" href="${up}assets/css/bento-trust.css?v=10" />\n</head>`);
-  else html = html.replace(/bento-trust\.css\?v=\d+/, 'bento-trust.css?v=10');
+  if (!html.includes('bento-trust.css')) html = html.replace('</head>', `<link rel="stylesheet" href="${up}assets/css/bento-trust.css?v=14" />\n</head>`);
+  else html = html.replace(/bento-trust\.css\?v=\d+/, 'bento-trust.css?v=14');
+  // scroll-reveal script, once per page
+  if (!html.includes('bento-reveal.js')) html = html.replace('</body>', `<script src="${up}assets/js/bento-reveal.js" defer></script>\n</body>`);
   fs.writeFileSync(file, html, 'utf8');
   console.log(rel.padEnd(26) + 'bento built: ' + items.length + ' cards | ' + heading.replace(/\s+/g, ' ').slice(0, 60));
 }

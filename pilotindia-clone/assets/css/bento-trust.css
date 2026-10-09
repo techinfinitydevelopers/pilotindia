@@ -1,68 +1,81 @@
-/* "Built With Trust" as a bento grid: light theme, the site's own fonts and orange accent.
+/* "Built With Trust" as a compact bento grid: light theme, the site's own fonts and orange accent.
    Scoped to section.bento so no other page is affected.
-   Layout: six columns on desktop. Row 1: 01 (4 cols) + 02 (2 cols). Row 2: 03 (2 cols) + 04 (4 cols). Row 3: 05 (full).
-   Every card stacks: icon, title, text. Rows are as tall as their tallest card, so neighbours always match. */
+   Layout: six columns on desktop. Row 1: 01, 02 (3 cols each, the two longest texts). Row 2: 03, 04, 05 (2 cols each).
+   Compact on purpose: small icon beside the title, tight padding, ~half the height of the first version.
+   Motion: cards rise in one after another as the section scrolls into view (assets/js/bento-reveal.js adds
+   .is-armed / .is-in; without the script every card is simply visible), a line draws across a card's top edge on hover. */
 .bento {
   --b-ink: #111114;
   --b-text: #4d4f55;
   --b-mute: #8b8b93;
   --b-accent: var(--pi-accent, #f58634);
   --b-card: #ffffff;
-  --b-line: rgba(17, 17, 20, 0.09);
+  --b-line: rgba(17, 17, 20, 0.22);
   --b-soft: #f7f5f1;
   background: var(--b-soft);
   color: var(--b-ink);
   font-family: var(--pi-font-body, "Open Sans", system-ui, sans-serif);
-  padding: clamp(64px, 9vw, 112px) 16px;
+  padding: clamp(32px, 4vw, 52px) 16px;
   box-sizing: border-box;
   width: 100%;
 }
 .bento__wrap { max-width: 1240px; margin: 0 auto; }
 
-.bento__head { max-width: 760px; margin: 0 0 clamp(36px, 5vw, 56px); }
-.bento__eyebrow { display: inline-block; margin-bottom: 14px; color: var(--b-accent); font-size: 11.5px; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase; }
+.bento__head { max-width: 760px; margin: 0 0 clamp(16px, 2vw, 22px); }
+.bento__eyebrow { display: inline-block; margin-bottom: 10px; color: var(--b-accent); font-size: 11.5px; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase; }
 .bento__h2 {
+  position: relative;
   margin: 0;
+  padding-bottom: 14px;
   font-family: var(--pi-font-heading, "Roboto", system-ui, sans-serif);
-  font-size: clamp(30px, 3.8vw, 46px);
+  font-size: clamp(26px, 2.8vw, 36px);
   font-weight: 700;
-  line-height: 1.12;
+  line-height: 1.15;
   letter-spacing: -0.02em;
   color: var(--b-ink);
+}
+.bento__h2::after {                       /* short accent rule under the heading */
+  content: ""; position: absolute; left: 0; bottom: 0; width: 44px; height: 3px; border-radius: 3px; background: var(--b-accent);
+  transform-origin: left; transition: transform .7s cubic-bezier(.16, 1, .3, 1) .15s;
 }
 
 .bento__grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   grid-auto-rows: auto;
-  gap: 18px;
+  gap: 14px;
 }
 .bento__card {
   position: relative;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: start;
+  column-gap: 14px;
   min-width: 0;
-  padding: 30px 30px 32px;
+  padding: 18px 22px 20px;
   border: 1px solid var(--b-line);
-  border-radius: 24px;
+  border-radius: 18px;
   background: var(--b-card);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.3s ease;
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.3s ease;
+}
+.bento__card::before {                    /* accent line that draws across the top on hover */
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--b-accent);
+  transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.16, 1, .3, 1);
 }
 .bento__card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(245, 134, 52, 0.45);
-  box-shadow: 0 26px 46px -30px rgba(17, 17, 20, 0.3);
+  transform: translateY(-3px);
+  border-color: rgba(245, 134, 52, 0.4);
+  box-shadow: 0 20px 36px -26px rgba(17, 17, 20, 0.35);
 }
-.bento__card--a { grid-column: span 4; }
-.bento__card--b { grid-column: span 2; }
-.bento__card--c { grid-column: span 2; }
-.bento__card--d { grid-column: span 4; }
-.bento__card--e { grid-column: span 6; }
+.bento__card:hover::before { transform: scaleX(1); }
+.bento__card--a, .bento__card--b { grid-column: span 3; }
+.bento__card--c, .bento__card--d, .bento__card--e { grid-column: span 2; }
 
 .bento__num {
   position: absolute;
-  top: 26px;
-  right: 28px;
+  top: 18px;
+  right: 22px;
   color: var(--b-mute);
   font-size: 12px;
   font-weight: 700;
@@ -71,58 +84,69 @@
 .bento__icon {
   display: grid;
   place-items: center;
-  width: 60px;
-  height: 60px;
-  margin-bottom: 26px;
-  border-radius: 18px;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 12px;
+  align-self: center;
+  border-radius: 13px;
   background: #fdf1e6;
-  transition: background 0.3s ease;
+  transition: background 0.3s ease, transform .4s cubic-bezier(.34, 1.56, .64, 1);
 }
-.bento__icon img { width: 34px; height: 34px; object-fit: contain; }
-.bento__card:hover .bento__icon { background: var(--b-accent); }
+.bento__icon img { width: 26px; height: 26px; object-fit: contain; }
+.bento__card:hover .bento__icon { background: var(--b-accent); transform: rotate(-6deg) scale(1.08); }
 .bento__card:hover .bento__icon img { filter: brightness(0) invert(1); }
 
 .bento__t {
   margin: 0 0 12px;
-  padding-right: 36px;
+  padding-right: 32px;
+  align-self: center;
   font-family: var(--pi-font-heading, "Roboto", system-ui, sans-serif);
-  font-size: clamp(19px, 1.7vw, 23px);
+  font-size: clamp(17px, 1.4vw, 19px);
   font-weight: 700;
   line-height: 1.25;
   letter-spacing: -0.012em;
   color: var(--b-ink);
 }
 .bento__d {
+  grid-column: 1 / -1;
   margin: 0;
   color: var(--b-text);
-  font-size: 15px;
-  line-height: 1.7;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
-/* tablet: 2 columns, the first and last cards full width */
+/* tablet: 2 columns, the last card full width */
 @media (max-width: 960px) {
   .bento__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .bento__card--a, .bento__card--d, .bento__card--e { grid-column: span 2; }
-  .bento__card--b, .bento__card--c { grid-column: span 1; }
+  .bento__card--a, .bento__card--b, .bento__card--c, .bento__card--d { grid-column: span 1; }
+  .bento__card--e { grid-column: span 2; }
 }
 /* phone: one column */
 @media (max-width: 640px) {
-  .bento__grid { grid-template-columns: 1fr; }
-  .bento__card { grid-column: 1 / -1 !important; padding: 24px 22px 26px; border-radius: 20px; }
-  .bento__icon { margin-bottom: 22px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .bento__card, .bento__icon { transition: none; }
-  .bento__card:hover { transform: none; }
+  .bento__grid { grid-template-columns: 1fr; gap: 12px; }
+  .bento__card { grid-column: 1 / -1 !important; padding: 18px 18px 20px; border-radius: 16px; }
 }
 
 /* some icons are images with a white box behind them: let the chip colour show through */
 .bento__icon img { mix-blend-mode: multiply; }
 .bento__card:hover .bento__icon img { mix-blend-mode: normal; }
 
+/* Scroll reveal. `translate`/`opacity` are separate from the hover `transform`, so the two never fight. */
+.bento.is-armed .bento__card { opacity: 0; translate: 0 20px; }
+.bento.is-armed .bento__h2::after { transform: scaleX(0); }
+.bento.is-armed.is-in .bento__h2::after { transform: none; }
+.bento.is-armed.is-in .bento__card { opacity: 1; translate: 0 0;
+  transition: opacity .6s ease calc(var(--i, 0) * 80ms + 120ms), translate .7s cubic-bezier(.16, 1, .3, 1) calc(var(--i, 0) * 80ms + 120ms),
+              transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.3s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bento__card, .bento__icon, .bento__card::before, .bento__h2::after { transition: none !important; }
+  .bento__card:hover, .bento__card:hover .bento__icon { transform: none; }
+  .bento.is-armed .bento__card { opacity: 1; translate: none; }
+  .bento.is-armed .bento__h2::after { transform: none; }
+}
+
 /* Seam with the Applications carousel that follows on every product page:
-   fade into its #f3efe8 ground instead of a hard colour band, and trim the
-   112px + 120px of stacked padding that left a large empty strip. */
-.bento { padding-bottom: clamp(48px, 6vw, 72px); }
+   fade into its #f3efe8 ground instead of a hard colour band. */
 .bento:has(+ .pg-chain) { background: linear-gradient(var(--b-soft) 75%, #f3efe8); }
-.bento + .pg-chain { padding-top: clamp(48px, 6vw, 72px); }
+.bento + .pg-chain { padding-top: clamp(40px, 5vw, 56px); }

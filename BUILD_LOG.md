@@ -2023,3 +2023,34 @@ computer only); edits are written into the site files and published with a norma
   - the open row closes when the pointer leaves the list, on a click anywhere outside it, and when focus leaves it
   - verified in a browser: hover opens, leaving closes, an outside click closes
 - Assets are v=5. After `node tools/home.mjs`, run `node tools/perf-hints.mjs index.html`.
+
+## 2026-10-09 - Spray-guns hero revamp
+- Hero: headline split into three tiers (muted / white / accent), eyebrow, one-line sub, two CTAs (Explore collections, Talk to our team), dark gradient for legibility.
+- The scrolling text strip is replaced by six collection cards (product image on a white tile, number, name, short note, arrow) inside the hero. Short notes are taken from each collection page's own copy; no product counts shown (not reliably derivable from the pages).
+- Mobile: cards become a snap-scrolling row; hero fits one screen at 375x812. Short laptop windows (<=780px high) hide the note line.
+- Files: tools/product-hero.mjs (idempotent), assets/css/pg-hero-coll.css (v=2), spray-guns/index.html.
+- Only spray-guns changed; welding, office and airless still use the marquee.
+- Verified in the browser at 1536x730 and 375x812: images load, no horizontal overflow.
+- Follow-up: copy column narrowed (min(500px,34vw)) and title reduced so text no longer overlaps the spray gun or crowds the nav; whole hero fits a 1900x670 window. Collection thumbnails are now 480px `pg-coll-*.jpg` on white (the 2000px+ originals failed to paint reliably and were heavy). CSS v=7.
+- Cut-out tray (ref: Cmouse / Vespa comps): collections now sit on a tray in the page colour (#f7f5f1, same as the top of the next section) that rises into the photo. A raised tab on the left carries "06 / Select a collection"; concave fillets (radial-gradient, --pi-r) join tab, tray and photo; tray's top-right corner is rounded. Cards are white with dark text and a black arrow chip that turns orange on hover. CSS v=9.
+- Black stage redesign: hero background is black with a new photo (low-angle worker, gun and spray mist; `pg-hero-sg.jpg`, 1800px, 112 KB, from low-angle-worker-spraying-powder-paint-from-gun-scaled-1.jpg) anchored right and faded into black on the left. Copy moved to the left column; headline fits 3 lines. Tray and cards turned black/charcoal with white thumbnails tiles; the "06" chip is orange. Thumbnail images now absolutely fill their tile (percent height did not resolve before, which cropped them). Hero + tray fit one screen at 1536x730. CSS v=12. Photo is a stand-in picked from the site's own assets; swap `assets/img/pg-hero-sg.jpg` to change it.
+- Tray back to light grey (#f7f5f1, matches the next section) with black cards; removed stray white dots between cards (theme li bullets). CSS v=13.
+- Copy block moved up (bottom margin clamp(14px,4.5vh,40px)) and left (left margin clamp(20px,3.4vw,56px)). CSS v=14.
+
+## 2026-10-09 - Black-stage hero + cut-out collection tray on welding, office, airless
+- `tools/product-hero.mjs` (replaces sprayguns-hero.mjs) holds one config per page (copy, hero photo, collections) and applies the hero to spray-guns, welding, office and airless. Idempotent; `node tools/product-hero.mjs [page]`.
+- Per-page photo is the page's own previous hero image, set as `--pi-hero` on `#select-series-re` (url is `../img/...`, relative to the CSS file, not the page).
+- Tray width follows the card count (`--n`): 3-card pages get a left-aligned tray, spray-guns' 6 cards span the width. The "0N" chip reads `data-n`.
+- 9 new 480px thumbnails (`pg-coll-*.jpg`, white background, auto-cropped). Card notes are short descriptors from page content.
+- Checked at 1536x730 and 375x812 (office); all three heroes fit one screen on desktop.
+- Not done: pages/power-tools.html (different hero: product cards, no `#select-series-re`).
+- Photo corners: hero container gets a 28px bottom-right radius, and trays narrower than the page (3-card pages) get a fillet (`.pi-coll::after`) that rounds the photo corner beside the tray. Fixes the square-cornered photo edge on airless/welding/office. CSS v=15.
+
+## 2026-10-09 - "Built With Trust" bento: compact + motion (all 5 product pages)
+- Pure restyle of `assets/css/bento-trust.css` (v=13); text, icons and markup unchanged. Welding section height about 740px -> 580px at 1536 wide (and roughly half of the first version).
+- Layout: icon sits beside the title (saves a row), tighter padding/gaps, smaller heading; grid is 3+2 -> now 2 (3 cols each) + 3 (2 cols each) so the two longest texts get the wide cards.
+- Motion: heading rule and cards rise in staggered on first scroll into view (`assets/js/bento-reveal.js`, adds `.is-armed`/`.is-in`; no JS or reduced-motion = everything visible); on hover the card lifts, an accent line draws across its top and the icon tilts.
+- `tools/bento-trust.mjs` now also injects the reveal script (idempotent) and bumps the CSS version.
+- Verified welding at 1536x730 and 375x812.
+- Navbar: removed the drop shadow under the pill (`--framer-nav-shadow: none` and the `.is-scrolled` shadow in `assets/css/pi-nav.css`); dropdown/menu panels keep their own shadows.
+- Bento cards: stronger border (rgba(17,17,20,.22)), CSS v=14.

@@ -11,7 +11,7 @@
   --c-card: #fbf9f5;
   --c-line: rgba(17, 17, 20, 0.08);
   --c-display: var(--pi-font-display, "Italiana", "Cormorant Garamond", Georgia, serif);
-  --c-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --c-serif: var(--pi-font-heading);
   --c-sans: var(--pi-font-body, "Open Sans", system-ui, sans-serif);
   --c-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;

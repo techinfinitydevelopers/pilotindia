@@ -51,10 +51,10 @@
      a brand-new font you must also add its @font-face or <link> yourself.
      -------------------------------------------------------------------- */
 
-  --pi-font-body:    'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --pi-font-heading: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-  --pi-font-accent:  'Roboto Slab', Georgia, 'Times New Roman', serif;
-  --pi-font-display: 'Italiana', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;   /* hero + footer statement */
+  --pi-font-body:    'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'PI Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --pi-font-heading: 'DM Sans', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --pi-font-accent:  var(--pi-font-heading);
+  --pi-font-display: var(--pi-font-heading);   /* hero + footer statement */
 
   /* Elementor reads these for its own global typography */
   --e-global-typography-text-font-family:      var(--pi-font-body);
@@ -104,3 +104,76 @@
   --pi-radius-pill:    0px;
 }
 */
+
+/* ===== Site typography =====================================================
+   Headlines: DM Sans Italic (display optical size).  Everything else: SF Pro Display Regular.
+   SF Pro is Apple's licensed system font: it is used where the device has it ("SF Pro Display", or -apple-system which
+   resolves to it on iPhone, iPad and Mac) and cannot be shipped as a web font, so other devices get Inter (self-hosted,
+   the closest match), then the system UI font.  DM Sans is self-hosted (SIL OFL), italic only, weights 300-800.
+   Icon fonts (Font Awesome, ETmodules, eicons) are never touched.  Tool: tools/site-fonts.mjs. */
+@font-face {
+  font-family: 'DM Sans';
+  font-style: italic;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url(../assets/fonts/pi-dm-sans-italic-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: italic;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url(../assets/fonts/pi-dm-sans-italic-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'PI Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(../assets/fonts/pi-inter-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'PI Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(../assets/fonts/pi-inter-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* sub text */
+html, body {
+  font-family: var(--pi-font-body);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+body :where(p, li, dd, dt, td, th, label, input, textarea, select, button, small, address, figcaption, blockquote,
+            .elementor-button, .et_pb_button, .elementor-icon-box-description, .elementor-image-box-description,
+            .elementor-icon-list-text, .et_pb_text_inner) {
+  font-family: var(--pi-font-body) !important;
+}
+/* Regular weight for running text (bold stays on <strong>, <b> and headings) */
+body :where(p, li, dd, td, small, address, figcaption, blockquote,
+            .elementor-icon-box-description, .elementor-image-box-description, .elementor-icon-list-text, .et_pb_text_inner) {
+  font-weight: 400 !important;
+}
+
+/* headlines */
+h1, h2, h3, h4, h5, h6,
+.elementor-heading-title, .et_pb_module_header,
+.pi-hero__title, .pi-home__h2, .pi-cap__t {
+  font-family: var(--pi-font-heading) !important;
+  font-style: italic;
+  font-optical-sizing: auto;
+  font-variation-settings: 'opsz' 40;
+}
+
+/* heading tags used as list / table text (the feature bullets on product pages are <h6> inside <li>) are sub text */
+li :is(h1, h2, h3, h4, h5, h6), td :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--pi-font-body) !important;
+  font-style: normal;
+  font-variation-settings: normal;
+}

@@ -47,19 +47,20 @@ const COMPRESSIBLE = new Set(['.html', '.css', '.js', '.mjs', '.json', '.svg', '
 const REUSE = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.ico', '.woff', '.woff2', '.mp4', '.webm', '.pdf']);
 const squeezed = new Map();     // path + mtime + encoding -> compressed bytes
 // every page gets the catalogue-download form script (pi-lead), added here so no page file has to carry it
-const LEAD_TAGS = '<link rel="stylesheet" href="/assets/css/pi-lead.css?v=1" />\n<script src="/assets/js/pi-lead.js?v=1" defer></script>\n';
+// It goes in <head> and runs async, so a click on a catalogue link is caught even while a long page is still loading.
+const LEAD_TAGS = '<link rel="stylesheet" href="/assets/css/pi-lead.css?v=3" />\n<script src="/assets/js/pi-lead.js?v=3" async></script>\n';
 function withLeadGate(buf) {
   const html = buf.toString('utf8');
   if (html.includes('pi-lead.js')) return buf;
-  const at = html.lastIndexOf('</body>');
-  return Buffer.from(at < 0 ? html + LEAD_TAGS : html.slice(0, at) + LEAD_TAGS + html.slice(at), 'utf8');
+  const at = html.search(/<\/head>/i);
+  return Buffer.from(at < 0 ? LEAD_TAGS + html : html.slice(0, at) + LEAD_TAGS + html.slice(at), 'utf8');
 }
 
 function serveFile(req, res, fp, extra = {}) {
   const ext = path.extname(fp).toLowerCase();
   const st = fs.statSync(fp);
   // "-l1": pages carry the injected form script, so their validator changes with it
-  const etag = 'W/"' + st.size.toString(16) + '-' + Math.floor(st.mtimeMs).toString(16) + (ext === '.html' ? '-l1' : '') + '"';
+  const etag = 'W/"' + st.size.toString(16) + '-' + Math.floor(st.mtimeMs).toString(16) + (ext === '.html' ? '-l3' : '') + '"';
   const headers = {
     'Content-Type': TYPES[ext] || 'application/octet-stream',
     'ETag': etag,

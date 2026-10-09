@@ -20,6 +20,34 @@
 
   items.forEach(function (el) { io.observe(el); });
 
+  /* Figures band: each number counts up from 0 the first time its cell is revealed. The markup already holds the
+     final number, so with no JS (or reduced motion, handled above) it simply reads as is. */
+  var counters = document.querySelectorAll('.pi-stat__n[data-count], .pi-ind__num[data-count]');
+  if (counters.length) {
+    var run = function (el) {
+      var to = parseInt(el.getAttribute('data-count'), 10);
+      if (!isFinite(to)) return;
+      var sfx = el.getAttribute('data-suffix') || '';
+      var t0 = null, dur = 1500;
+      var step = function (t) {
+        if (t0 === null) t0 = t;
+        var p = Math.min(1, (t - t0) / dur);
+        el.textContent = Math.round(to * (1 - Math.pow(1 - p, 4))) + sfx;     // ease-out quart
+        if (p < 1) requestAnimationFrame(step); else el.textContent = to + sfx;
+      };
+      el.textContent = '0' + sfx;
+      requestAnimationFrame(step);
+    };
+    var cio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        cio.unobserve(e.target);
+        run(e.target);
+      });
+    }, { threshold: 0.6 });
+    counters.forEach(function (el) { el.textContent = '0' + (el.getAttribute('data-suffix') || ''); cio.observe(el); });
+  }
+
   /* "What sits behind the product" — Expand OnHover List component
      (Matches Framer Expand-OnHover-List component)
      - Desktop: Hovering any card activates/opens it with smooth spring swoop.
@@ -61,6 +89,15 @@
     } else {
       revealFirst();
     }
+
+    // the open row closes when the pointer leaves the list, or on a click / focus anywhere outside it
+    capList.addEventListener('mouseleave', function () { setActiveCard(null); });
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest || !e.target.closest('.pi-cap__list')) setActiveCard(null);
+    });
+    capList.addEventListener('focusout', function (e) {
+      if (!e.relatedTarget || !capList.contains(e.relatedTarget)) setActiveCard(null);
+    });
 
     caps.forEach(function (card) {
       card.addEventListener('mouseenter', function () {

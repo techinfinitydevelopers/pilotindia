@@ -3,7 +3,6 @@
    Framer Component: https://framer.com/m/Dyanmic-Navbar-MD51bK.js@mDPLUu5eFS42KaFa2LkM
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
   --framer-nav-bg: #000000;
@@ -59,7 +58,7 @@
   background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-family: var(--pi-font-body) !important;
 }
 
 /* Progress line along the top of screen */
@@ -200,7 +199,7 @@
   border-radius: 999px !important;
   background: transparent !important;
   color: rgba(255, 255, 255, 0.85) !important;
-  font-family: 'Inter', sans-serif !important;
+  font-family: var(--pi-font-body) !important;
   font-size: 13.5px !important;
   font-weight: 500 !important;
   line-height: 1 !important;
@@ -445,7 +444,7 @@
   padding: 0 20px !important;
   background: #ffffff !important;
   color: #000000 !important;
-  font-family: 'Inter', sans-serif !important;
+  font-family: var(--pi-font-body) !important;
   font-size: 13.5px !important;
   font-weight: 600 !important;
   text-decoration: none !important;

@@ -21,6 +21,19 @@ const IG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.6c2.4 0 2
 
 const A = 'assets/img/';
 
+/* image, excerpt and date for each post come from the post page itself (og:image, meta description, "published" date) */
+const unesc = t => t.replace(/&amp;/g, '&').replace(/&#039;|&#8217;/g, '’').replace(/&quot;/g, '"');
+const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+function postMeta(slug) {
+  const h = fs.readFileSync(path.join(CLONE, 'blog', slug + '.html'), 'utf8');
+  const g = re => (h.match(re) || [])[1] || '';
+  return {
+    img: g(/property="og:image" content="([^"]+)"/).replace(/^\.\.\//, ''),
+    desc: unesc(g(/name="description" content="([^"]+)"/)),
+    date: g(/class="[^"]*published[^"]*"[^>]*>([^<]+)</).trim(),
+  };
+}
+
 /* ---- product range: the five categories already in the Products menu ---- */
 const PRODUCTS = [
   { t: 'Spray Guns', img: 'spray-guns1-scaled.jpg', href: 'spray-guns/',
@@ -77,7 +90,7 @@ const IND_ROWS = Array.from({ length: IND_BANDS },
 const IND_SPEEDS = [44, 54, 38];
 
 /* ---- real posts from the blog ---- */
-const POSTS = [
+const POSTS_RAW = [
   ['How Heat Guns Are Used in Automotive Car Wrapping', 'how-heat-guns-are-used-in-automotive-car-wrapping'],
   ['Why Every Workshop Needs High-Quality Power Tools from Pilot India', 'why-every-workshop-needs-high-quality-power-tools-from-pilot-india'],
   ['How Pilot India Supports Businesses with Innovative Industrial Solutions', 'how-pilot-india-supports-businesses-with-innovative-industrial-solutions'],
@@ -85,6 +98,7 @@ const POSTS = [
   ['The Role of Quality Control in Industrial Equipment Performance', 'the-role-of-quality-control-in-industrial-equipment-performance'],
   ['Essential Industrial Equipment Every Manufacturing Unit Needs', 'essential-industrial-equipment-every-manufacturing-unit-needs'],
 ];
+const POSTS = POSTS_RAW.map(([t, s]) => [t, s, postMeta(s)]);
 
 // Expanding panel: compact vertical column that grows on hover, revealing the
 // title, a line of copy and the link over full-bleed imagery with a dark scrim.
@@ -154,7 +168,7 @@ const main = `
   <section class="pi-stats">
     <div class="pi-stats__grid">
       ${STATS.map(([n, l], i) => `<div class="pi-stat pi-reveal" style="transition-delay:${i * 70}ms">
-        <span class="pi-stat__n">${n}</span><span class="pi-stat__l">${l}</span>
+        <span class="pi-stat__n" data-count="${n}">${n}</span><span class="pi-stat__l">${l}</span>
       </div>`).join('\n      ')}
     </div>
   </section>
@@ -241,7 +255,7 @@ const main = `
           <h2 class="pi-home__h2">Where Pilot equipment is used.</h2>
           <p class="pi-home__lead">Application areas our spray, welding and finishing equipment is specified for.</p>
         </div>
-        <p class="pi-ind__count"><span class="pi-ind__num">${INDUSTRIES.length}</span> application areas</p>
+        <p class="pi-ind__count"><span class="pi-ind__num" data-count="${INDUSTRIES.length}" data-suffix="+">${INDUSTRIES.length}+</span> application areas</p>
       </div>
     </div>
     <!-- full-bleed: the bands run past the wrap on both sides -->
@@ -257,18 +271,33 @@ const main = `
   <!-- 7. insights -->
   <section class="pi-sec pi-ins">
     <div class="pi-home__wrap">
-      <div class="pi-sec__head pi-reveal">
-        <p class="pi-home__eyebrow">From the blog</p>
-        <h2 class="pi-home__h2">Notes on equipment and finishing.</h2>
+      <div class="pi-ins__head pi-reveal">
+        <div>
+          <p class="pi-home__eyebrow">From the blog</p>
+          <h2 class="pi-home__h2">Notes on equipment and finishing.</h2>
+        </div>
+        <a class="pi-ins__all" href="pages/blogs.html">All articles ${ARROW}</a>
       </div>
-      <ul class="pi-ins__list">
-        ${POSTS.map(([t, s], i) => `<li class="pi-reveal"><a class="pi-ins__row" href="blog/${s}.html">
-          <span class="pi-ins__n">${String(i + 1).padStart(2, '0')}</span>
-          <span class="pi-ins__t">${t}</span>
+      <div class="pi-ins__grid">
+        ${(() => { const [t, s, m] = POSTS[0]; return `<article class="pi-ins__feat pi-reveal">
+          <a class="pi-ins__feat-link" href="blog/${s}.html">
+            <span class="pi-ins__img"><img src="${m.img}" alt="${esc(t)}" loading="lazy" /><span class="pi-ins__chip">01</span></span>
+            <span class="pi-ins__body">
+              <span class="pi-ins__date">${m.date}</span>
+              <h3 class="pi-ins__ft">${t}</h3>
+              <span class="pi-ins__ex">${esc(m.desc)}</span>
+              <span class="pi-ins__read">Read article ${ARROW}</span>
+            </span>
+          </a>
+        </article>`; })()}
+        <ol class="pi-ins__rail pi-reveal">
+        ${POSTS.slice(1).map(([t, s, m], i) => `<li><a class="pi-ins__row" href="blog/${s}.html">
+          <span class="pi-ins__n">${String(i + 2).padStart(2, '0')}</span>
+          <span class="pi-ins__txt"><span class="pi-ins__date">${m.date}</span><h3 class="pi-ins__t">${t}</h3><span class="pi-ins__ex">${esc(m.desc)}</span></span>
           <svg class="pi-ins__go" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.4 11.8 6.8l4.2 4.2H4v2h12l-4.2 4.2 1.4 1.4L20 12z"/></svg>
         </a></li>`).join('\n        ')}
-      </ul>
-      <p style="margin-top:28px"><a class="pi-btn pi-btn--ghost" style="border-color:#d4d4d8;color:#0a0a0a" href="pages/blogs.html">All articles ${ARROW}</a></p>
+        </ol>
+      </div>
     </div>
   </section>
 
@@ -372,23 +401,7 @@ const footEnd = html.indexOf('</footer>', footStart) + '</footer>'.length;
 
 html = html.slice(0, bodyStart) + '\n' + main + '\n' + footer2 + html.slice(footEnd);
 
-// display serif for the hero headline (falls back to Georgia when offline)
-const HERO_FONT = 'https://fonts.googleapis.com/css2?family=Italiana&display=swap';
-if (!html.includes(HERO_FONT)) {
-  const at = html.indexOf('</head>');
-  html = html.slice(0, at) +
-    '<link rel="preconnect" href="https://fonts.googleapis.com" />\n' +
-    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />\n' +
-    `<link rel="stylesheet" href="${HERO_FONT}" />\n` + html.slice(at);
-}
-
-// Framer Expand OnHover List fonts: PT Sans Narrow 700 & Inter
-const FRAMER_FONT = 'https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@700&family=Inter:wght@400;500;600&display=swap';
-if (!html.includes('PT+Sans+Narrow')) {
-  const at = html.indexOf('</head>');
-  html = html.slice(0, at) +
-    `<link rel="stylesheet" href="${FRAMER_FONT}" />\n` + html.slice(at);
-}
+// fonts: headlines DM Sans Italic and body SF Pro are defined in theme/theme.css (self-hosted); no Google Fonts links
 
 // stylesheets and the reveal script
 for (const href of ['assets/css/pi-home.css', 'assets/css/pi-footer2.css']) {
@@ -416,7 +429,7 @@ if (!html.includes('data-pi-js')) {
 
 if (!html.includes('assets/js/pi-home.js')) {
   const at = html.lastIndexOf('</body>');
-  html = html.slice(0, at) + '<script src="assets/js/pi-home.js?v=3" defer></script>\n' + html.slice(at);
+  html = html.slice(0, at) + '<script src="assets/js/pi-home.js?v=5" defer></script>\n' + html.slice(at);
 }
 
 fs.writeFileSync(FILE, html, 'utf8');

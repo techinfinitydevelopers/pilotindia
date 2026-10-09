@@ -1947,3 +1947,79 @@ computer only); edits are written into the site files and published with a norma
 - pi-lead.js/css: modal card with a Privacy Policy link; validation; download starts after submit.
 - Admin: new Leads section (Date, Time, Name, Email, Phone, Catalogue, Page), search, CSV export.
 - Verified: locked PDF -> form, invalid 422, cross-origin 403, honeypot not stored, valid -> cookie -> PDF, forged cookie refused, admin list + CSV OK.
+
+## 2026-10-09 - Catalogue card redesign + instant open
+- Card redesigned:
+  - header: warm panel, orange tile, "Pilot India" eyebrow, PDF chip with the catalogue name
+  - fields: Full Name, Gmail / Business Email, Country (select, sets the dial code), Phone with prefix, Company (optional)
+  - privacy panel, then a required consent checkbox linking to the Privacy Policy
+  - black pill CTA with an orange download icon
+- Server: `country` and `company` stored; consent required (422 otherwise). Postgres adds the columns with `alter table ... add column if not exists`. Admin Leads and the CSV gained Country and Company.
+- Speed:
+  - pi-lead.css and pi-lead.js are injected in `<head>`, with `async`, so clicks are caught while a long page is still loading.
+  - The card is pre-built while the browser is idle.
+  - No backdrop blur, no rAF and no entry transitions: these stalled on heavy pages and left the card invisible or undimmed.
+  - The scroll lock is an inline style; a site script rewrites `<html class>`.
+- Icon-only PDF links that point to the same file as a "Download Catalogue" link are also gated.
+- Playwright tests passed:
+  - pages: legacy-series, air-brush, gas-regulators, electric-series (desktop and 390 px)
+  - flow: empty submit shows 4 errors; country change sets +971; consent enforced; submit downloads; a second click goes straight to the download
+
+## 2026-10-09 - Home: figures band + "What sits behind the product" revamp
+- Figures band (section 2):
+  - blueprint grid and orange corner glow
+  - large display numerals (`data-count`); they count up from 0 when scrolled into view (pi-home.js; no-JS and reduced-motion read the final number)
+  - hairline dividers with an orange tick that grows in
+  - hover turns the numeral orange
+  - 4 columns, 2x2 on tablet and phone
+- Capability list (section 5):
+  - full page measure (1660 px max, was 900) and the section is at least one screen tall
+  - heading scaled up
+  - titles are outlined type until the row opens, then they fill solid
+  - open row: orange wash, left bar, orange number, orange underline sweep and a larger tilted artwork card
+  - the grid 0fr to 1fr copy reveal, the explicit height on the artwork wrapper and the title nowrap are all kept
+  - phones and no-hover devices show every row open
+- Removed the stale responsive rules for the old `.pi-cap__body` / `.is-active` markup.
+- tools/home.mjs adds `data-count`; assets bumped to v=4. Re-running home.mjs drops the image hints, so run `node tools/perf-hints.mjs index.html` after it.
+- Checked at 1920, 1440 and 390 px with Playwright: no horizontal scroll, rows open and close on hover. Content is unchanged.
+- Sizes reduced after feedback ("too huge"):
+  - figures band: numerals 34-52 px (was up to 112), padding 30-46 px, band about 195 px tall at 1440
+  - capability list: heading is the standard h2 size (28-42 px), titles 24-32 px, numbers 22-30 px, copy 15.5 px, artwork 280x182, 42 px button, min-height removed
+  - the row layout is unchanged, and the list is still full width
+
+## 2026-10-09 - Site-wide fonts: DM Sans Italic headlines, SF Pro Display body
+- theme/theme.css:
+  - `--pi-font-heading`, `--pi-font-accent` and `--pi-font-display` are DM Sans; `--pi-font-body` is the SF Pro stack
+  - DM Sans italic (300-800 variable, latin + latin-ext, OFL) and Inter are self-hosted in assets/fonts/pi-*.woff2
+  - h1-h4 (and the headline classes) are italic with optical size 40
+  - running text (p, li, td ...) is weight 400
+  - headings inside li/td (the feature bullets are `<h6>` in `<li>`) count as sub text
+- SF Pro Display is Apple-licensed and cannot be served as a web font:
+  - Apple devices get it via 'SF Pro Display' and -apple-system
+  - other devices get Inter (the closest match, 'PI Inter')
+- tools/site-fonts.mjs (new, idempotent) rewrote 2654 hard-coded text-font declarations in 314 files:
+  - families: Arial, Myriad, Marina, Roboto, Open Sans, Inter, Italiana, PT Sans Narrow
+  - they now read the theme variables
+  - icon fonts, @font-face, `var()`, `inherit` and monospace were left alone (counts verified against HEAD)
+- Removed the Italiana and PT Sans Narrow Google Fonts links, and the Inter and Italiana @imports (4 render-blocking requests).
+- tools/home.mjs no longer injects Google font links.
+- Added theme.css to the 5 blog pages that lacked it.
+- --s-serif (series pages) and --c-serif (chain) now use the heading font.
+- Checked at 1440 px: /, spray-guns, welding, about-us, legacy-series, electric-series and blog. Every visible text node is DM Sans or the SF stack, and icons are intact.
+- The admin dashboard keeps its own fonts.
+- On Railway, pages the admin has saved live in Postgres and override these files until the saved copies are cleared (tools/db-pull.mjs).
+
+## 2026-10-09 - Home: blog section, spacing, capability list behaviour
+- Blog section ("From the blog") rebuilt as master/detail, after the Stitch reference zip:
+  - the newest post is a card (its own image, date, title, excerpt, "Read article")
+  - the next five posts are a numbered rail (date, title, one-line excerpt, arrow)
+  - image, excerpt and date are read from each post page by tools/home.mjs
+  - invented copy from the reference (volume line, article count, author, categories) was left out
+  - "All articles" links to /pages/blogs.html
+- Spacing: the black strip under the application-area bands went from 96 px to about 36 px, and the white gap above "From the blog" from 96 px to about 52 px.
+- The application-area figure reads "20+" and counts up (data-count + data-suffix in pi-home.js).
+- Capability list:
+  - inactive titles are solid grey again (the outlined type looked bad)
+  - the open row closes when the pointer leaves the list, on a click anywhere outside it, and when focus leaves it
+  - verified in a browser: hover opens, leaving closes, an outside click closes
+- Assets are v=5. After `node tools/home.mjs`, run `node tools/perf-hints.mjs index.html`.

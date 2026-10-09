@@ -664,10 +664,11 @@ setup_collapsible_submenus();
 <link rel="stylesheet" href="../assets/css/pg-faq.css?v=3" />
 <link rel="stylesheet" href="../assets/css/pg-marquee.css" />
 <link rel="stylesheet" href="../assets/css/pg-hero-fit.css?v=2" />
+<link rel="stylesheet" href="../assets/css/pg-hero-coll.css?v=15" />
 <link rel="stylesheet" href="../assets/css/pi-nav.css" />
 <link rel="stylesheet" href="../assets/css/pi-footer2.css" />
 <link rel="stylesheet" href="../assets/css/pg-chain.css?v=7" />
-<link rel="stylesheet" href="../assets/css/bento-trust.css?v=10" />
+<link rel="stylesheet" href="../assets/css/bento-trust.css?v=14" />
 </head>
 <body class="home wp-singular page-template-default page page-id-20596 wp-theme-Divi et_pb_button_helper_class et_fullwidth_nav et_non_fixed_nav et_show_nav et_primary_nav_dropdown_animation_fade et_secondary_nav_dropdown_animation_fade et_header_style_left et_pb_footer_columns4 et_cover_background et_pb_gutter windows et_pb_gutters3 et_pb_pagebuilder_layout et_no_sidebar et_divi_theme et-db elementor-default elementor-kit-2244 elementor-page elementor-page-20596">
 	<div id="page-container">
@@ -768,168 +769,57 @@ setup_collapsible_submenus();
 					<div class="et-l et-l--post">
 			<div class="et_builder_inner_content et_pb_gutters3">
 				<div data-elementor-type="wp-page" data-elementor-id="20596" class="elementor elementor-20596">
-				<div class="elementor-element elementor-element-0e0e20e e-con-full e-flex e-con e-parent" data-id="0e0e20e" data-element_type="container" data-e-type="container" id="select-series-re" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
-				<div class="elementor-element elementor-element-4e45b3c elementor-widget elementor-widget-heading" data-id="4e45b3c" data-element_type="widget" data-e-type="widget" data-widget_type="heading.default">
-				<div class="elementor-widget-container">
-					<h2 class="elementor-heading-title elementor-size-default">CRAFTSMANSHIP<br>
-IN YOUR GENES?<br>
-STICK TO<br>
-YOUR GUNS.<br>
-AND OUR<br>
-SPRAY GUNS.</h2>				</div>
-				</div>
-				</div>
-<!-- ── Marquee: series bar (after hero image) ──────────────────── -->
-<style>
-@keyframes pilotMarquee {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-.pilot-marquee-section {
-  width: 100%;
-  padding: 0;
-  margin: 0;
-  overflow: hidden;
-  background: linear-gradient(135deg, rgba(10,10,10,0.96) 0%, rgba(30,28,34,0.98) 100%);
-  border-top: 1px solid rgba(255,255,255,0.06);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  position: relative;
-}
-.pilot-marquee-section::before,
-.pilot-marquee-section::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 80px;
-  z-index: 2;
-  pointer-events: none;
-}
-.pilot-marquee-section::before {
-  left: 0;
-  background: linear-gradient(90deg, rgba(10,10,10,0.98) 0%, transparent 100%);
-}
-.pilot-marquee-section::after {
-  right: 0;
-  background: linear-gradient(270deg, rgba(10,10,10,0.98) 0%, transparent 100%);
-}
-.pilot-marquee-track {
-  display: flex;
-  width: max-content;
-  animation: pilotMarquee 20s linear infinite;
-  align-items: stretch;
-}
-.pilot-marquee-section:hover .pilot-marquee-track {
-  animation-play-state: paused;
-}
-.pilot-marquee-item {
-  font-family: var(--pi-font-heading, 'Roboto', sans-serif) !important;
-  flex-shrink: 0;
-  padding: 20px 44px !important;
-  text-align: center !important;
-  font-weight: 700 !important;
-  font-size: 15px !important;
-  letter-spacing: 2.5px !important;
-  line-height: 1.5em !important;
-  text-transform: uppercase !important;
-  text-decoration: none !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  margin: 0 !important;
-  border: none !important;
-  outline: none !important;
-  color: rgba(255,255,255,0.7) !important;
-  background: transparent !important;
-  position: relative !important;
-  transition: color 0.35s ease, transform 0.35s ease !important;
-}
-.pilot-marquee-item::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--pi-accent, #f58634), var(--pi-accent-legacy, #e09900));
-  transition: width 0.35s ease, left 0.35s ease;
-  border-radius: 2px;
-}
-.pilot-marquee-item:hover {
-  color: #ffffff !important;
-  text-decoration: none !important;
-  transform: translateY(-2px) !important;
-}
-.pilot-marquee-item:hover::after {
-  width: 60%;
-  left: 20%;
-}
-.pilot-marquee-sep {
-  flex-shrink: 0;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--pi-accent-legacy, #e09900);
-  opacity: 0.5;
-  align-self: center;
-  margin: 0 8px;
-}
-.pilot-marquee-item span {
-  display: block;
-  pointer-events: none;
-  font-family: inherit !important;
-  font-size: 15px !important;
-  font-weight: 700 !important;
-  line-height: 1.5em !important;
-  letter-spacing: 2.5px !important;
-  white-space: nowrap;
-}
-@media (max-width: 767px) {
-  .pilot-marquee-item {
-    padding: 14px 24px !important;
-    font-size: 13px !important;
-    letter-spacing: 1.5px !important;
-  }
-  .pilot-marquee-item span {
-    font-size: 13px !important;
-    letter-spacing: 1.5px !important;
-  }
-  .pilot-marquee-section::before,
-  .pilot-marquee-section::after {
-    width: 36px;
-  }
-}
-</style>
-<div class="pilot-marquee-section">
-  <div class="pilot-marquee-track">
-    <a href="../pages/evolution-series.html" class="pilot-marquee-item"><span>EVOLUTION SERIES</span></a>
-    <span class="pilot-marquee-sep"></span>
-    <a href="../pages/legacy-series.html" class="pilot-marquee-item"><span>LEGACY SERIES</span></a>
-    <span class="pilot-marquee-sep"></span>
-    <a href="../pages/air-brush.html" class="pilot-marquee-item"><span>AIR BRUSH SERIES</span></a>
-    <span class="pilot-marquee-sep"></span>
-    <a href="../pages/electric-spray-guns.html" class="pilot-marquee-item"><span>ELECTRIC SPRAY GUNS</span></a>
-    <span class="pilot-marquee-sep"></span>
-    <a href="../pages/service-guns.html" class="pilot-marquee-item"><span>SERVICE GUNS</span></a>
-    <span class="pilot-marquee-sep"></span>
-    <a href="../pages/pressure-feed-tanks.html" class="pilot-marquee-item"><span>PRESSURE FEED TANKS</span></a>
-    <span class="pilot-marquee-sep"></span>
-    <!-- duplicate for seamless loop -->
-    <a href="../pages/evolution-series.html" class="pilot-marquee-item"><span>EVOLUTION SERIES</span></a>
-    <span class="pilot-marquee-sep"></span>
-    <a href="../pages/legacy-series.html" class="pilot-marquee-item"><span>LEGACY SERIES</span></a>
-    <span class="pilot-marquee-sep"></span>
-    <a href="../pages/air-brush.html" class="pilot-marquee-item"><span>AIR BRUSH SERIES</span></a>
-    <span class="pilot-marquee-sep"></span>
-    <a href="../pages/electric-spray-guns.html" class="pilot-marquee-item"><span>ELECTRIC SPRAY GUNS</span></a>
-    <span class="pilot-marquee-sep"></span>
-    <a href="../pages/service-guns.html" class="pilot-marquee-item"><span>SERVICE GUNS</span></a>
-    <span class="pilot-marquee-sep"></span>
-    <a href="../pages/pressure-feed-tanks.html" class="pilot-marquee-item"><span>PRESSURE FEED TANKS</span></a>
-    <span class="pilot-marquee-sep"></span>
+				<div class="elementor-element elementor-element-0e0e20e e-con-full e-flex e-con e-parent" data-id="0e0e20e" data-element_type="container" data-e-type="container" id="select-series-re" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}" style="--pi-hero:url('../img/pg-hero-sg.jpg')">
+				<!-- pi-sg-hero:start -->
+<div class="pi-sg-hero">
+  <div class="pi-sg-hero__copy">
+    <p class="pi-sg-hero__eyebrow">Pilot Spray Guns</p>
+    <h2 class="pi-sg-hero__title"><span>Craftsmanship in your genes?</span> <span>Stick to your guns.</span> <em>And our spray guns.</em></h2>
+    <p class="pi-sg-hero__sub">Six collections, from HVLP spray guns to pressure feed tanks.</p>
+    <div class="pi-sg-hero__cta">
+      <a class="pi-sg-hero__btn" href="#pi-coll">Explore collections<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3z"/></svg></a>
+      <a class="pi-sg-hero__btn pi-sg-hero__btn--ghost" href="../pages/contact-us.html">Talk to our team</a>
+    </div>
   </div>
+  <nav class="pi-coll" id="pi-coll" style="--n:6" aria-label="Collections">
+    <p class="pi-coll__label" data-n="06">Select a collection</p>
+    <ul class="pi-coll__list">
+      <li><a class="pi-coll__card" href="../pages/evolution-series.html">
+        <span class="pi-coll__img"><img src="../assets/img/pg-coll-evolution.jpg" alt="" width="120" height="120" loading="lazy"></span>
+        <span class="pi-coll__txt"><span class="pi-coll__num">01</span><span class="pi-coll__name">Evolution Series</span><span class="pi-coll__note">HVLP &amp; HP spray guns</span></span>
+        <span class="pi-coll__go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3z"/></svg></span>
+      </a></li>
+      <li><a class="pi-coll__card" href="../pages/legacy-series.html">
+        <span class="pi-coll__img"><img src="../assets/img/pg-coll-legacy.jpg" alt="" width="120" height="120" loading="lazy"></span>
+        <span class="pi-coll__txt"><span class="pi-coll__num">02</span><span class="pi-coll__name">Legacy Series</span><span class="pi-coll__note">Conventional, high-pressure</span></span>
+        <span class="pi-coll__go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3z"/></svg></span>
+      </a></li>
+      <li><a class="pi-coll__card" href="../pages/air-brush.html">
+        <span class="pi-coll__img"><img src="../assets/img/pg-coll-airbrush.jpg" alt="" width="120" height="120" loading="lazy"></span>
+        <span class="pi-coll__txt"><span class="pi-coll__num">03</span><span class="pi-coll__name">Air Brush Series</span><span class="pi-coll__note">Fine detail work</span></span>
+        <span class="pi-coll__go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3z"/></svg></span>
+      </a></li>
+      <li><a class="pi-coll__card" href="../pages/electric-spray-guns.html">
+        <span class="pi-coll__img"><img src="../assets/img/pg-coll-electric.jpg" alt="" width="120" height="120" loading="lazy"></span>
+        <span class="pi-coll__txt"><span class="pi-coll__num">04</span><span class="pi-coll__name">Electric Spray Guns</span><span class="pi-coll__note">No compressor needed</span></span>
+        <span class="pi-coll__go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3z"/></svg></span>
+      </a></li>
+      <li><a class="pi-coll__card" href="../pages/service-guns.html">
+        <span class="pi-coll__img"><img src="../assets/img/pg-coll-service.jpg" alt="" width="120" height="120" loading="lazy"></span>
+        <span class="pi-coll__txt"><span class="pi-coll__num">05</span><span class="pi-coll__name">Service Guns</span><span class="pi-coll__note">Cleaning &amp; surface prep</span></span>
+        <span class="pi-coll__go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3z"/></svg></span>
+      </a></li>
+      <li><a class="pi-coll__card" href="../pages/pressure-feed-tanks.html">
+        <span class="pi-coll__img"><img src="../assets/img/pg-coll-tanks.jpg" alt="" width="120" height="120" loading="lazy"></span>
+        <span class="pi-coll__txt"><span class="pi-coll__num">06</span><span class="pi-coll__name">Pressure Feed Tanks</span><span class="pi-coll__note">Steady material feed</span></span>
+        <span class="pi-coll__go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3z"/></svg></span>
+      </a></li>
+    </ul>
+  </nav>
 </div>
+<!-- pi-sg-hero:end -->
+				</div>
+
 		<section class="bento" id="trust" aria-labelledby="bento-title">
   <div class="bento__wrap">
     <header class="bento__head"><h2 class="bento__h2" id="bento-title">Enhance Your Craft with Pilot Paint Spray Guns</h2></header>
@@ -1503,6 +1393,7 @@ var et_pb_box_shadow_elements = [];
 <script src="../assets/js/pi-nav.js" defer></script>
 <script src="../assets/js/pg-chain.js?v=2" defer></script>
 <script src="../assets/js/pg-warm.js" defer></script>
+<script src="../assets/js/bento-reveal.js" defer></script>
 </body>
 </html>
 <!-- This website is optimized by Airlift. Learn more: https://airlift.net. Template:. Learn more: https://airlift.net. Template: 6a1e5ca346fa5c41c495058d. Config Timestamp: 2026-06-02 04:31:31 UTC, Cached Timestamp: 2026-09-10 20:00:20 UTC -->

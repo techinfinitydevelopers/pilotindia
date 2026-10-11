@@ -2074,3 +2074,27 @@ computer only); edits are written into the site files and published with a norma
 - Signed device cookie `pi_dev` (random id + HMAC, Path=/admin, 1 year) set when the login page opens; POST without it -> 400 "enable cookies" (counts against the IP only).
 - Device: 5 wrong passwords / 24 h, trap field, or >10 tries/min -> that device banned 24 h. IP backstop: 20 failures / 24 h from one IP -> IP banned, but devices that have signed in before ("trusted", kept 1 year) are exempt; site-wide 10-min pause also skips trusted devices.
 - Tested: device B banned after 5, owner A and new device C on the same IP still sign in; B banned even with the right password and after restart; cookieless bot gets 400; 22 cookieless posts ban IP 8.8.8.8 -> new device there blocked, trusted device there still signs in; trap bans only that device, another device on the same IP signs in; unblock --list shows device and IP bans.
+
+## 2026-10-12 - FAQ sections use the Accordion component
+- New component, same anatomy as the shadcn / Base UI Accordion (item, trigger, content): assets/css/pi-accordion.css and assets/js/pi-accordion.js.
+  - cards on the site theme: number, question in DM Sans Italic, round chevron that turns orange when open, answer in the body face
+  - one item open at a time, the first open on load
+  - ARIA: aria-expanded / aria-controls, role="region", closed panels `inert`
+  - Up / Down / Home / End move between triggers
+  - a #hash opens its item
+- tools/faq-accordion.mjs (idempotent) converted all 51 FAQ sections:
+  - 3 product pages (spray-guns, office, power-tools), replacing the Elementor nested accordion; assets/css/pg-faq.css removed
+  - 48 blog posts, where the FAQ was loose headings / paragraphs / lists
+  - questions and answers are each page's own text; only the numbering and the "Answer:" labels were dropped
+  - every page passed a word-for-word check against the original FAQ text before it was written
+  - 254 items in total
+- Pages: the FAQ heading is the page's own ("FAQs" / "Frequently Asked Questions"), shown left on product pages and above the list in blog posts.
+- docs/saved-faqs (currency counters, paper shredders) were not on the live site and were not re-added.
+- Headless Chrome crashes on the full spray-guns page (the original does too), so the FAQ was tested in isolation: single-open, keyboard and inert all work.
+
+## About Us page revamp (2026-10-12)
+- `tools/about-page.mjs` replaces the cramped 4-column Divi section of pages/about-us.html with `section.pi-about` (payload base64 in data-pi-src, re-runnable); styles `assets/css/pi-about.css`.
+- Layout: big "ABOUT US" + first paragraph as lead, other 5 paragraphs in a reading column; 8 figure cards with the original icons (orange DM Sans numbers, hover lift + top bar); VISION / MISSION as dark cards; the 3 facility photos with their captions in a continuous auto-scrolling carousel (CSS, 4 copies, -25% loop, pauses on hover/focus, edge fade, static under reduced motion).
+- Content check vs the original section: all 356 words and 18 image references present, nothing added; rest of the page byte-identical. Kept as on the original: the "Exports to" label above "Dominant / Market share", "verticles", "Srilanka".
+- Gotcha: `overflow:hidden` on the section made it the sticky container and pushed the heading 120px down; use `overflow-x: clip`.
+- Checked 1440 (screenshots) and 375 px (no overflow, 2-column figures, stacked vision/mission).

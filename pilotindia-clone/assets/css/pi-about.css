@@ -1,0 +1,278 @@
+/* ==========================================================================
+   About Us page (pages/about-us.html, built by tools/about-page.mjs)
+   Warm ground and orange accent from the product pages; DM Sans italic for
+   headings, the SF stack for text (theme/theme.css). Original copy only.
+   ========================================================================== */
+
+.pi-about {
+  --a-bg: #f7f5f1;
+  --a-card: #fff;
+  --a-ink: #111114;
+  --a-text: #4a4b52;
+  --a-mute: #8b8b93;
+  --a-line: rgba(17, 17, 20, 0.08);
+  --a-accent: var(--pi-accent, #f58634);
+
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding: clamp(120px, 12vw, 160px) 0 clamp(72px, 8vw, 110px);
+  background:
+    radial-gradient(60% 40% at 85% 0%, rgba(245, 134, 52, 0.09), transparent 70%),
+    var(--a-bg);
+  color: var(--a-text);
+  font-family: var(--pi-font-body);
+  overflow-x: clip;   /* not hidden: hidden makes this the sticky container and shifts the heading */
+}
+.pi-about * { box-sizing: border-box; }
+.pi-about__wrap { max-width: 1240px; margin: 0 auto; padding: 0 clamp(18px, 4vw, 40px); }
+
+/* ---- intro ---- */
+.pi-about__intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: clamp(32px, 6vw, 96px);
+  align-items: start;
+}
+.pi-about__lead { min-width: 0; }
+.pi-about__h1 {
+  margin: 0 0 28px;
+  padding: 0;
+  font-family: var(--pi-font-heading);
+  font-size: clamp(48px, 7vw, 96px);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--a-ink);
+}
+.pi-about__h1::after {
+  content: "";
+  display: block;
+  width: 72px;
+  height: 4px;
+  margin-top: 26px;
+  border-radius: 4px;
+  background: var(--a-accent);
+}
+.pi-about__first {
+  margin: 0;
+  padding: 0;
+  font-size: clamp(19px, 1.7vw, 24px);
+  line-height: 1.5;
+  color: var(--a-ink);
+}
+.pi-about__body p {
+  margin: 0 0 22px;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--a-text);
+}
+.pi-about__body p:last-child { margin-bottom: 0; }
+.pi-about__body p:first-child {
+  padding-top: 22px;
+  border-top: 1px solid var(--a-line);
+}
+
+/* ---- figures ---- */
+.pi-about__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: clamp(64px, 8vw, 104px);
+}
+.pi-about__stat {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 190px;
+  padding: 26px 24px 24px;
+  border: 1px solid var(--a-line);
+  border-radius: 20px;
+  background: var(--a-card);
+  overflow: hidden;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
+}
+.pi-about__stat::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 3px;
+  background: var(--a-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pi-about__stat:hover {
+  transform: translateY(-5px);
+  border-color: rgba(245, 134, 52, 0.35);
+  box-shadow: 0 24px 44px -26px rgba(17, 17, 20, 0.35);
+}
+.pi-about__stat:hover::before { transform: scaleX(1); }
+.pi-about__icon {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  width: auto !important;
+  height: 52px !important;
+  max-width: 76px;
+  object-fit: contain;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pi-about__stat:hover .pi-about__icon { transform: scale(1.08) rotate(-3deg); }
+.pi-about__pre {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--a-mute);
+}
+.pi-about__num {
+  margin: 4px 0 2px;
+  font-family: var(--pi-font-heading);
+  font-size: clamp(40px, 4vw, 56px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--a-accent);
+}
+.pi-about__label {
+  font-size: 15.5px;
+  line-height: 1.35;
+  color: var(--a-ink);
+}
+/* the certification card has no number: give its label the weight */
+.pi-about__stat:not(:has(.pi-about__num)) .pi-about__label {
+  font-family: var(--pi-font-heading);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* ---- vision / mission ---- */
+.pi-about__vm {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+.pi-about__card {
+  position: relative;
+  padding: clamp(30px, 4vw, 48px);
+  border-radius: 24px;
+  background: #0d0d0f;
+  color: rgba(255, 255, 255, 0.74);
+  overflow: hidden;
+}
+.pi-about__card::after {
+  content: "";
+  position: absolute;
+  right: -80px;
+  bottom: -80px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 134, 52, 0.28), transparent 70%);
+  pointer-events: none;
+}
+.pi-about__card h2 {
+  margin: 0 0 18px;
+  padding: 0;
+  font-family: var(--pi-font-heading);
+  font-size: clamp(30px, 3vw, 40px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--a-accent);
+}
+.pi-about__card p {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  font-size: 17px;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+/* ---- facility carousel: continuous, pauses on hover ---- */
+.pi-about__reel {
+  margin-top: clamp(64px, 8vw, 104px);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.pi-about__track {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+  padding: 6px 0 10px;
+  animation: pi-about-reel 48s linear infinite;
+}
+.pi-about__reel:hover .pi-about__track,
+.pi-about__reel:focus-within .pi-about__track { animation-play-state: paused; }
+/* the track holds the photos four times; moving by a quarter loops seamlessly */
+@keyframes pi-about-reel {
+  to { transform: translateX(calc(-25% - 6px)); }
+}
+.pi-about__shot {
+  flex: 0 0 auto;
+  width: clamp(300px, 36vw, 540px);
+  margin: 0;
+}
+.pi-about__frame {
+  aspect-ratio: 3 / 2;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #e9e4dc;
+  box-shadow: 0 22px 40px -28px rgba(17, 17, 20, 0.45);
+}
+.pi-about__frame img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pi-about__shot:hover .pi-about__frame img { transform: scale(1.05); }
+.pi-about__shot figcaption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 0 4px;
+  font-size: 15.5px;
+  line-height: 1.4;
+  color: var(--a-ink);
+}
+.pi-about__shot figcaption::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--a-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pi-about__track { animation: none; flex-wrap: nowrap; overflow-x: auto; max-width: 100%; }
+  .pi-about__shot[aria-hidden="true"] { display: none; }
+  .pi-about__stat, .pi-about__stat::before, .pi-about__icon, .pi-about__frame img { transition: none; }
+}
+
+/* ---- responsive ---- */
+@media (max-width: 980px) {
+  .pi-about__intro { grid-template-columns: 1fr; }
+
+  .pi-about__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .pi-about__stats { gap: 12px; }
+  .pi-about__stat { min-height: 160px; padding: 20px 18px; border-radius: 16px; }
+  .pi-about__icon { top: 16px; right: 16px; height: 40px !important; max-width: 56px; }
+  .pi-about__vm { grid-template-columns: 1fr; }
+  .pi-about__track { gap: 16px; animation-duration: 36s; }
+  @keyframes pi-about-reel { to { transform: translateX(calc(-25% - 4px)); } }
+  .pi-about__shot { width: 78vw; }
+  .pi-about__stat:hover { transform: none; }
+}

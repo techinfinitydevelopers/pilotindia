@@ -30,6 +30,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import { flush, track, dbMode } from '../store.mjs';
+import { admitBody, readLimited, takeUploadSlot, uploadQuota, checkUploadContent, rateLimit } from '../security.mjs';
 import { listLeads, leadsCsv, catalogueCount } from '../leads.mjs';
 
 let ROOT = '';
@@ -60,15 +61,18 @@ function reply(res, code, obj) {
   res.writeHead(code, { 'Content-Type': typeof obj === 'string' ? 'text/plain; charset=utf-8' : 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
   res.end(body);
 }
-function readBody(req, limit = 30 * 1024 * 1024) {
-  return new Promise((resolve, reject) => {
-    const chunks = []; let n = 0;
-    req.on('data', c => { n += c.length; if (n > limit) { reject(new Error('upload too large')); req.destroy(); } else chunks.push(c); });
-    req.on('end', () => resolve(Buffer.concat(chunks)));
-    req.on('error', reject);
-  });
+// Body limits (see security.mjs): JSON saves are small; uploads are capped per type, checked by
+// declared size before reading, read against a deadline, one at a time per IP, with an hourly quota
+// and a cap on the total stored (uploads live in Postgres and in memory in production).
+const MB = 1024 * 1024;
+const JSON_MAX = 4 * MB;
+const IMG_MAX = Number(process.env.UPLOAD_IMAGE_MB || 10) * MB;
+const PDF_MAX = Number(process.env.UPLOAD_PDF_MB || 25) * MB;
+const UPLOAD_TOTAL = Number(process.env.UPLOAD_TOTAL_MB || 500) * MB;
+async function readJson(req) {
+  const b = await readLimited(req, { limit: JSON_MAX, timeoutMs: 20000 });
+  try { return b.length ? JSON.parse(b.toString('utf8')) : {}; } catch { throw new Error('bad request body'); }
 }
-async function readJson(req) { const b = await readBody(req); return b.length ? JSON.parse(b.toString('utf8')) : {}; }
 
 // a site-relative path ("pages/x.html") -> absolute, refusing anything outside the site
 function sitePath(rel, ext = '.html') {
@@ -906,10 +910,22 @@ function listMedia() {
   })(dir);
   return out.sort((a, b) => b.time - a.time);
 }
+function uploadsSize() {
+  let total = 0;
+  for (const d of [path.join(ROOT, 'assets', 'img', 'uploads'), path.join(ROOT, 'assets', 'media', 'uploads')]) {
+    if (!fs.existsSync(d)) continue;
+    for (const f of fs.readdirSync(d)) { try { total += fs.statSync(path.join(d, f)).size; } catch { /* gone */ } }
+  }
+  return total;
+}
 function saveUpload(name, buf) {
   const ext = (path.extname(name || '') || '').toLowerCase();
   const isPdf = ext === '.pdf';
   if (!isPdf && !IMG_EXT.test(ext)) throw new Error('only images and PDFs can be uploaded');
+  if (!buf.length) throw new Error('the file is empty');
+  const bad = checkUploadContent(ext, buf);
+  if (bad) throw new Error(bad);
+  if (uploadsSize() + buf.length > UPLOAD_TOTAL) throw new Error(`upload storage is full (${UPLOAD_TOTAL / MB} MB) - delete unused files first`);
   const base = path.basename(name, ext).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'file';
   const dir = path.join(ROOT, 'assets', isPdf ? 'media' : 'img', 'uploads');
   fs.mkdirSync(dir, { recursive: true });
@@ -956,6 +972,7 @@ export async function handleAdmin(req, res) {
       return true;
     }
     const route = req.method + ' ' + p.slice('/admin/api'.length);
+    if (req.method === 'POST' && route !== 'POST /upload' && !admitBody(req, res, JSON_MAX)) return true;
     const q = k => url.searchParams.get(k);
     switch (route) {
       // catalogue-download leads (leads.mjs): the list, and a CSV export
@@ -986,7 +1003,22 @@ export async function handleAdmin(req, res) {
         return send(res, 200, { ok: true, changed: a || c }), true;
       }
       case 'GET /media': return send(res, 200, listMedia()), true;
-      case 'POST /upload': { const buf = await readBody(req); return send(res, 200, { ok: true, path: saveUpload(q('name'), buf) }), true; }
+      case 'POST /upload': {
+        const name = String(q('name') || '');
+        const ext = path.extname(name).toLowerCase();
+        if (ext !== '.pdf' && !IMG_EXT.test(ext)) { req.resume(); return send(res, 400, { error: 'only images and PDFs can be uploaded' }), true; }
+        const max = ext === '.pdf' ? PDF_MAX : IMG_MAX;
+        if (!rateLimit(req, res, 'upload') || !rateLimit(req, res, 'upload*')) return true;
+        if (!admitBody(req, res, max)) return true;
+        const release = takeUploadSlot(req);
+        if (!release) { req.resume(); return send(res, 429, { error: 'another upload is still running - try again in a moment' }), true; }
+        try {
+          const buf = await readLimited(req, { limit: max, timeoutMs: 120000 });
+          const over = uploadQuota(req, buf.length);
+          if (over) return send(res, 429, { error: over }), true;
+          return send(res, 200, { ok: true, path: saveUpload(name, buf) }), true;
+        } finally { release(); }
+      }
       case 'POST /restore': {
         const b = await readJson(req);
         const abs = path.resolve(ROOT, String(b.path || ''));
@@ -999,7 +1031,7 @@ export async function handleAdmin(req, res) {
       default: return send(res, 404, { error: 'unknown route ' + route }), true;
     }
   } catch (err) {
-    send(res, 400, { error: err.message || String(err) });
+    send(res, err.status || 400, { error: err.message || String(err) });
     return true;
   }
 }

@@ -14,7 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { dbPool } from './store.mjs';
-import { clientIp } from './security.mjs';
+import { clientIp, readLimited } from './security.mjs';
 
 let REPO = '', ROOT = '';
 const catalogues = new Set();          // site paths, lower case: /assets/media/x.pdf
@@ -90,13 +90,10 @@ function validate(b) {
   if (b.consent !== true) errors.consent = 'Please agree to the Privacy Policy to continue.';
   return { name, email, phone, country, company, errors };
 }
-function readJson(req, limit = 8192) {
-  return new Promise((resolve, reject) => {
-    let n = 0; const chunks = [];
-    req.on('data', c => { n += c.length; if (n > limit) { reject(new Error('too large')); req.destroy(); } else chunks.push(c); });
-    req.on('end', () => { try { resolve(JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}')); } catch { reject(new Error('bad json')); } });
-    req.on('error', reject);
-  });
+// 8 KB within 10 s: a slow or oversized post is cut off (security.mjs)
+async function readJson(req) {
+  const b = await readLimited(req, { limit: 8192, timeoutMs: 10000 });
+  return JSON.parse(b.toString('utf8') || '{}');
 }
 const json = (res, code, obj, extra = {}) => res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...extra }).end(JSON.stringify(obj));
 

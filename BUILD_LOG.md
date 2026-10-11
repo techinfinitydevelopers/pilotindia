@@ -2056,3 +2056,10 @@ computer only); edits are written into the site files and published with a norma
 - Verified welding at 1536x730 and 375x812.
 - Navbar: removed the drop shadow under the pill (`--framer-nav-shadow: none` and the `.is-scrolled` shadow in `assets/css/pi-nav.css`); dropdown/menu panels keep their own shadows.
 - Bento cards: stronger border (rgba(17,17,20,.22)), CSS v=14.
+
+## Upload / form DDoS protection (2026-10-12)
+- `security.mjs`: `admitBody` (413 from Content-Length before reading), `readLimited` (byte limit + deadline, cuts slow-loris), `takeUploadSlot` (max 3 uploads in flight site-wide, 1 per IP), `uploadQuota` (60 files / 300 MB per IP per hour), `checkUploadContent` (magic bytes for png/jpg/gif/webp/avif/pdf; PNG/JPEG/GIF max 12000 px per side; SVG refused if it has script, event handlers, foreignObject, entities, external links); site-wide buckets (`lead*` 120/min, `upload*` 40/min) next to the per-IP ones (`upload` 20/min).
+- `admin/server.mjs`: JSON saves 4 MB / 20 s; uploads images 10 MB, PDFs 25 MB, 120 s, file type checked before the body is read, total stored uploads capped at 500 MB (they live in Postgres and memory in production). Errors return their status (413/429).
+- Public catalogue form (`/api/leads`): 8 KB / 10 s, per-IP 8/min plus site-wide 120/min.
+- All limits overridable by env (UPLOAD_IMAGE_MB, UPLOAD_PDF_MB, UPLOAD_TOTAL_MB, UPLOAD_HOURLY_FILES, UPLOAD_HOURLY_MB, UPLOAD_CONCURRENT, UPLOAD_MAX_PIXELS_SIDE, RATE_UPLOAD, RATE_UPLOAD_ALL, RATE_LEAD_ALL).
+- Tested on a separate server: fake PNG, 50000 px PNG, scripted SVG, renamed .exe -> 400; declared 60 MB -> 413 in 15 ms with no body; 12 MB chunked -> connection cut at 10 MB; 2nd upload while 1st runs -> 429; 5 MB JSON -> 413; quota 4 ok then 429; lead form 8 then 429 per IP, site-wide cap refused the overflow from 140 IPs; 100 KB lead -> 413; slow-loris lead cut after 10 s; server stayed up. Test uploads deleted.

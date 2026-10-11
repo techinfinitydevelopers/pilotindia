@@ -12,7 +12,7 @@ const PORT = Number(process.env.PORT || process.argv[2] || 8080);
 // Production (Railway): admin edits live in Postgres, see store.mjs. Must run before anything reads files.
 import { initStore, dbMode } from './store.mjs';
 import { authEnabled, isAuthed, handleAuth, sameOrigin } from './auth.mjs';
-import { rateLimit, securityHeaders, forbiddenPath, hardenServer, SVG_HEADERS } from './security.mjs';
+import { rateLimit, securityHeaders, forbiddenPath, hardenServer, SVG_HEADERS, admitBody } from './security.mjs';
 await initStore(REPO);
 // catalogue downloads need the short form first (leads.mjs)
 import { initLeads, handleLeadPost, isCatalogue, hasAccess, gatePage } from './leads.mjs';
@@ -113,7 +113,8 @@ async function handle(req, res) {
   // the one public form: catalogue downloads (leads.mjs)
   if (!isAdmin && req.method === 'POST' && req.url.split('?')[0] === '/api/leads') {
     if (!sameOrigin(req)) { res.writeHead(403).end('forbidden'); return; }
-    if (!rateLimit(req, res, 'lead')) return;
+    if (!rateLimit(req, res, 'lead') || !rateLimit(req, res, 'lead*')) return;
+    if (!admitBody(req, res, 8192)) return;
     await handleLeadPost(req, res);
     return;
   }

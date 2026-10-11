@@ -1,9 +1,13 @@
 // Request hardening for serve.mjs: client IP, rate limits, security headers, blocked paths, timeouts.
 
-// The visitor's real address. Behind Railway's proxy the client controls everything in X-Forwarded-For
-// except the LAST entry, which the proxy appends, so only that one is trusted (never the first one, and
-// not X-Real-IP, which a client could send itself).
+// The visitor's real address. Railway's edge overwrites X-Forwarded-For with the client address, so
+// its LAST entry is the visitor (anything a client sends is replaced or sits before it). If another
+// proxy is ever put in front (e.g. Cloudflare), set IP_HEADER to the header it fills with the real
+// visitor (cf-connecting-ip), or every visitor would share the proxy's address.
+// /admin/api/whoami shows what the server sees, to check this on the live site.
 export function clientIp(req) {
+  const custom = process.env.IP_HEADER && req.headers[process.env.IP_HEADER.toLowerCase()];
+  if (custom) return String(custom).split(',')[0].trim();
   const xff = String(req.headers['x-forwarded-for'] || '').split(',').map(s => s.trim()).filter(Boolean);
   return xff.length ? xff[xff.length - 1] : String(req.socket.remoteAddress || '');
 }

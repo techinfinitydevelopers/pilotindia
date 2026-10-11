@@ -31,7 +31,7 @@ import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import { flush, track, dbMode } from '../store.mjs';
 import { listBans, unban } from '../blocklist.mjs';
-import { admitBody, readLimited, takeUploadSlot, uploadQuota, checkUploadContent, rateLimit } from '../security.mjs';
+import { admitBody, readLimited, takeUploadSlot, uploadQuota, checkUploadContent, rateLimit, clientIp } from '../security.mjs';
 import { listLeads, leadsCsv, catalogueCount } from '../leads.mjs';
 
 let ROOT = '';
@@ -1003,6 +1003,7 @@ export async function handleAdmin(req, res) {
         const a = setTokens(THEME_FILE(), ':root {', b.theme); const c = setTokens(SERIES_FILE(), '.pg-series {', b.series);
         return send(res, 200, { ok: true, changed: a || c }), true;
       }
+      case 'GET /whoami': return send(res, 200, { ip: clientIp(req), xForwardedFor: req.headers['x-forwarded-for'] || null, xRealIp: req.headers['x-real-ip'] || null, socket: req.socket.remoteAddress }), true;
       case 'GET /blocked': return send(res, 200, listBans()), true;
       case 'POST /unblock': { const b = await readJson(req); const n = unban(String(b.ip || '')); return send(res, 200, { ok: true, removed: n }), true; }
       case 'GET /media': return send(res, 200, listMedia()), true;

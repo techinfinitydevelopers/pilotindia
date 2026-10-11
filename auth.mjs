@@ -6,18 +6,22 @@
 //
 // The cookie is "<expiry>.<hmac>", signed with SESSION_SECRET (or, if unset, a key derived from
 // ADMIN_PASSWORD), so changing the password logs everyone out. Sessions last 7 days.
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHmac, timingSafeEqual, randomBytes } from 'node:crypto';
 import { clientIp } from './security.mjs';
-import { banOf, ban, recordFail, clearFails } from './blocklist.mjs';
+import { banFor, banDevice, recordFail, signedIn, isTrusted } from './blocklist.mjs';
 
 const COOKIE = 'pi_admin';
 const TTL = 7 * 24 * 3600 * 1000;
-// Brute-force protection for the password (see blocklist.mjs for the 24 h IP ban):
-//   per IP     - 5 wrong passwords in 24 h, a filled-in bot trap, or more than 10 attempts in a
-//                minute -> the IP is banned from the whole admin for 24 h
-//   whole site - more than 20 wrong passwords in 10 minutes from anywhere pauses ALL logins for
-//                10 minutes (stops attacks spread over many IPs). Signed-in sessions keep working.
-const tries = new Map();      // ip -> { n, reset }   attempts in the current minute
+// Brute-force protection for the password (blocklist.mjs): bans hit the DEVICE that failed, not
+// everyone sharing its IP.
+//   device     - 5 wrong passwords in 24 h, a filled-in bot trap, or more than 10 attempts in a
+//                minute -> that device is banned from the whole admin for 24 h
+//   IP         - 20 wrong passwords from one IP in 24 h (bots discarding cookies) -> IP banned for
+//                24 h, except devices that have signed in before
+//   whole site - more than 20 wrong passwords in 10 minutes from anywhere pauses logins for
+//                10 minutes for devices that have never signed in. Signed-in sessions keep working.
+// A login attempt without the device cookie (set when the login page is opened) is refused.
+const tries = new Map();      // device or ip -> { n, reset }   attempts in the current minute
 let recentFails = [];         // timestamps of wrong passwords, all IPs
 let globalUntil = 0;
 const MIN = 60 * 1000;
@@ -28,6 +32,15 @@ export const authEnabled = () => !!process.env.ADMIN_PASSWORD;
 const key = () => process.env.SESSION_SECRET || 'pi-admin:' + process.env.ADMIN_PASSWORD;
 const sign = exp => createHmac('sha256', key()).update('pi-admin|' + exp).digest('hex');
 const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
+
+// ---- device cookie: a random id, signed so it cannot be forged; lasts a year
+const DEVICE = 'pi_dev';
+const signDev = id => createHmac('sha256', key()).update('pi-dev|' + id).digest('hex').slice(0, 32);
+export function deviceId(req) {
+  const [id, mac] = String(cookies(req)[DEVICE] || '').split('.');
+  return id && mac && /^[a-f0-9]{24}$/.test(id) && same(mac, signDev(id)) ? id : null;
+}
+const deviceCookie = (req, id) => `${DEVICE}=${id}.${signDev(id)}; Path=/admin; Max-Age=${365 * 24 * 3600}; HttpOnly; SameSite=Lax${secure(req) ? '; Secure' : ''}`;
 
 function cookies(req) {
   const out = {};
@@ -85,29 +98,39 @@ export async function handleAuth(req, res) {
   }
   if (p !== '/admin/login') return false;
   const html = (code, msg) => res.writeHead(code, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }).end(page(msg));
-  if (req.method !== 'POST') { html(200, ''); return true; }
-
-  const who = clientIp(req), now = Date.now();
+  const who = clientIp(req), now = Date.now(), dev = deviceId(req);
+  if (banFor(who, dev)) return blockedPage(req, res), true;
+  if (req.method !== 'POST') {
+    // hand out the device cookie with the form
+    if (!dev) res.setHeader('Set-Cookie', deviceCookie(req, randomBytes(12).toString('hex')));
+    html(200, ''); return true;
+  }
   const mins = t => Math.max(1, Math.ceil((t - now) / MIN));
-  if (banOf(who)) return blockedPage(req, res), true;
-  if (globalUntil > now) { html(429, `Sign-in is paused after too many wrong passwords. Try again in ${mins(globalUntil)} min.`); return true; }
-  let t = tries.get(who);
-  if (!t || t.reset < now) { t = { n: 0, reset: now + MIN }; tries.set(who, t); }
-  if (++t.n > 10) { ban(who, 'login flood (more than 10 attempts in a minute)'); return blockedPage(req, res), true; }
+  if (!dev) {
+    // no device cookie: a bot, or cookies are off. Counts against the IP, never against other devices.
+    recordFail(who, null);
+    res.setHeader('Set-Cookie', deviceCookie(req, randomBytes(12).toString('hex')));
+    html(400, 'Please enable cookies, reload this page and try again.'); return true;
+  }
+  const trustedDevice = dev && banFor(who, dev) === null && isTrusted(dev);
+  if (globalUntil > now && !trustedDevice) { html(429, `Sign-in is paused after too many wrong passwords. Try again in ${mins(globalUntil)} min.`); return true; }
+  let t = tries.get(dev);
+  if (!t || t.reset < now) { t = { n: 0, reset: now + MIN }; tries.set(dev, t); }
+  if (++t.n > 10) { banDevice(who, dev, 'login flood (more than 10 attempts in a minute)'); return blockedPage(req, res), true; }
 
   const form = await readForm(req).catch(() => new URLSearchParams());
-  if (form.get('username')) { ban(who, 'bot: filled the hidden trap field'); return blockedPage(req, res), true; }
+  if (form.get('username')) { banDevice(who, dev, 'bot: filled the hidden trap field'); return blockedPage(req, res), true; }
   if (!sameOrigin(req) || !same(form.get('password') || '', process.env.ADMIN_PASSWORD)) {
-    const r = recordFail(who);
+    const r = recordFail(who, dev);
     recentFails = recentFails.filter(x => x > now - 10 * MIN); recentFails.push(now);
     if (recentFails.length > 20) { globalUntil = now + 10 * MIN; recentFails = []; console.warn('admin login paused for 10 min: too many wrong passwords'); }
-    console.warn(`admin login failed from ${who}`);
+    console.warn(`admin login failed from ${who} (device ${dev})`);
     await new Promise(r => setTimeout(r, 800));
-    if (r.ban) return blockedPage(req, res), true;
-    html(401, r.left === Infinity ? 'Wrong password.' : `Wrong password. ${r.left} attempt${r.left === 1 ? '' : 's'} left, then this address is blocked for 24 hours.`);
+    if (r.banned) return blockedPage(req, res), true;
+    html(401, r.left === Infinity ? 'Wrong password.' : `Wrong password. ${r.left} attempt${r.left === 1 ? '' : 's'} left, then this device is blocked for 24 hours.`);
     return true;
   }
-  clearFails(who);
+  signedIn(dev);
   const exp = Date.now() + TTL;
   res.writeHead(302, {
     'Set-Cookie': `${COOKIE}=${exp}.${sign(exp)}; Path=/; Max-Age=${TTL / 1000}; HttpOnly; SameSite=Lax${secure(req) ? '; Secure' : ''}`,
@@ -116,15 +139,15 @@ export async function handleAuth(req, res) {
   return true;
 }
 
-// A banned IP gets this for every admin URL (login, dashboard, API, editor pages).
+// A banned device (or untrusted device on a banned IP) gets this for every admin URL.
 export function blockedPage(req, res) {
-  const b = banOf(clientIp(req));
+  const b = banFor(clientIp(req), deviceId(req));
   const until = b ? new Date(b.until).toUTCString() : '';
   if (req.url.startsWith('/admin/api/')) {
-    res.writeHead(403, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }).end(JSON.stringify({ error: 'this address is blocked until ' + until }));
+    res.writeHead(403, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }).end(JSON.stringify({ error: 'this device is blocked until ' + until }));
     return;
   }
   res.writeHead(403, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' })
-    .end(page(`Too many failed sign-ins. This address is blocked until ${until}.`).replace(/<label[\s\S]*?<button[^>]*>Sign in<\/button>/, ''));
+    .end(page(`Too many failed sign-ins. This device is blocked until ${until}.`).replace(/<label[\s\S]*?<button[^>]*>Sign in<\/button>/, ''));
 }
-export const isBlocked = req => !!banOf(clientIp(req));
+export const isBlocked = req => !!banFor(clientIp(req), deviceId(req));

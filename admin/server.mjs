@@ -1005,7 +1005,7 @@ export async function handleAdmin(req, res) {
       }
       case 'GET /whoami': return send(res, 200, { ip: clientIp(req), xForwardedFor: req.headers['x-forwarded-for'] || null, xRealIp: req.headers['x-real-ip'] || null, socket: req.socket.remoteAddress }), true;
       case 'GET /blocked': return send(res, 200, listBans()), true;
-      case 'POST /unblock': { const b = await readJson(req); const n = unban(String(b.ip || '')); return send(res, 200, { ok: true, removed: n }), true; }
+      case 'POST /unblock': { const b = await readJson(req); const n = unban(String(b.id || b.ip || '')); return send(res, 200, { ok: true, removed: n }), true; }
       case 'GET /media': return send(res, 200, listMedia()), true;
       case 'POST /upload': {
         const name = String(q('name') || '');

@@ -31,7 +31,7 @@ Set on the Railway web service:
 | `SESSION_SECRET` | optional, random string; sessions are signed with it |
 | `PGSSL` | `require` only when connecting through Railway's public proxy |
 | `ADMIN_ALLOW_IPS` | optional, comma-separated IPs that are never banned (your office) |
-| `LOGIN_MAX_FAILS` / `LOGIN_BAN_HOURS` | optional, default 5 wrong passwords -> 24 h ban |
+| `LOGIN_MAX_FAILS` / `LOGIN_IP_MAX_FAILS` / `LOGIN_BAN_HOURS` | optional, defaults 5 per device / 20 per IP -> 24 h ban |
 
 Run **one replica** (railway.json sets this): edited files are cached in memory per process.
 
@@ -39,10 +39,13 @@ Getting production edits back into git: `DATABASE_URL=<public url> npm run db:pu
 working tree; commit them, then `npm run db:pull -- --clear` removes those rows so git is the only copy
 again. Until you clear them, a later git change to the same file is hidden by the database copy.
 
-## Login bans
+## Login bans (per device)
 
-5 wrong passwords from one IP within 24 h, a bot filling the hidden trap field, or more than 10 attempts
-in a minute bans that IP from the whole admin for 24 h (the public site still works for it). Bans survive
-restarts (kept in Postgres in production). To lift one: sign in from another network and use
-`GET /admin/api/blocked` / `POST /admin/api/unblock {"ip": "..."}`, or run
-`DATABASE_URL=<public url> PGSSL=require node tools/unblock.mjs <ip | --all | --list>`.
+Bans hit the device that failed, not everyone on its IP. Opening the login page gives the browser a signed
+device cookie; 5 wrong passwords from that device within 24 h, a bot filling the hidden trap field, or more
+than 10 attempts in a minute bans that device from the whole admin for 24 h. Other devices on the same IP
+(office Wi-Fi, mobile networks) keep working. Attempts without the device cookie are refused.
+Backstop for bots that drop their cookie: 20 failures from one IP in 24 h bans the IP, except devices that
+have signed in successfully before. The public site is never affected. Bans survive restarts (Postgres in
+production). Lift one with `GET /admin/api/blocked` + `POST /admin/api/unblock {"id": "<ip or device id>"}`,
+or `DATABASE_URL=<public url> PGSSL=require node tools/unblock.mjs <ip | device id | --all | --list>`.

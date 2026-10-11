@@ -30,9 +30,19 @@ Set on the Railway web service:
 | `ADMIN_PASSWORD` | a long password; required, `/admin` stays disabled without it |
 | `SESSION_SECRET` | optional, random string; sessions are signed with it |
 | `PGSSL` | `require` only when connecting through Railway's public proxy |
+| `ADMIN_ALLOW_IPS` | optional, comma-separated IPs that are never banned (your office) |
+| `LOGIN_MAX_FAILS` / `LOGIN_BAN_HOURS` | optional, default 5 wrong passwords -> 24 h ban |
 
 Run **one replica** (railway.json sets this): edited files are cached in memory per process.
 
 Getting production edits back into git: `DATABASE_URL=<public url> npm run db:pull` writes them into the
 working tree; commit them, then `npm run db:pull -- --clear` removes those rows so git is the only copy
 again. Until you clear them, a later git change to the same file is hidden by the database copy.
+
+## Login bans
+
+5 wrong passwords from one IP within 24 h, a bot filling the hidden trap field, or more than 10 attempts
+in a minute bans that IP from the whole admin for 24 h (the public site still works for it). Bans survive
+restarts (kept in Postgres in production). To lift one: sign in from another network and use
+`GET /admin/api/blocked` / `POST /admin/api/unblock {"ip": "..."}`, or run
+`DATABASE_URL=<public url> PGSSL=require node tools/unblock.mjs <ip | --all | --list>`.

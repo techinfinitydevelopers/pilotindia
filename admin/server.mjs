@@ -30,6 +30,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import { flush, track, dbMode } from '../store.mjs';
+import { listBans, unban } from '../blocklist.mjs';
 import { admitBody, readLimited, takeUploadSlot, uploadQuota, checkUploadContent, rateLimit } from '../security.mjs';
 import { listLeads, leadsCsv, catalogueCount } from '../leads.mjs';
 
@@ -1002,6 +1003,8 @@ export async function handleAdmin(req, res) {
         const a = setTokens(THEME_FILE(), ':root {', b.theme); const c = setTokens(SERIES_FILE(), '.pg-series {', b.series);
         return send(res, 200, { ok: true, changed: a || c }), true;
       }
+      case 'GET /blocked': return send(res, 200, listBans()), true;
+      case 'POST /unblock': { const b = await readJson(req); const n = unban(String(b.ip || '')); return send(res, 200, { ok: true, removed: n }), true; }
       case 'GET /media': return send(res, 200, listMedia()), true;
       case 'POST /upload': {
         const name = String(q('name') || '');

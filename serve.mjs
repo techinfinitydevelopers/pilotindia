@@ -11,7 +11,7 @@ const PORT = Number(process.env.PORT || process.argv[2] || 8080);
 
 // Production (Railway): admin edits live in Postgres, see store.mjs. Must run before anything reads files.
 import { initStore, dbMode } from './store.mjs';
-import { authEnabled, isAuthed, handleAuth, sameOrigin } from './auth.mjs';
+import { authEnabled, isAuthed, handleAuth, sameOrigin, isBlocked, blockedPage } from './auth.mjs';
 import { rateLimit, securityHeaders, forbiddenPath, hardenServer, SVG_HEADERS, admitBody } from './security.mjs';
 await initStore(REPO);
 // catalogue downloads need the short form first (leads.mjs)
@@ -125,6 +125,8 @@ async function handle(req, res) {
     res.writeHead(503, { "Content-Type": "text/plain" }).end("admin disabled: ADMIN_PASSWORD is not set");
     return;
   }
+  // IPs banned for failed sign-ins (blocklist.mjs) get nothing from the admin, session or not
+  if (wantsAdmin && authEnabled() && isBlocked(req)) { req.resume(); blockedPage(req, res); return; }
   if (req.url.startsWith("/admin/login") || req.url.startsWith("/admin/logout")) { await handleAuth(req, res); return; }
   if (wantsAdmin && !isAuthed(req)) {
     if (req.url.startsWith("/admin/api/")) res.writeHead(401, { "Content-Type": "application/json" }).end('{"error":"signed out"}');

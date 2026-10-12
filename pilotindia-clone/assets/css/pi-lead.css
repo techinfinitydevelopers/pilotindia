@@ -7,7 +7,12 @@
   font-family: var(--pi-font-body, "Open Sans", system-ui, sans-serif);
   -webkit-font-smoothing: antialiased;
 }
-.pi-lead[hidden] { display: none; }
+/* Closed, the card is still laid out but invisible (visibility, not display:none). The page's stylesheet is huge, and styling a
+   freshly displayed form against it cost 50-250 ms at click time on the product pages; kept rendered, the styles are computed
+   once, while the browser is idle, and opening is only a repaint. visibility:hidden also keeps it out of the tab order and the
+   accessibility tree. */
+.pi-lead { contain: layout style; }
+.pi-lead[hidden] { display: grid !important; visibility: hidden; pointer-events: none; }
 .pi-lead *, .pi-lead *::before, .pi-lead *::after { box-sizing: border-box; }
 .pi-lead__card {
   position: relative; display: flex; flex-direction: column;

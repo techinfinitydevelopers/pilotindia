@@ -2109,3 +2109,52 @@ computer only); edits are written into the site files and published with a norma
 - About Us network: removed the concentric rings / dealer-count graphic (duplicated the hero tray). Section is now heading + lead, a 3-cell facts row (3 verticals / dominant market share / CE), then the exports line and country marquee. CSS v=6.
 - About Us network box is now an inset rounded card (side margin clamp(12px,2.2vw,32px), 28px radius all corners) and about 20% shorter (698 -> 545px at 1280 wide): smaller padding, gaps and fact cards. CSS v=7.
 - Tray tab geometry fixed on About Us and the product heroes: tab is now at least 44px tall, its top corner is 14px and the join fillet 20px (before, the tab was shorter than corner + fillet, which left a pointed sliver). About hero has no bottom radius on mobile. CSS: pi-about v=9, pg-hero-coll v=17.
+
+
+## 2026-10-12 - Catalogue card opens instantly
+- Measured with tools/test-catalogue-gate.mjs (new): a real mouse click on each catalogue button, timing from the click to the card being displayed. electric-series went from **269 ms to 19 ms**.
+- Causes found with a CPU profile (the JS was only 2 ms):
+  - the page's huge stylesheet was matched against the form's elements only when the card was first displayed (50-250 ms)
+  - the scroll lock (`overflow:hidden` on <html>) and a forced reflow re-laid out the whole page
+- Fixes:
+  - the card is built at DOMContentLoaded and kept rendered but invisible (`visibility:hidden`, not `display:none`), with its styles computed while the browser is idle; opening is now a repaint
+  - the page scroll lock and the forced reflow are removed
+  - a ~0.6 KB inline stub in <head> catches a click made before pi-lead.js has loaded (it used to follow the link to the PDF, which returned the full gate page), and pi-lead.js opens the card for it
+  - pi-lead.css/js are cached for a year (`immutable`, versioned `?v=5`), so a repeat page load needs no re-check
+- Full catalogue-button test (`node tools/test-catalogue-gate.mjs --block --footer`): all 16 product pages plus a sample of other pages for the footer "2025 catalogue" link.
+  - 143 clicks, 0 failures. The card opened every time, with the file name, the Privacy Policy link and all fields, and the page did not navigate or download.
+  - median open time 8-14 ms, slowest 251 ms (one click on legacy-series).
+  - buttons hidden on a given layout (the second copy of a twin, an unselected tab) are clicked from script, which runs the same handler.
+- A quick re-open could be undone by the old delayed hide on close (220 ms); the card now hides at once. Assets are v=6.
+- Test-harness notes: pages with embedded YouTube playlists (air-brush, legacy-series, paper-shredders, service-guns) stay `readyState: loading` for about 30 s, so the test waits for the card to exist, not for the load event. The menu is built by script and shifts link positions, so test links are tagged, not addressed by index.
+
+## 2026-10-12 - Admin: Pages as a table
+- The Pages view is now a table like the reference: page name and a kind pill (home, product site, page, series, post, draft, archive), URL, Sections, Updated, and View / Edit buttons.
+  - tabs: Main pages (10), Series & products (16), Blog posts (179), Drafts & archives (71); search looks through all 276 pages
+  - 60 rows at a time with "Show more"
+- Names are the page's own short title, or taken from its address when the title is long (Home, Spray Guns, Airless, Office, Welding, About Us ...).
+- The separate "Home page" item under Pages in the side menu is removed; Home is now the first row. The page editor itself is unchanged and is opened by Edit.
+- Server: `/admin/api/pages` also returns `updated` (file time) and `sections` (the count the page editor shows, cached per file change; null for blog posts and archives).
+- Not added: the "+ New page" button, because the admin has no create-page feature.
+- Admin Blog: thumbnails were blank for the newer posts because the picture was looked for only in a block that sits after the comments. It now uses each post's share image (og:image) first; 178 of 179 posts have one (the first <img> after the meta block is the fallback).
+- Admin: the "Visual editor" menu item is removed; Pages -> Edit does the same job. Its links on the dashboard (recent edits "Open", "Change the home hero"), in the page editor toolbar and on the product page now go to the page editor. The editor code itself is left in place but nothing links to it.
+
+## 2026-10-12 - Admin blog editor: no default image, and a Series option
+- Cause of the "default image": a new post is cloned from an existing post, and only the fields the editor sends were replaced, so the template's featured image, share image (og:image / twitter:image), structured data and Divi post data stayed on the new post.
+- A new post with no image chosen now has no picture: the template's `<img>`, the og:image / twitter:image tags and the old schema (replaced with a small BlogPosting block built from the title, summary and date) are removed, and the template's own title and picture are cleared from its post-data script. Links that pointed at the template post (comment count, reply form, page permalink) now point at the new post.
+- Choosing a featured image later adds the picture under the "by / date / category" line and the share-image tags; changing an existing image also updates the share image, which the Blog list, the Blogs page and the home page read.
+- Series: a new "Series" field in the blog editor sidebar: No series, Spray Guns, Airless, Welding, Office (several can be ticked) plus "Also show on the main Pilot India blog". It writes the post's sites to tools/blog-sources.json and rebuilds the Blogs page. Saving with nothing chosen is refused. The editor opens existing posts with their current series ticked.
+- A post with no picture is handled by the Blogs page (no image tag) and the home page blog section (clear pixel).
+- Fixed the existing "hello" post (it carried the template picture); test posts created while verifying were removed again.
+
+## 2026-10-12 - Welding: Technical Excellence carousel as a "fan" gallery
+- Replaced the progress-bar / blurred-card carousel (`#sc3d`) with a fan gallery in the style of the reference: the middle picture large, the others a step smaller and fainter to either side, all on one centre line, fading out toward the edges; a small caption above the middle one with two corner marks.
+  - files: assets/css/pg-fan.css, assets/js/pg-fan.js, and tools/welding-fan.mjs (replaces the block in welding/index.html; idempotent)
+  - the nine pictures are the page's own, with their original alt text as the caption (e.g. "Gas torch (Swage)", "GT 18"); the ProgressBar / dots / "ISI Certified Equipment" chip of the old block are gone
+  - Previous / Next buttons, Left / Right keys, swipe or drag, a click on any picture, and auto-advance (stops on hover or focus, when the tab is hidden, off screen, and under reduced motion); transform and opacity only
+  - checked at 1440 and 390 px: no horizontal scroll; clicking the picture next to the middle, the picture on the other side, the Next button and ArrowRight all move it
+- The section heading, paragraph and the four capability cards are untouched. The old `.sc3d` script in pg-tech.js now finds nothing and does nothing; re-running tools/apply-sc3d.mjs would bring the old carousel back over this one.
+- Fan gallery follow-ups (welding): the two prev/next buttons are removed and the empty space around the gallery is tighter. The row now follows the finger or mouse while it is dragged and settles on the nearest picture on release (a quick flick carries it further). The caption is no longer clipped (the pictures sit below a fixed band for the caption and corner marks).
+- Same gallery on spray-guns, airless and office (tools/product-fan.mjs): the Technical Excellence section is now heading, full-width gallery, then the four capability cards in a row. The pictures are the page's own; a caption shows only where a picture has a real name (some are named just "1", "2" ...). Photos on a white background take the tile colour (multiply).
+- Capability cards revamped on all four product pages (tools/fan-cards.mjs): equal height, every top row on one line; a number (01-04, replacing welding's "CAPABILITY 0n" tag) and the icon, then the title and text; hover lifts the card and draws an orange line. Text and icons are unchanged.
+- Re-running tools/apply-sc3d.mjs (or the older tech-section generator) would overwrite these; re-run tools/welding-fan.mjs / tools/product-fan.mjs afterwards. Assets: pg-fan.css v5, pg-fan.js v5.

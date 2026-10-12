@@ -117,9 +117,6 @@
     ['name', 'email', 'country', 'phone', 'company', 'consent'].forEach(function (k) { mark(k, ''); });
     lastFocus = document.activeElement;
     modal.hidden = false;
-    // inline style, not a class: some site scripts rewrite <html class> while the page loads
-    document.documentElement.style.overflow = 'hidden';
-    void modal.offsetWidth;          // start the transition now; no rAF (it can stall while a long page is loading)
     modal.classList.add('is-in');
     try { form.elements.name.focus({ preventScroll: true }); } catch (err) { form.elements.name.focus(); }
     modal.querySelector('.pi-lead__form').scrollTop = 0;
@@ -127,8 +124,7 @@
   function close() {
     if (!modal || modal.hidden) return;
     modal.classList.remove('is-in');
-    document.documentElement.style.overflow = '';
-    setTimeout(function () { modal.hidden = true; }, 220);
+    modal.hidden = true;           // at once: there is no closing animation, and a delayed hide could undo a quick re-open
     if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
   }
   function setError(msg) { errBox.textContent = msg; errBox.hidden = !msg; }
@@ -191,8 +187,13 @@
   }, true);
 
   function prebuild() { if (!modal && document.body) build(); }
-  function idle() { if (window.requestIdleCallback) requestIdleCallback(prebuild, { timeout: 2000 }); else setTimeout(prebuild, 200); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', idle); else idle();
+  // build the card as soon as the DOM exists, and compute its styles while the browser is idle so the first click costs only a repaint
+  function warm() { prebuild(); if (modal) (window.requestIdleCallback || function (f) { setTimeout(f, 300); })(function () { modal.getBoundingClientRect(); }, { timeout: 1500 }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', warm); else warm();
+
+  // the tiny inline stub in <head> (serve.mjs) catches a click made before this file loaded: open the card for it now
+  window.__piLead = true;
+  if (window.__piLeadQ) { var queued = window.__piLeadQ; window.__piLeadQ = null; if (document.body) open(queued); else document.addEventListener('DOMContentLoaded', function () { open(queued); }); }
 
   // the page served for a catalogue opened directly (server side): open the form straight away
   if (window.__PI_GATE_FILE) {

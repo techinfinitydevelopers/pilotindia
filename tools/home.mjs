@@ -22,6 +22,7 @@ const IG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.6c2.4 0 2
 const A = 'assets/img/';
 
 /* image, excerpt and date for each post come from the post page itself (og:image, meta description, "published" date) */
+const NO_PIC = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';   // a post with no picture: a clear pixel, not a broken image
 const unesc = t => t.replace(/&amp;/g, '&').replace(/&#039;|&#8217;/g, '’').replace(/&quot;/g, '"');
 const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 function postMeta(slug) {
@@ -279,7 +280,7 @@ const main = `
       <div class="pi-ins__grid">
         ${(() => { const [t, s, m] = POSTS[0]; return `<article class="pi-ins__feat pi-reveal">
           <a class="pi-ins__feat-link" href="blog/${s}.html">
-            <span class="pi-ins__img"><img class="is-on" src="${m.img}" alt="${esc(t)}" loading="lazy" /><img src="${m.img}" alt="" aria-hidden="true" loading="lazy" /><span class="pi-ins__chip">01</span></span>
+            <span class="pi-ins__img"><img class="is-on" src="${m.img || NO_PIC}" alt="${esc(t)}" loading="lazy" /><img src="${m.img || NO_PIC}" alt="" aria-hidden="true" loading="lazy" /><span class="pi-ins__chip">01</span></span>
             <span class="pi-ins__body">
               <span class="pi-ins__date">${m.date}</span>
               <h3 class="pi-ins__ft">${t}</h3>

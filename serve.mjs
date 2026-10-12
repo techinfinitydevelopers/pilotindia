@@ -48,7 +48,10 @@ const REUSE = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.ico'
 const squeezed = new Map();     // path + mtime + encoding -> compressed bytes
 // every page gets the catalogue-download form script (pi-lead), added here so no page file has to carry it
 // It goes in <head> and runs async, so a click on a catalogue link is caught even while a long page is still loading.
-const LEAD_TAGS = '<link rel="stylesheet" href="/assets/css/pi-lead.css?v=3" />\n<script src="/assets/js/pi-lead.js?v=3" async></script>\n';
+// The inline stub is a click catcher only (~0.6 KB): a click on a catalogue link made before pi-lead.js has loaded is held,
+// not followed to the PDF, and pi-lead.js opens the card for it as soon as it runs.
+const LEAD_STUB = "<script>(function(){var d=document;d.addEventListener('click',function(e){if(window.__piLead)return;var a=e.target.closest&&e.target.closest('a[href]');if(!a)return;var h=a.getAttribute('href')||'';if(!/\\.pdf(\\?|#|$)/i.test(h)||!/catalog/i.test((a.textContent||'')+' '+(a.getAttribute('aria-label')||'')+' '+h)||/(?:^|;\\s*)pi_dl_ok=1/.test(d.cookie))return;e.preventDefault();e.stopImmediatePropagation();window.__piLeadQ=a.href},true)})()</script>\n";
+const LEAD_TAGS = '<link rel="stylesheet" href="/assets/css/pi-lead.css?v=6" />\n' + LEAD_STUB + '<script src="/assets/js/pi-lead.js?v=6" async></script>\n';
 function withLeadGate(buf) {
   const html = buf.toString('utf8');
   if (html.includes('pi-lead.js')) return buf;
@@ -60,12 +63,13 @@ function serveFile(req, res, fp, extra = {}) {
   const ext = path.extname(fp).toLowerCase();
   const st = fs.statSync(fp);
   // "-l1": pages carry the injected form script, so their validator changes with it
-  const etag = 'W/"' + st.size.toString(16) + '-' + Math.floor(st.mtimeMs).toString(16) + (ext === '.html' ? '-l3' : '') + '"';
+  const etag = 'W/"' + st.size.toString(16) + '-' + Math.floor(st.mtimeMs).toString(16) + (ext === '.html' ? '-l4' : '') + '"';
   const headers = {
     'Content-Type': TYPES[ext] || 'application/octet-stream',
     'ETag': etag,
     'Last-Modified': st.mtime.toUTCString(),
-    'Cache-Control': REUSE.has(ext) ? 'public, max-age=300' : 'no-cache',
+    // the form's own files are versioned in the URL (?v=N), so they can be kept for a year and never re-checked
+    'Cache-Control': /[\\/]assets[\\/](js|css)[\\/]pi-lead\.(js|css)$/.test(fp) && /[?&]v=\d/.test(req.url) ? 'public, max-age=31536000, immutable' : REUSE.has(ext) ? 'public, max-age=300' : 'no-cache',
     'Vary': 'Accept-Encoding',
     ...(ext === '.svg' ? SVG_HEADERS : {}),
     ...extra,

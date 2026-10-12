@@ -63,8 +63,6 @@
   var NAV = [
     ['#/', 'Dashboard', I.home],
     ['#/pages', 'Pages', I.pages],
-    ['#/page?path=index.html', 'Home page', I.layers],
-    ['#/edit?path=index.html', 'Visual editor', I.edit],
     ['#/products', 'Products', I.box],
     ['#/blog', 'Blog', I.blog],
     ['#/media', 'Media', I.image],
@@ -215,10 +213,10 @@
         '<div class="panels"><section class="panel"><div class="panel__head"><h2>' + I.clock + 'Recent edits</h2></div>' +
         (s.recent.length ? '<ul class="list">' + s.recent.map(function (e) {
           if (!e.exists) return '<li><span><b>' + esc(e.path) + '</b><br /><small>' + ago(e.time) + '</small></span><span class="pill">Page removed</span></li>';
-          return '<li><span><b>' + esc(e.path) + '</b><br /><small>' + ago(e.time) + '</small></span><span class="actions" style="margin:0"><a class="btn btn--sm" href="#/edit?path=' + encodeURIComponent(e.path) + '">Open</a><button class="btn btn--sm" data-restore="' + esc(e.path) + '|' + esc(e.stamp) + '" title="Put the page back the way it was before this edit">Undo to here</button></span></li>';
+          return '<li><span><b>' + esc(e.path) + '</b><br /><small>' + ago(e.time) + '</small></span><span class="actions" style="margin:0"><a class="btn btn--sm" href="#/page?path=' + encodeURIComponent(e.path) + '">Open</a><button class="btn btn--sm" data-restore="' + esc(e.path) + '|' + esc(e.stamp) + '" title="Put the page back the way it was before this edit">Undo to here</button></span></li>';
         }).join('') + '</ul>' : '<div class="empty">No edits yet. Saved changes show up here, each with an undo.</div>') +
         '</section><section class="panel panel--dark"><div class="panel__head"><h2>' + I.plus + 'Quick actions</h2></div><div class="quick">' +
-        '<a class="btn" href="#/edit?path=index.html&hero=1">' + I.image + 'Change the home hero</a>' +
+        '<a class="btn" href="#/page?path=index.html">' + I.image + 'Change the home hero</a>' +
         '<a class="btn" href="#/products">' + I.box + 'Edit or add a product</a>' +
         '<a class="btn" href="#/blog/edit">' + I.blog + 'Write a blog post</a>' +
         '<a class="btn" href="#/theme">' + I.palette + 'Change colours and fonts</a>' +
@@ -235,24 +233,66 @@
   };
 
   // ================================================================ PAGES
-  var GROUP_ORDER = ['Home', 'Product sites', 'Series & product pages', 'Pages', 'Blog posts', 'Drafts & old copies', 'Archives'];
+  // a table of pages: name and kind, address, how many sections the editor shows, last change, View / Edit
+  var PAGE_TYPE = { 'Home': 'home', 'Product sites': 'product site', 'Series & product pages': 'series', 'Pages': 'page', 'Blog posts': 'post', 'Drafts & old copies': 'draft', 'Archives': 'archive' };
+  var PAGE_TABS = [
+    ['main', 'Main pages', ['Home', 'Product sites', 'Pages']],
+    ['series', 'Series & products', ['Series & product pages']],
+    ['posts', 'Blog posts', ['Blog posts']],
+    ['other', 'Drafts & archives', ['Drafts & old copies', 'Archives']],
+  ];
+  function prettyUrl(p) {
+    if (p === 'index.html') return '/';
+    var m = /^([^/]+)\/index\.html$/.exec(p);
+    if (m) return '/' + m[1] + '/';
+    m = /^(?:pages|blog)\/(.+)\.html$/.exec(p);
+    return m ? '/' + m[1] : '/' + p;
+  }
+  // a short name for the table: the page's own title when it is short, otherwise the name taken from its address
+  function pageName(p) {
+    if (p.path === 'index.html') return 'Home';
+    var t = p.title.replace(/\s*[-–|]\s*Pilot India.*$/i, '').trim();
+    var slug = (/([^/]+?)(?:\/index)?\.html$/.exec(p.path) || [])[1] || t;
+    var fromSlug = slug.replace(/-/g, ' ').replace(/\b[a-z]/g, function (c) { return c.toUpperCase(); });
+    if (p.group === 'Product sites') return fromSlug;
+    return t.length <= 36 ? t : fromSlug;
+  }
+  function pageDate(iso) {
+    var d = new Date(iso);
+    return isNaN(d) ? '' : d.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+  }
   ROUTES['/pages'] = function (view) {
     return api('/pages').then(function (pages) {
+      var tab = 'main', limit = 60, q = '';
+      var count = function (t) { return pages.filter(function (p) { return t[2].indexOf(p.group) >= 0; }).length; };
       view.innerHTML = head('Pages', 'Pick a page to edit its text, images, links and hero.') +
-        '<div class="bar"><label class="search">' + I.search + '<input placeholder="Search ' + pages.length + ' pages" /></label></div><div data-groups></div>';
-      var host = $('[data-groups]', view);
-      function draw(q) {
-        host.innerHTML = GROUP_ORDER.map(function (g) {
-          var list = pages.filter(function (p) { return p.group === g && (!q || (p.title + ' ' + p.path).toLowerCase().indexOf(q) >= 0); });
-          if (!list.length) return '';
-          var open = q || ['Home', 'Product sites', 'Series & product pages', 'Pages'].indexOf(g) >= 0;
-          return '<details class="group"' + (open ? ' open' : '') + '><summary>' + esc(g) + ' <small>' + list.length + '</small></summary><div class="rows">' + list.map(function (p) {
-            return '<a href="#/page?path=' + encodeURIComponent(p.path) + '"><span><b>' + esc(p.title.replace(/\s*[-–|]\s*Pilot India.*$/i, '')) + '</b><small>' + esc(p.path) + '</small></span><span class="pill">Edit</span></a>';
-          }).join('') + '</div></details>';
-        }).join('') || '<div class="empty">No pages match.</div>';
+        '<div class="bar"><div class="ptabs" role="tablist">' + PAGE_TABS.map(function (t) {
+          return '<button type="button" role="tab" data-tab="' + t[0] + '">' + t[1] + ' <small>' + count(t) + '</small></button>';
+        }).join('') + '</div><label class="search">' + I.search + '<input placeholder="Search ' + pages.length + ' pages" /></label></div>' +
+        '<div class="ptable"><table><thead><tr><th>Page</th><th>URL</th><th>Sections</th><th>Updated</th><th></th></tr></thead><tbody data-rows></tbody></table><div data-more></div></div>';
+      var body = $('[data-rows]', view), more = $('[data-more]', view);
+      function draw() {
+        var groups = (PAGE_TABS.filter(function (t) { return t[0] === tab; })[0] || PAGE_TABS[0])[2];
+        var list = pages.filter(function (p) {
+          if (q) return (p.title + ' ' + p.path).toLowerCase().indexOf(q) >= 0;       // a search looks through every page
+          return groups.indexOf(p.group) >= 0;
+        });
+        if (!q) list.sort(function (a, b) { return groups.indexOf(a.group) - groups.indexOf(b.group); });
+        $$('.ptabs button', view).forEach(function (b) { b.classList.toggle('is-on', !q && b.dataset.tab === tab); });
+        body.innerHTML = list.slice(0, limit).map(function (p) {
+          var u = prettyUrl(p.path);
+          return '<tr><td class="pt__name"><div class="pt__cell"><a href="#/page?path=' + encodeURIComponent(p.path) + '"><b>' + esc(pageName(p)) + '</b></a><span class="pt__pill">' + esc(PAGE_TYPE[p.group] || 'page') + '</span></div></td>' +
+            '<td class="pt__url"><code>' + esc(u) + '</code></td>' +
+            '<td class="pt__n">' + (p.sections == null ? '<span class="pt__none">–</span>' : p.sections) + '</td>' +
+            '<td class="pt__date">' + esc(pageDate(p.updated)) + '</td>' +
+            '<td class="pt__act"><a class="pt__view" href="' + esc(u) + '" target="_blank" rel="noopener">View</a><a class="pt__edit" href="#/page?path=' + encodeURIComponent(p.path) + '">Edit</a></td></tr>';
+        }).join('') || '<tr><td colspan="5" class="pt__empty">No pages match.</td></tr>';
+        more.innerHTML = list.length > limit ? '<button type="button" class="btn btn--sm pt__more">Show ' + Math.min(60, list.length - limit) + ' more <small>(' + (list.length - limit) + ' left)</small></button>' : '';
+        var mb = $('.pt__more', more); if (mb) mb.onclick = function () { limit += 60; draw(); };
       }
-      $('input', view).addEventListener('input', function (e) { draw(e.target.value.trim().toLowerCase()); });
-      draw('');
+      $$('.ptabs button', view).forEach(function (b) { b.onclick = function () { tab = b.dataset.tab; q = ''; limit = 60; $('input', view).value = ''; draw(); }; });
+      $('input', view).addEventListener('input', function (e) { q = e.target.value.trim().toLowerCase(); limit = 60; draw(); });
+      draw();
     });
   };
 
@@ -571,7 +611,7 @@
     // ---- shell ----
     root = h('<div class="pe"><div class="pe__bar"><a class="btn btn--sm btn--ghost" href="#/pages">&#8249; Pages</a><b class="pe__title"></b>' +
       '<div class="seg" data-tab><button class="is-on" data-v="content">Content</button><button data-v="seo">SEO</button></div>' +
-      '<button class="btn btn--sm" data-toggle>Hide preview</button><a class="btn btn--sm" href="#/edit?path=' + enc + '">Visual editor</a><a class="btn btn--sm" target="_blank" href="/' + esc(path) + '">View &#8599;</a>' +
+      '<button class="btn btn--sm" data-toggle>Hide preview</button><a class="btn btn--sm" target="_blank" href="/' + esc(path) + '">View &#8599;</a>' +
       '<button class="btn btn--sm" data-reset>Reset</button><button class="btn btn--sm" data-save disabled>Saved</button></div>' +
       '<div class="pe__body"><aside class="pe__list"><h4>Sections</h4><p>Drag a section to reorder it.</p><ol></ol></aside>' +
       '<section class="pe__form"></section>' +
@@ -635,7 +675,7 @@
       list.forEach(function (s, k) {
         var pp = pagesOf[k];
         var block = h('<div style="margin-bottom:26px"><div class="panel__head" style="margin-bottom:16px"><h2 style="font-size:' + (single ? '22' : '16') + 'px">' + (single ? esc(info.name || s.name) + ' <span class="pill">' + total + ' products</span>' : esc(s.name) + ' <span class="pill">' + s.products.length + '</span>') + '</h2><span class="actions" style="margin:0">' +
-          '<a class="btn btn--sm" href="/' + esc(pp) + '" target="_blank">' + I.ext + 'View page</a><a class="btn btn--sm" href="#/edit?path=' + encodeURIComponent(pp) + '">' + I.edit + 'Edit page</a>' +
+          '<a class="btn btn--sm" href="/' + esc(pp) + '" target="_blank">' + I.ext + 'View page</a><a class="btn btn--sm" href="#/page?path=' + encodeURIComponent(pp) + '">' + I.edit + 'Edit page</a>' +
           (s.products.length ? '<button class="btn btn--sm btn--primary" data-add>' + I.plus + 'Add product</button>' : '') + '</span></div>' +
           '<div class="pgrid">' + (s.products.map(function (p, i) {
             return '<article class="pcard"><div class="pcard__pic">' + (p.image ? '<img loading="lazy" src="' + esc(url(p.image)) + '" alt="" />' : '') + '</div><div class="pcard__body"><b>' + esc(p.name) + '</b><small>' + esc(p.subtitle || (p.specs[0] ? p.specs[0].join(' ') : '')) + '</small>' +
@@ -802,10 +842,34 @@
       var sum = h('<label class="field"><span>Summary (search result text)</span><textarea></textarea></label>'); $('textarea', sum).value = p.summary; side.appendChild(sum);
       var image = p.image;
       side.appendChild(imageField('Featured image', p.image, function (v) { image = v; dirty = true; }));
+      // series: where the post appears. None ticked = no series (only the main Pilot India blog).
+      var SERIES = [['pilotsprayguns.com', 'Spray Guns'], ['pilotairless.com', 'Airless'], ['pilotwelding.com', 'Welding'], ['pilotofficeproducts.com', 'Office']];
+      var have = (p.sources && p.sources.length) ? p.sources : ['pilotindia.com'];
+      var picked = SERIES.map(function (x) { return x[0]; }).filter(function (d) { return have.indexOf(d) >= 0; });
+      var onMain = have.indexOf('pilotindia.com') >= 0;
+      var ser = h('<div class="field"><span>Series</span><div class="chips" data-chips></div>' +
+        '<label class="check"><input type="checkbox" data-main /> Also show on the main Pilot India blog</label>' +
+        '<small class="hint">Choose the series this post belongs to, or "No series" to keep it out of all of them.</small></div>');
+      var chips = $('[data-chips]', ser), mainBox = $('[data-main]', ser);
+      mainBox.checked = onMain;
+      function drawChips() {
+        chips.innerHTML = '<button type="button" data-none class="' + (picked.length ? '' : 'is-on') + '">No series</button>' + SERIES.map(function (x) {
+          return '<button type="button" data-d="' + x[0] + '" class="' + (picked.indexOf(x[0]) >= 0 ? 'is-on' : '') + '">' + x[1] + '</button>';
+        }).join('');
+      }
+      drawChips();
+      chips.addEventListener('click', function (e) {
+        var b = e.target.closest('button'); if (!b) return;
+        if (b.hasAttribute('data-none')) picked = [];
+        else { var i = picked.indexOf(b.dataset.d); if (i >= 0) picked.splice(i, 1); else picked.push(b.dataset.d); }
+        dirty = true; drawChips();
+      });
+      side.appendChild(ser);
       view.addEventListener('input', function () { dirty = true; });
       $('[data-save]', view).onclick = function () {
         var btn = this;
-        var out = { title: title.value.trim(), date: $('input', date).value, summary: $('textarea', sum).value.trim(), image: image, body: r.html() };
+        var out = { title: title.value.trim(), date: $('input', date).value, summary: $('textarea', sum).value.trim(), image: image, body: r.html(), sources: picked.concat(mainBox.checked ? ['pilotindia.com'] : []) };
+        if (!out.sources.length) return toast('Choose a series, or keep the post on the main Pilot India blog', 'err');
         if (path) out.path = path;
         if (!out.title) return toast('The post needs a title', 'err');
         busy(btn, true);

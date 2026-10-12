@@ -1,0 +1,206 @@
+/* ==========================================================================
+   Pilot India - "fan" gallery (product pages)
+
+   One picture large in the middle, the rest in a row on either side, each a step smaller and fainter than the one before,
+   all centred on the same line; a small caption above the middle one with corner marks. Sizes, offsets and fading come from
+   pg-fan.js (custom properties --x, --s, --o on each tile); this file draws it. Motion is transform and opacity only.
+   ========================================================================== */
+
+.pg-fan {
+  --w0: clamp(210px, 23vw, 350px);          /* the middle picture */
+  --h0: calc(var(--w0) * 1.25);
+  --top: 58px;                                 /* room above the middle picture: caption + corner marks */
+  --bot: 14px;
+  --ink: var(--pi-ink-token, #111114);
+  position: relative;
+  margin: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.pg-fan__stage {
+  position: relative;
+  height: calc(var(--h0) + var(--top) + var(--bot));
+  overflow: hidden;
+  outline: none;
+  touch-action: pan-y;
+  cursor: grab;
+  /* the row fades out toward both edges */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 86%, transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 86%, transparent 100%);
+}
+.pg-fan__stage:active { cursor: grabbing; }
+.pg-fan__stage:focus-visible { box-shadow: inset 0 0 0 2px var(--pi-accent, #f58634); }
+
+.pg-fan__tile {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--top) + var(--h0) / 2);
+  width: var(--w0);
+  height: var(--h0);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #f3f0eb;
+  transform: translate(-50%, -50%) translateX(var(--x, 0px)) scale(var(--s, 1));
+  opacity: var(--o, 0);
+  z-index: var(--z, 0);
+  pointer-events: var(--p, auto);
+  cursor: pointer;
+  will-change: transform, opacity;
+  -webkit-tap-highlight-color: transparent;
+}
+.pg-fan.is-ready .pg-fan__tile {
+  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.75s ease;
+}
+.pg-fan.is-drag .pg-fan__tile { transition: none !important; }
+.pg-fan.is-drag .pg-fan__stage { cursor: grabbing; }
+.pg-fan__tile:focus-visible { outline: 2px solid var(--pi-accent, #f58634); outline-offset: 3px; }
+
+/* the theme sets img{height:auto}, which would stop the picture fitting its tile */
+.pg-fan .pg-fan__tile img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  padding: 8%;
+  box-sizing: border-box;
+  object-fit: contain;
+  mix-blend-mode: multiply;                 /* a photo on white takes the tile colour; a transparent cut-out is unchanged */
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+/* caption and corner marks over the middle picture */
+.pg-fan__cap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 8px;
+  line-height: 1.4;
+  margin: 0;
+  text-align: center;
+  font-family: var(--pi-font-body, system-ui, sans-serif);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  color: #8b8b93;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.pg-fan__cap.is-swap { opacity: 0; }
+
+.pg-fan__mark {
+  position: absolute;
+  top: calc(var(--top) - 16px);
+  width: 11px;
+  height: 11px;
+  border: 0 solid var(--ink);
+  pointer-events: none;
+  z-index: 60;
+}
+.pg-fan__mark--l { left: calc(50% - var(--w0) / 2 - 16px); border-top-width: 1.5px; border-left-width: 1.5px; }
+.pg-fan__mark--r { right: calc(50% - var(--w0) / 2 - 16px); border-top-width: 1.5px; border-right-width: 1.5px; }
+
+@media (max-width: 700px) {
+  .pg-fan { --w0: clamp(170px, 52vw, 230px); }
+  .pg-fan { --top: 54px; }
+  .pg-fan__cap { font-size: 12.5px; letter-spacing: 0.12em; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-fan.is-ready .pg-fan__tile { transition: none; }
+}
+
+/* ---------- product pages: the section is the heading, the gallery, then the four capability cards in a row ---------- */
+.pg-tech--fan { padding: clamp(48px, 6vw, 88px) 0; background: #fff; overflow: hidden; }
+.pg-tech--fan .pg-tech__wrap { max-width: 1360px; margin: 0 auto; padding: 0 clamp(16px, 3vw, 32px); }
+.pg-tech--fan .pg-tech__head { margin-bottom: clamp(10px, 1.6vw, 20px); }
+.pg-fan__cap:empty { display: none; }
+
+/* the cards: equal height, every top row on one line; number and icon above, then the title and the text */
+.pg-tech--fan .pg-tech__cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  align-items: stretch;
+  margin-top: clamp(18px, 2.4vw, 30px);
+}
+.pg-tech--fan .pg-tech__cards .pg-tech__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 24px 24px 28px;
+  border: 1px solid #ebe6de;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(17, 17, 20, 0.04);
+  overflow: hidden;
+  text-align: left;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.35s ease, opacity 0.6s ease;
+}
+.pg-tech--fan .pg-tech__cards .pg-tech__card:hover,
+.pg-tech--fan .pg-tech__cards .pg-tech__card:focus-visible {
+  transform: translateY(-4px);
+  border-color: var(--pi-accent, #f58634);
+  box-shadow: 0 24px 44px -28px rgba(17, 17, 20, 0.35);
+  outline: none;
+}
+.pg-tech--fan .pg-tech__card-top { display: flex; align-items: center; justify-content: space-between; margin: 0 0 22px; }
+.pg-tech--fan .pg-tech__card-no {
+  font-family: var(--pi-font-body, system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #b4b4bb;
+  transition: color 0.3s ease;
+}
+.pg-tech--fan .pg-tech__card:hover .pg-tech__card-no,
+.pg-tech--fan .pg-tech__card:focus-visible .pg-tech__card-no { color: var(--pi-accent, #f58634); }
+.pg-tech--fan .pg-tech__card .pg-tech__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 54px;
+  height: 54px;
+  margin: 0;
+  padding: 0;
+  border-radius: 16px;
+  background: #fdf1e6;
+  box-shadow: none;
+}
+.pg-tech--fan .pg-tech__card .pg-tech__icon svg { width: 28px !important; height: 28px !important; }
+.pg-tech--fan .pg-tech__card .pg-tech__title {
+  margin: 0 0 10px;
+  padding: 0;
+  font-size: clamp(19px, 1.6vw, 22px);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--pi-ink-token, #111114);
+}
+.pg-tech--fan .pg-tech__card .pg-tech__desc {
+  flex: 1 1 auto;
+  margin: 0;
+  padding: 0;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.65;
+  color: #55575c;
+}
+.pg-tech--fan .pg-tech__card-line {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 0;
+  background: var(--pi-accent, #f58634);
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pg-tech--fan .pg-tech__card:hover .pg-tech__card-line,
+.pg-tech--fan .pg-tech__card:focus-visible .pg-tech__card-line { width: 100%; }
+@media (max-width: 1100px) { .pg-tech--fan .pg-tech__cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .pg-tech--fan .pg-tech__cards { grid-template-columns: 1fr; } .pg-tech--fan .pg-tech__cards .pg-tech__card { padding: 22px 20px 26px; } }
+@media (prefers-reduced-motion: reduce) { .pg-tech--fan .pg-tech__cards .pg-tech__card, .pg-tech--fan .pg-tech__card-line { transition: none; } }

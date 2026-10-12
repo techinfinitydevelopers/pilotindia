@@ -162,11 +162,11 @@ export function gatePage(file) {
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Download catalogue - Pilot India</title><meta name="robots" content="noindex">
-<link rel="stylesheet" href="/theme/theme.css"><link rel="stylesheet" href="/assets/css/pi-lead.css?v=3">
+<link rel="stylesheet" href="/theme/theme.css"><link rel="stylesheet" href="/assets/css/pi-lead.css?v=6">
 <style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f7f5f1;font-family:var(--pi-font-body,'Open Sans',system-ui,sans-serif);color:#111114}
 .pi-gate-page{max-width:520px;padding:32px 20px;text-align:center}.pi-gate-page img{height:30px;margin-bottom:18px}.pi-gate-page p{color:#4d4f55}
 .pi-gate-page a{color:#111114;font-weight:600}</style></head>
 <body><main class="pi-gate-page"><img src="/assets/img/pilot-logo-1-1.png" alt="Pilot India"><p>Fill in a few details to download <b>${name}</b>.</p>
 <p><a href="/">Back to pilotindia.com</a></p></main>
-<script>window.__PI_GATE_FILE=${JSON.stringify(file)};</script><script src="/assets/js/pi-lead.js?v=3"></script></body></html>`;
+<script>window.__PI_GATE_FILE=${JSON.stringify(file)};</script><script src="/assets/js/pi-lead.js?v=6"></script></body></html>`;
 }

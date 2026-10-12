@@ -35,7 +35,7 @@ const posts = slugs.map(slug => {
 
 const card = p => `<article class="pi-blogs__card" data-s="${p.sources.join(' ')}" data-q="${esc((p.title + ' ' + p.summary).toLowerCase())}">
   <a class="pi-blogs__link" href="../blog/${p.slug}.html">
-    <span class="pi-blogs__pic"><img src="${esc(p.image)}" alt="" loading="lazy" decoding="async"></span>
+    <span class="pi-blogs__pic">${p.image ? `<img src="${esc(p.image)}" alt="" loading="lazy" decoding="async">` : ''}</span>
     <span class="pi-blogs__meta">${esc(p.date)}</span>
     <h2 class="pi-blogs__title">${esc(p.title)}</h2>
     <p class="pi-blogs__sum">${esc(p.summary)}</p>

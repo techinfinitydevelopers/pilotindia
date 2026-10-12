@@ -434,3 +434,52 @@ a.stat:hover::after { transform: scaleX(1); }
 .leads a { color: var(--ink); text-decoration: underline; text-decoration-color: rgba(17, 17, 20, 0.25); }
 .leads__empty { padding: 40px 16px !important; color: var(--mute) !important; text-align: center; white-space: normal !important; }
 @media (max-width: 900px) { .cards--leads { grid-template-columns: 1fr; } }
+
+/* ---------- pages table ---------- */
+.ptabs { display: inline-flex; flex-wrap: wrap; gap: 6px; padding: 4px; border: 1px solid var(--line); border-radius: 999px; background: #fff; }
+.ptabs button { padding: 7px 14px; border: 0; border-radius: 999px; background: transparent; color: var(--body); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s ease, color 0.2s ease; }
+.ptabs button small { margin-left: 4px; color: var(--mute); font-weight: 600; }
+.ptabs button:hover { color: var(--ink); }
+.ptabs button.is-on { background: var(--ink); color: #fff; }
+.ptabs button.is-on small { color: var(--orange); }
+.bar .ptabs + .search { margin-left: auto; }
+
+.ptable { border: 1px solid var(--line); border-radius: var(--radius); background: #fff; overflow: hidden; box-shadow: 0 1px 2px rgba(17, 17, 20, 0.04); }
+.ptable table { width: 100%; border-collapse: collapse; }
+.ptable th { padding: 16px 22px; background: #faf8f4; border-bottom: 1px solid var(--line); text-align: left; color: var(--mute); font-size: 11.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+.ptable td { padding: 16px 22px; border-top: 1px solid var(--line); vertical-align: middle; }
+.ptable tbody tr:first-child td { border-top: 0; }
+.ptable tbody tr { transition: background 0.2s ease; }
+.ptable tbody tr:hover { background: #fcfbf8; }
+.pt__name { min-width: 240px; }
+.pt__cell { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.pt__name a { color: var(--ink); }
+.pt__name b { font-size: 15.5px; font-weight: 700; }
+.pt__name a:hover b { color: var(--orange-ink); }
+.pt__pill { padding: 3px 10px; border-radius: 999px; background: var(--panel); color: var(--mute); font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+.pt__url code { color: var(--body); font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-size: 12.5px; word-break: break-all; }
+.pt__n { color: var(--body); font-size: 15px; font-variant-numeric: tabular-nums; }
+.pt__none { color: var(--mute); }
+.pt__date { color: var(--mute); font-size: 13px; white-space: nowrap; }
+.pt__act { text-align: right; white-space: nowrap; }
+.pt__act a { display: inline-block; margin-left: 6px; padding: 7px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 13px; font-weight: 700; transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+.pt__view { background: #fff; color: var(--ink); }
+.pt__view:hover { border-color: var(--ink); }
+.pt__edit { border-color: var(--primary); background: var(--primary); color: #fff; }
+.pt__edit:hover { border-color: var(--orange); background: var(--orange); color: #111; }
+.pt__empty { padding: 36px 22px; color: var(--mute); text-align: center; }
+[data-more] { padding: 14px 22px; border-top: 1px solid var(--line); text-align: center; }
+[data-more]:empty { display: none; }
+@media (max-width: 860px) {
+  .ptable { overflow-x: auto; }
+  .ptable table { min-width: 720px; }
+  .bar .ptabs + .search { margin-left: 0; }
+}
+
+/* ---------- blog editor: series chips ---------- */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 10px; }
+.chips button { padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--body); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
+.chips button:hover { border-color: var(--ink); color: var(--ink); }
+.chips button.is-on { border-color: var(--ink); background: var(--ink); color: #fff; }
+.field .check { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: var(--body); font-size: 13px; font-weight: 600; cursor: pointer; }
+.field .check input { width: 16px; height: 16px; accent-color: var(--orange); }

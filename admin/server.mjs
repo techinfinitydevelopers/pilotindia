@@ -312,6 +312,12 @@ function pageInfo(abs) {
   return info;
 }
 
+// the number of sections the page editor shows for a page (cached with the page's info, so it is re-counted only when the file changes)
+const SECTION_GROUPS = new Set(['Home', 'Product sites', 'Series & product pages', 'Pages']);
+function sectionCountOf(abs, info) {
+  if (info.sections == null) { try { info.sections = sectionUnits(parseDoc(fs.readFileSync(abs, 'utf8'))).length; } catch (e) { info.sections = 0; } }
+  return info.sections;
+}
 function listPages() {
   const out = [];
   for (const abs of walkHtml(ROOT, [])) {
@@ -328,7 +334,7 @@ function listPages() {
     else if (rel.startsWith('pages/')) group = 'Pages';
     else if (rel.startsWith('blog/')) group = 'Blog posts';
     else group = 'Archives';
-    out.push({ path: rel, title: info.title || base, group });
+    out.push({ path: rel, title: info.title || base, group, updated: new Date(info.mtime).toISOString(), sections: SECTION_GROUPS.has(group) ? sectionCountOf(abs, info) : null });
   }
   return out;
 }
@@ -735,12 +741,15 @@ function blogParts(doc) {
   const published = find(doc, e => e.tagName === 'span' && hasClass(e, 'published'));
   const wrap = find(doc, e => hasClass(e, 'et_post_meta_wrapper'));
   const img = wrap ? find(wrap, e => e.tagName === 'img') : null;
+  const postMeta = wrap ? find(wrap, e => e.tagName === 'p' && hasClass(e, 'post-meta')) : null;
   const content = find(doc, e => e.tagName === 'div' && hasClass(e, 'entry-content'));
   const title = find(doc, e => e.tagName === 'title');
   const metas = findAll(doc, e => e.tagName === 'meta');
   const meta = (k, v) => metas.find(m => attr(m, k) === v) || null;
   const canonical = find(doc, e => e.tagName === 'link' && attr(e, 'rel') === 'canonical');
-  return { h1, published, img, content, title, canonical,
+  const shareImg = metas.filter(m => /^og:image(:|$)/.test(attr(m, 'property')) || attr(m, 'name') === 'twitter:image');
+  const ld = find(doc, e => e.tagName === 'script' && attr(e, 'type') === 'application/ld+json' && hasClass(e, 'rank-math-schema'));
+  return { h1, published, img, content, title, canonical, shareImg, ld, postMeta,
     ogTitle: meta('property', 'og:title'), twTitle: meta('name', 'twitter:title'),
     desc: meta('name', 'description'), ogDesc: meta('property', 'og:description'), twDesc: meta('name', 'twitter:description'),
     ogUrl: meta('property', 'og:url') };
@@ -756,6 +765,7 @@ function blogModel(abs) {
     summary: P.desc ? decode(attr(P.desc, 'content') || '') : '',
     image: P.img ? rootRelFrom(abs, attr(P.img, 'bv-data-src') || attr(P.img, 'src')) : '',
     body: r ? html.slice(r[0], r[1]) : '',
+    sources: blogSources()[path.basename(abs, '.html')] || [],
     mtime: fs.statSync(abs).mtimeMs,
   };
 }
@@ -768,13 +778,16 @@ function blogSummary(abs) {
   const html = fs.readFileSync(abs, 'utf8');
   const pick = re => { const m = html.match(re); return m ? decode(m[1].replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim() : ''; };
   const wrap = html.indexOf('et_post_meta_wrapper');
+  const og = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/i);
+  const ogImage = og && !/^(https?:)?\/\//i.test(og[1]) && !/^data:/.test(og[1]) ? og[1] : '';
   const im = wrap >= 0 ? html.slice(wrap, wrap + 4000).match(/<img\b[^>]*?(?:bv-data-src|src)="([^"]+)"/) : null;
   const data = {
     path: relOf(abs),
     title: pick(/<h1[^>]*class="[^"]*\bentry-title\b[^"]*"[^>]*>([\s\S]*?)<\/h1>/i) || titleOf(html),
     date: pick(/<span[^>]*class="[^"]*\bpublished\b[^"]*"[^>]*>([\s\S]*?)<\/span>/i),
     summary: pick(/<meta\s+name="description"\s+content="([^"]*)"/i),
-    image: im && !/^data:/.test(im[1]) ? rootRelFrom(abs, im[1]) : '',
+    // the picture is the post's share image (og:image) - every post has one; the first <img> after the meta block is the fallback
+    image: ogImage ? rootRelFrom(abs, ogImage) : im && !/^data:/.test(im[1]) ? rootRelFrom(abs, im[1]) : '',
     mtime,
   };
   blogListCache.set(abs, { mtime, data });
@@ -791,6 +804,40 @@ function blogReps(abs, html, P, f, isNew) {
   if (typeof f.date === 'string' && f.date.trim()) text(P.published, f.date.trim());
   if (typeof f.summary === 'string') { setA(P.desc, { content: f.summary }); setA(P.ogDesc, { content: f.summary }); setA(P.twDesc, { content: f.summary }); }
   if (f.image && P.img) setA(P.img, Object.assign(imageSet(P.img, refFrom(abs, f.image)), { alt: f.title || attr(P.img, 'alt') || '' }));
+  // the share image (og:image, twitter:image) is what the blog lists, the home page and social cards show
+  const ref = f.image ? refFrom(abs, f.image) : '';
+  const imgMetas = P.shareImg || [];
+  if (ref && imgMetas.some(m => attr(m, 'property') === 'og:image' && attr(m, 'content') !== ref)) {
+    for (const m of imgMetas) {
+      const k = attr(m, 'property') || attr(m, 'name');
+      if (k === 'og:image' || k === 'og:image:secure_url' || k === 'twitter:image') setA(m, { content: ref });
+      else if (k === 'og:image:alt') setA(m, { content: f.title || attr(m, 'content') });
+      else reps.push([...outerRange(m), '']);          // width, height and type described the old picture
+    }
+  } else if (ref && !imgMetas.length && P.title) {
+    // a post that had no picture gets one: add the share-image tags after the title tag
+    const e = outerRange(P.title)[1];
+    reps.push([e, e, `\n<meta property="og:image" content="${escAttr(ref)}" />\n<meta property="og:image:secure_url" content="${escAttr(ref)}" />\n<meta name="twitter:image" content="${escAttr(ref)}" />`]);
+  }
+  if (ref && !P.img && P.postMeta) {
+    // ...and the picture itself, under the "by / date / category" line, where the template shows it
+    const e = outerRange(P.postMeta)[1];
+    reps.push([e, e, `<img src="${escAttr(ref)}" alt="${escAttr(f.title || '')}" width="1080" height="675" />`]);
+  }
+  if (isNew && !f.image) {
+    // no picture was chosen: the template's picture must not stay on the new post
+    if (P.img) reps.push([...outerRange(P.img), '']);
+    for (const m of imgMetas) reps.push([...outerRange(m), '']);
+  }
+  if (isNew && P.ld) {
+    // the template's structured data describes the template post: replace it with what is known about this one
+    const iso = Date.parse(f.date || '') ? new Date(Date.parse(f.date)).toISOString() : '';
+    const art = { '@context': 'https://schema.org', '@type': 'BlogPosting', headline: f.title };
+    if (f.summary) art.description = f.summary;
+    if (iso) art.datePublished = iso;
+    if (ref) art.image = ref;
+    reps.push([...outerRange(P.ld), '<script type="application/ld+json">' + JSON.stringify(art).replace(/</g, '\\u003c') + '</script>']);
+  }
   if (typeof f.body === 'string' && P.content) {
     const r = innerRange(P.content);
     const body = sanitize(f.body, abs);
@@ -809,11 +856,30 @@ function blogSources() {
   try { return JSON.parse(fs.readFileSync(SOURCES_FILE(), 'utf8')); } catch (e) { return {}; }
 }
 // a post created in the admin belongs to the main site: list it on the Blogs page too
-function registerPost(slug) {
+// where a post appears: the main Pilot India blog and/or one or more series (Spray Guns, Airless, Welding, Office)
+const BLOG_SITES = ['pilotindia.com', 'pilotsprayguns.com', 'pilotairless.com', 'pilotwelding.com', 'pilotofficeproducts.com'];
+function cleanSources(list) {
+  const out = [...new Set((Array.isArray(list) ? list : []).filter(d => BLOG_SITES.includes(d)))];
+  return out;
+}
+function setSources(slug, list) {
+  const clean = cleanSources(list);
+  if (!clean.length) throw new Error('pick a series, or keep the post on the main Pilot India blog');
+  const src = blogSources();
+  if (JSON.stringify((src[slug] || []).slice().sort()) === JSON.stringify(clean.slice().sort())) return;
+  src[slug] = clean;
+  fs.writeFileSync(SOURCES_FILE(), JSON.stringify(src, null, 1) + '\n');
+  rebuildBlogIndex();
+}
+function registerPost(slug, list) {
   const src = blogSources();
   if (src[slug]) return;
-  src[slug] = ['pilotindia.com'];
+  const clean = cleanSources(list);
+  src[slug] = clean.length ? clean : ['pilotindia.com'];
   fs.writeFileSync(SOURCES_FILE(), JSON.stringify(src, null, 1) + '\n');
+  rebuildBlogIndex();
+}
+function rebuildBlogIndex() {
   // In database mode the tool must run in this process, so its writes go through store.mjs and not to disk.
   if (dbMode()) { track(import(pathToFileURL(path.join(REPO, 'tools', 'blog-index.mjs')).href + '?t=' + Date.now())); return; }
   try { execFileSync(process.execPath, [path.join(REPO, 'tools', 'blog-index.mjs')], { cwd: REPO, stdio: 'ignore' }); } catch (e) { /* the page can be rebuilt with: node tools/blog-index.mjs */ }
@@ -825,6 +891,7 @@ function saveBlog(f) {
     const html = fs.readFileSync(abs, 'utf8');
     const reps = blogReps(abs, html, blogParts(parseDoc(html)), f, false);
     if (reps.length) writeWithBackup(abs, applyReplacements(html, reps));
+    if (Array.isArray(f.sources)) setSources(path.basename(abs, '.html'), f.sources);
     return relOf(abs);
   }
   // a new post: built from an existing post so it carries the site's header, footer and styles
@@ -832,12 +899,19 @@ function saveBlog(f) {
   const slug = (f.slug || f.title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
   const abs = path.join(ROOT, 'blog', slug + '.html');
   if (fs.existsSync(abs)) throw new Error('a post with this address already exists: blog/' + slug + '.html');
+  if (Array.isArray(f.sources) && !cleanSources(f.sources).length) throw new Error('pick a series, or keep the post on the main Pilot India blog');
   const template = blogFiles().find(p => /how-to-clean-and-maintain-a-spray-gun-properly/.test(p)) || blogFiles()[0];
   const html = fs.readFileSync(template, 'utf8');
-  const out = applyReplacements(html, blogReps(abs, html, blogParts(parseDoc(html)), f, true));
+  let out = applyReplacements(html, blogReps(abs, html, blogParts(parseDoc(html)), f, true));
+  // the template post's own title and picture are also written into a script block (Divi's post data): make it describe this post
+  const tplTitle = cleanText(blogParts(parseDoc(html)).h1);
+  if (tplTitle) out = out.split(encodeURIComponent(tplTitle)).join(encodeURIComponent(f.title.trim()));
+  out = out.replace(/("featuredImage":")(?:[^"\\]|\\.)*?(")/, (m, a, b) => a + (f.image ? refFrom(abs, f.image).replace(/\//g, '\\/') : '') + b);
+  // links that pointed at the template post itself (comment count, reply form, page permalink) point at the new post
+  for (const re of [/(class="comments-number"><a href=")[^"]+(")/, /(id="cancel-comment-reply-link" href=")[^"]+(")/, /("page_permalink":")[^"]+(")/]) out = out.replace(re, (m, a, b) => a + slug + '.html' + b);
   fs.writeFileSync(abs, out, 'utf8');
   addToListings(abs, f, slug);
-  registerPost(slug);
+  registerPost(slug, f.sources);
   return relOf(abs);
 }
 function addToListings(abs, f, slug) {

@@ -1,0 +1,226 @@
+/* ==========================================================================
+   Pilot India - Accordion (FAQ sections)
+
+   Same anatomy as the shadcn / Base UI Accordion: Accordion > AccordionItem > AccordionTrigger + AccordionContent.
+   Items are cards on the site's own palette: a number, the question in the headline face (DM Sans Italic), a round
+   chevron button that turns orange when the item is open, and the answer in the body face (SF Pro / Inter).
+   One item open at a time (data-type="single"); the first is open on load. Behaviour is in pi-accordion.js.
+
+   Closed panels collapse with grid-template-rows 0fr -> 1fr (height: auto cannot be animated) and are `inert`,
+   so their links and text are not reachable by keyboard or screen reader until opened. The collapse is only
+   applied once the page has set data-pi-acc on <html>, so without scripting every answer stays readable.
+   ========================================================================== */
+
+.pi-acc {
+  --acc-ink: var(--pi-ink-token, #0a0a0a);
+  --acc-accent: var(--pi-accent, #f58634);
+  --acc-rule: #e4e4e7;
+  --acc-body: #55575c;
+  --acc-radius: var(--pi-radius-shell, 15px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--pi-font-body, system-ui, sans-serif);
+}
+.pi-acc *, .pi-acc *::before, .pi-acc *::after { box-sizing: border-box; }
+
+/* ---------- item ---------- */
+.pi-acc__item {
+  position: relative;
+  margin: 0;
+  background: #fff;
+  border: 1px solid var(--acc-rule);
+  border-radius: var(--acc-radius);
+  overflow: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+.pi-acc__item:hover { border-color: #d4d4d8; }
+.pi-acc__item[data-state="open"] {
+  border-color: var(--acc-accent);
+  box-shadow: 0 18px 40px -26px rgba(10, 10, 10, 0.35);
+}
+
+/* ---------- header + trigger ---------- */
+.pi-acc .pi-acc__h {
+  margin: 0 !important;
+  padding: 0 !important;
+  font: inherit !important;
+  font-style: normal !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  line-height: normal !important;
+}
+
+.pi-acc .pi-acc__trigger {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  margin: 0;
+  padding: 18px 20px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--acc-ink);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.pi-acc .pi-acc__trigger:focus { outline: none; }
+.pi-acc .pi-acc__trigger:focus-visible { outline: 2px solid var(--acc-accent); outline-offset: -2px; border-radius: var(--acc-radius); }
+
+.pi-acc__n {
+  flex: none;
+  min-width: 28px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  color: #a1a1aa;
+  transition: color 0.3s ease;
+}
+.pi-acc__item[data-state="open"] .pi-acc__n,
+.pi-acc__trigger:hover .pi-acc__n { color: var(--acc-accent); }
+
+.pi-acc .pi-acc__q {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--pi-font-heading, system-ui, sans-serif) !important;
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(16px, 1.4vw, 19px);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--acc-ink);
+  transition: color 0.25s ease;
+}
+.pi-acc__trigger:hover .pi-acc__q { color: var(--acc-accent); }
+
+.pi-acc__chev {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--acc-ink);
+  color: #fff;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, color 0.3s ease;
+}
+.pi-acc__chev svg { display: block; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.pi-acc__item[data-state="open"] .pi-acc__chev { background: var(--acc-accent); color: #111; transform: rotate(180deg); }
+
+/* ---------- content ---------- */
+.pi-acc__panel { display: grid; grid-template-rows: 1fr; }
+.pi-acc__inner { min-height: 0; overflow: hidden; }
+
+html[data-pi-acc] .pi-acc__panel {
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.4s;
+}
+html[data-pi-acc] .pi-acc__item[data-state="open"] > .pi-acc__panel {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition: grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s;
+}
+
+.pi-acc .pi-acc__a {
+  padding: 0 24px 22px calc(20px + 28px + 16px);
+  font-family: var(--pi-font-body, system-ui, sans-serif);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--acc-body);
+}
+.pi-acc .pi-acc__a > :first-child { margin-top: 0 !important; }
+.pi-acc .pi-acc__a > :last-child { margin-bottom: 0 !important; }
+.pi-acc .pi-acc__a p,
+.pi-acc .pi-acc__a li {
+  margin: 0 0 0.75em;
+  padding: 0;
+  font-family: inherit !important;
+  font-size: inherit;
+  font-weight: 400 !important;
+  font-style: normal;
+  line-height: inherit;
+  color: inherit;
+}
+.pi-acc .pi-acc__a ul,
+.pi-acc .pi-acc__a ol { margin: 0 0 0.75em; padding-left: 1.3em; }
+.pi-acc .pi-acc__a ul { list-style: disc; }
+.pi-acc .pi-acc__a ol { list-style: decimal; }
+.pi-acc .pi-acc__a b,
+.pi-acc .pi-acc__a strong { font-weight: 700 !important; color: var(--acc-ink); }
+.pi-acc .pi-acc__a a { color: var(--acc-accent); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---------- FAQ section on the product pages: sticky heading left, accordion right ---------- */
+.pi-faq {
+  background: #f7f5f1;
+  padding: clamp(48px, 6vw, 88px) 0;
+}
+.pi-faq__wrap {
+  display: grid;
+  grid-template-columns: minmax(200px, 0.6fr) minmax(0, 1.7fr);
+  gap: clamp(24px, 5vw, 80px);
+  align-items: start;
+  width: min(1240px, 100%);
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3vw, 32px);
+  box-sizing: border-box;
+}
+.pi-faq__side { position: sticky; top: 120px; }
+.pi-faq .pi-faq__h {
+  margin: 0;
+  padding: 0;
+  font-size: clamp(30px, 3.6vw, 48px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--pi-ink-token, #0a0a0a);
+}
+.pi-faq .pi-faq__h::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 3px;
+  margin-top: 18px;
+  border-radius: 3px;
+  background: var(--pi-accent, #f58634);
+}
+
+/* ---------- FAQ inside a blog post ---------- */
+.pi-acc-wrap { margin: 2.2em 0 1em; }
+.pi-acc-wrap .pi-acc-title {
+  margin: 0 0 18px;
+  padding: 0;
+  font-size: clamp(24px, 2.4vw, 32px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--pi-ink-token, #0a0a0a);
+}
+
+@media (max-width: 900px) {
+  .pi-faq__wrap { grid-template-columns: 1fr; }
+  .pi-faq__side { position: static; }
+}
+@media (max-width: 560px) {
+  .pi-acc .pi-acc__trigger { gap: 12px; padding: 16px; }
+  .pi-acc__n { min-width: 22px; font-size: 12px; }
+  .pi-acc__chev { width: 30px; height: 30px; }
+  .pi-acc .pi-acc__a { padding: 0 16px 18px 16px; font-size: 15.5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pi-acc__item, .pi-acc__chev, .pi-acc__n, .pi-acc__q,
+  html[data-pi-acc] .pi-acc__panel { transition: none !important; }
+}

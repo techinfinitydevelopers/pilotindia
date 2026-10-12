@@ -216,7 +216,7 @@
     for (var i = 0; i < rows.length; i++) rows[i].classList.toggle('is-active', rows[i] === row);
 
     // image: fade the hidden layer in over the visible one
-    var src = row.getAttribute('data-img');
+    var src = row.getAttribute('data-img') || 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
     var on = feat.querySelector('.pi-ins__img img.is-on');
     var off = imgs[0] === on ? imgs[1] : imgs[0];
     off.src = src;

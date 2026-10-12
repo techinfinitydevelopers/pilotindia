@@ -426,7 +426,11 @@ body.pg-series { overflow-x: clip !important; }
   transition: transform 0.9s var(--s-ease);
 }
 .pg-series .pg-prod--desk .et_pb_row:hover .et_pb_image { transform: scale(1.04); }
-.pg-series .pg-prod--desk .et_pb_image_wrap { display: block; height: 100%; }
+.pg-series .pg-prod--desk .et_pb_image_wrap { display: flex; align-items: center; justify-content: center; height: 100%; }
+/* a product picture placed as an <img> (not as a background) sits in the middle of its stage, at its own proportions */
+.pg-series .pg-prod--desk .et_pb_image_wrap > img { display: block; width: 100% !important; height: auto !important; max-height: 100%; object-fit: contain; }
+/* the stage is as tall as it needs to be, not stretched to the height of a long text column beside it */
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) { align-self: start; }
 
 /* the figure card (built by pg-series.js from two rows of the spec table) */
 .pg-fig {

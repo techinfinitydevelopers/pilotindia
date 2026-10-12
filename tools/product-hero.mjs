@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const ROOT = path.join(process.cwd(), 'pilotindia-clone');
-const CSS_VERSION = 15;
+const CSS_VERSION = 17;
 
 const PAGES = {
   'spray-guns': {

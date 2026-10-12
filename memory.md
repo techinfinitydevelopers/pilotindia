@@ -306,3 +306,6 @@ See `BUILD_LOG.md`.
 
 ### Spray-guns hero (2026-10-09)
 Owned by `tools/product-hero.mjs` (per-page config) + `assets/css/pg-hero-coll.css`; applied to spray-guns, welding, office, airless (2026-10-09). Replaces the Elementor heading widget and `pilot-marquee-section`; cards live inside `#select-series-re`, so pg-hero-fit's `--pg-mq` is 0. Per-page photo via `--pi-hero` (url relative to the CSS file). Thumbnails are `pg-coll-*.jpg` (480px, white bg). Not yet: pages/power-tools.html (different hero). Headless screenshots right after load catch the fade-in; wait ~2s.
+
+### About Us (2026-10-12)
+Rebuilt by `tools/about-us.mjs` (+ `pi-about.css/js`); original Divi article is gone from the file (in git history). Scroll reveals key off `#pi-about.pa-js`. Never put motion flags on `<html>` - Divi resets its className.

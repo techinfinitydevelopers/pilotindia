@@ -269,3 +269,13 @@
 .pg-chain { width: 100%; align-self: stretch; flex: 0 0 auto; box-sizing: border-box; }
 .pg-chain .pg-chain__media[data-fit="contain"] img { padding: 10px !important; }
 
+
+/* product cut-outs (white background) are shown whole, never cropped, even on pages whose
+   carousel crops its photographs (Power Tools: BL-25, BL-25VS, HG-25) - 2026-10-13 */
+.pg-chain .pg-chain__media:has(img[src*="bl-25"], img[src*="hg-25"]) { background: #fff !important; }
+.pg-chain .pg-chain__media img[src*="bl-25"],
+.pg-chain .pg-chain__media img[src*="hg-25"] { object-fit: contain !important; padding: 18px !important; background: #fff; }
+.pg-chain .pg-chain__pill[src*="bl-25"],
+.pg-chain .pg-chain__pill[src*="hg-25"] { object-fit: contain !important; transform: none !important; padding: 8px; background: #fff; }
+/* the small preview tiles follow the main picture: where it is fitted (airless, office), they are too */
+.pg-chain:has(.pg-chain__media[data-fit="contain"]) .pg-chain__pill { object-fit: contain !important; transform: none !important; padding: 8px; background: #fff; }

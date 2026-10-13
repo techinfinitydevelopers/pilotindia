@@ -2187,3 +2187,17 @@ computer only); edits are written into the site files and published with a norma
 - `pg-series.css`: stage column with a figure card wraps: photo area `flex: 1 1 100%` at `--pg-stage-h` (480/380px), figure card `position: static` on its own line inside the tile (was absolute, bottom 26px, right -30px over the photo); 22px padding round every photo (`background-origin/clip: content-box` for background-image photos, which were drawn edge to edge).
 - Gotcha: with `flex: 1 1 0` on the photo and the card at `calc(100% - 36px) + 36px margins`, both fit on ONE flex line and the photo shrank to 52px - force the photo to basis 100%.
 - Verified with a script that computes each photo's drawn rectangle from its natural size (img or background, contain) for all 62 visible models at 1440/1280/1024 (183 views): 0 clipped, 0 overlapped by the figure card; photo area identical per width. Spot-checked 8 stages visually.
+
+## 2026-10-13 - Reload flicker of containers/sections (site-wide)
+Root causes (measured with layout-shift observer + screenshot diff on mouse move):
+1. Delayed layout CSS (Brightvolt "bv_inline_delayed_css"): 54 pages (31 blog, 14 category, home-series, power-tools, blogs) held their Elementor/Divi CSS in `<style type="bv_inline_delayed_css">` / `<template>` stubs and injected it only on first mouse/scroll/key or 4 s after load. Page painted half-styled, then restyled (63 style nodes on /welding/) the moment the visitor touched the page.
+2. Product-page hero height set after load: pg-hero-fit.css defaulted `--pg-top` to 77px, pg-hero-fit.js then measured 0 (floating nav) and the hero grew 823->900px, shifting copy + collection strip (CLS 0.031-0.039 on welding/airless).
+3. Font swap reflow: DM Sans / PI Inter were found only after theme.css parsed; headlines painted in fallback, then reflowed (hero copy 463->439px).
+Fix: `tools/unblock-styles.mjs` (idempotent; 652 inline styles + 777 local stylesheet links restored as normal CSS in original order; external https stylesheets stay delayed); `--pg-top` default 77px -> 0px (pg-hero-fit.css v=3); serve.mjs injects `<link rel=preload as=font>` for the two latin woff2 into every page head (etag -l5).
+Result: layout shifts 0 on welding, airless, spray-guns, office, home, power-tools, about-us, a blog post, a category page, blogs (were 0.031/0.039/0.048/0.013); no style injection on first mouse move.
+Not changed: Brightvolt still delays JS (scripts) until first interaction. Uncommitted; not pushed.
+
+## Images: keep the main object in view site-wide (2026-10-13)
+- Audit script (scratchpad crop-audit.mjs): every visible img with object-fit:cover and every cover/auto background on 13 key pages, comparing natural size to box. Classified carousel images by border whiteness (product cut-out vs photo).
+- Fixed: office hero tray photos were 200-351px tall in 108px tiles (theme img{height:auto}) -> `.pi-coll__img img` forced to tile size (pg-hero-coll.css); Power Tools carousel cut-outs (BL-25, BL-25VS, HG-25) contained on white incl. preview pills, and pills on contain carousels (airless, office) contained too (pg-chain.css); home Product range collapsed cards aimed at their subject via object-position per photo, capability SVG illustrations contained (pi-home.css, only my block committed).
+- Left as is (photographs where cropping is the design and the subject stays in view): hero backdrops (landing heroes anchored right, series banners anchored left - their guns are cut in the source files), blog/About/hero-card photos, spray-guns/welding carousel action photos.

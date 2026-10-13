@@ -102,3 +102,6 @@
   .pi-coll__list::-webkit-scrollbar { display: none; }
   .pi-coll__list li { flex: 0 0 46%; scroll-snap-align: start; }
 }
+/* the tray photo must be the tile's size: on the office page the theme's img{height:auto} made it
+   200-351px tall inside a 108px tile, so the shredder, counter and sorter were cut off (2026-10-13) */
+.pi-coll__img img { width: 100% !important; height: 100% !important; max-width: none !important; }

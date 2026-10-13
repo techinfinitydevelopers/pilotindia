@@ -1007,3 +1007,68 @@ body.pg-series { overflow-x: clip !important; }
 
 /* the "Models" row under the series menu is removed: the listing below does that job */
 .pg-series .pg-rail { display: none !important; }
+
+/* ---- one stage size for every model (2026-10-13) ----
+   Every product picture sits in the same tile as the Air Brush cards: a fixed-height white stage,
+   the photo contained inside it with room around it, never stretching the tile. Pictures placed as
+   <img> (Legacy, PCG-01) used to grow the stage to their own height (570-770px). */
+.pg-series .pg-prod--desk { --pg-stage-h: 480px; }
+@media (max-width: 1100px) { .pg-series .pg-prod--desk { --pg-stage-h: 380px; } }
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) {
+  height: var(--pg-stage-h);
+  min-height: var(--pg-stage-h);
+  max-height: var(--pg-stage-h);
+}
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) .et_pb_image { height: 100%; min-width: 0; overflow: hidden; }
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) .et_pb_image_wrap {
+  width: 100%;
+  height: 100%;
+  padding: 34px 26px;
+  box-sizing: border-box;
+}
+/* leave the bottom of the stage to the figure card that overlaps it */
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2):has(.pg-fig) .et_pb_image_wrap { padding-bottom: 96px; }
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) .et_pb_image_wrap > img {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none;
+  object-fit: contain;
+}
+
+/* videos: a 16:9 frame on every card. The YouTube iframes carry height="608", which shows as a tall
+   black box until the site's delayed scripts (FitVids) run after the first interaction; Legacy uses
+   Divi's video slider instead of the video module, with the same problem. */
+.pg-series .pg-prod .et_pb_video_slider {
+  margin: 18px 0 0 !important;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #111114;
+  box-shadow: 0 0 0 1px var(--s-line);
+}
+.pg-series .pg-prod .et_pb_video_slider .et_pb_slider,
+.pg-series .pg-prod .et_pb_video_slider .et_pb_slides,
+.pg-series .pg-prod .et_pb_video_slider .et_pb_slide { height: auto !important; min-height: 0 !important; }
+.pg-series .pg-prod .et_pb_video_box,
+.pg-series .pg-prod .et_pb_video_slider .et_pb_slide_video {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.pg-series .pg-prod .et_pb_video_box iframe,
+.pg-series .pg-prod .et_pb_video_slider .et_pb_slide_video iframe {
+  position: absolute !important;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+.pg-series .pg-prod .et_pb_video_box .fluid-width-video-wrapper,
+.pg-series .pg-prod .et_pb_video_slider .fluid-width-video-wrapper { position: static !important; padding: 0 !important; }
+
+/* a model name split over two <h1>s (CV-70 / UV/MG/IR, PILOT - 26 / SC) is numbered once */
+.pg-series .pg-prod h1 ~ h1::before { content: none; }
+/* the video follows the application icons instead of being pushed to the bottom of a stretched column */
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1):has(.et_pb_video, .et_pb_video_slider) .et_pb_text { flex: 0 0 auto; }
+/* some "areas of application" tables carry an inline height (343px on Legacy) that left a tall empty block */
+.pg-series .pg-prod .pg-areas table { height: auto !important; }

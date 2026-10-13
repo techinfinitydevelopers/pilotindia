@@ -14,6 +14,9 @@ import { initStore, dbMode } from './store.mjs';
 import { authEnabled, isAuthed, handleAuth, sameOrigin, isBlocked, blockedPage } from './auth.mjs';
 import { rateLimit, securityHeaders, forbiddenPath, hardenServer, SVG_HEADERS, admitBody } from './security.mjs';
 await initStore(REPO);
+// clean page URLs (/about-us, /blog/<post>): see slugs.mjs
+import { initSlugs, resolveRequest, rewriteHtml, slugVersion, sitemapXml } from './slugs.mjs';
+initSlugs(ROOT, REPO);
 // catalogue downloads need the short form first (leads.mjs)
 import { initLeads, handleLeadPost, isCatalogue, hasAccess, gatePage } from './leads.mjs';
 await initLeads(REPO, ROOT);
@@ -63,7 +66,7 @@ function serveFile(req, res, fp, extra = {}) {
   const ext = path.extname(fp).toLowerCase();
   const st = fs.statSync(fp);
   // "-l1": pages carry the injected form script, so their validator changes with it
-  const etag = 'W/"' + st.size.toString(16) + '-' + Math.floor(st.mtimeMs).toString(16) + (ext === '.html' ? '-l4' : '') + '"';
+  const etag = 'W/"' + st.size.toString(16) + '-' + Math.floor(st.mtimeMs).toString(16) + (ext === '.html' ? '-l4-u' + slugVersion() : '') + '"';
   const headers = {
     'Content-Type': TYPES[ext] || 'application/octet-stream',
     'ETag': etag,
@@ -76,12 +79,12 @@ function serveFile(req, res, fp, extra = {}) {
   };
   if (req.headers['if-none-match'] === etag) { res.writeHead(304, headers).end(); return; }
   let body = fs.readFileSync(fp);
-  if (ext === '.html') body = withLeadGate(body);
+  if (ext === '.html') body = Buffer.from(rewriteHtml(withLeadGate(body).toString('utf8'), path.relative(ROOT, fp).split(path.sep).join('/')), 'utf8');
   if (COMPRESSIBLE.has(ext) && body.length > 1024) {
     const accept = String(req.headers['accept-encoding'] || '');
     const enc = /\bbr\b/.test(accept) ? 'br' : /\bgzip\b/.test(accept) ? 'gzip' : '';
     if (enc) {
-      const key = fp + '|' + st.mtimeMs + '|' + enc;
+      const key = fp + '|' + st.mtimeMs + '|' + enc + (ext === '.html' ? '|u' + slugVersion() : '');
       let z = squeezed.get(key);
       if (!z) {
         z = enc === 'br'
@@ -143,6 +146,21 @@ async function handle(req, res) {
     res.writeHead(503, { "Content-Type": "text/plain" }).end("admin dashboard unavailable: run npm install");
     return;
   }
+  // ---- clean page URLs (slugs.mjs). The visual editor (?__cms=1) keeps opening pages by file path.
+  if (!/[?&]__cms=1(&|$)/.test(req.url)) {
+    const bare = req.url.split('?')[0].split('#')[0];
+    const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+    const origin = (req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http') + '://' + req.headers.host;
+    if (bare === '/sitemap.xml') { res.writeHead(200, { 'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': 'no-cache' }).end(req.method === 'HEAD' ? '' : sitemapXml(origin)); return; }
+    if (bare === '/robots.txt' && !fs.existsSync(path.join(ROOT, 'robots.txt'))) {
+      res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-cache' }).end('User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: ' + origin + '/sitemap.xml\n');
+      return;
+    }
+    const r = resolveRequest(bare, qs);
+    if (r && r.redirect) { res.writeHead(301, { Location: r.redirect, 'Cache-Control': 'public, max-age=600' }).end(); return; }
+    if (r && r.file) { serveFile(req, res, path.join(ROOT, r.file)); return; }
+  }
+
   let p;
   try { p = decodeURIComponent(req.url.split('?')[0].split('#')[0]); } catch { res.writeHead(400).end('bad request'); return; }
   if (forbiddenPath(p)) { res.writeHead(404, { 'Content-Type': 'text/html' }).end('<h1>404</h1>'); return; }

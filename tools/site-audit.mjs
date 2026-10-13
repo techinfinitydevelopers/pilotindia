@@ -36,7 +36,7 @@ const todo = only ? pages.filter(p => only.includes(p)) : pages;
 const exists = new Set(pages);
 
 // ---- server (no DATABASE_URL: plain files, admin open, but the audit never visits /admin)
-const env = { ...process.env, PORT: String(PORT) }; delete env.DATABASE_URL; delete env.ADMIN_PASSWORD;
+const env = { ...process.env, PORT: String(PORT), RATE_SITE: '1000000' }; delete env.DATABASE_URL; delete env.ADMIN_PASSWORD;   // no rate limit: the audit loads every page
 const server = spawn(process.execPath, [path.join(REPO, 'serve.mjs')], { cwd: REPO, env, stdio: ['ignore', 'pipe', 'pipe'] });
 await new Promise((ok, fail) => {
   const t = setTimeout(() => fail(new Error('server did not start')), 30000);

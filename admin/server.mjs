@@ -31,6 +31,7 @@ import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import { flush, track, dbMode } from '../store.mjs';
 import { listBans, unban } from '../blocklist.mjs';
+import { listUrls, setSlug, invalidateSlugs } from '../slugs.mjs';
 import { admitBody, readLimited, takeUploadSlot, uploadQuota, checkUploadContent, rateLimit, clientIp } from '../security.mjs';
 import { listLeads, leadsCsv, catalogueCount } from '../leads.mjs';
 
@@ -1149,14 +1150,16 @@ export async function handleAdmin(req, res) {
       case 'POST /page/section': { const b = await readJson(req); sectionAction(sitePath(b.path), b); return send(res, 200, { ok: true }), true; }
       case 'GET /series': return send(res, 200, listSeries()), true;
       case 'POST /series/category': { const b = await readJson(req); return send(res, 200, { ok: true, name: addCategory(b) }), true; }
-      case 'POST /series/create': { const b = await readJson(req); return send(res, 200, Object.assign({ ok: true }, createSeries(b))), true; }
+      case 'POST /series/create': { const b = await readJson(req); const r = createSeries(b); invalidateSlugs(); return send(res, 200, Object.assign({ ok: true }, r)), true; }
+      case 'GET /urls': return send(res, 200, listUrls().map(u => Object.assign(u, { title: (() => { try { return pageInfo(path.join(ROOT, u.file)).title; } catch (e) { return ''; } })() }))), true;
+      case 'POST /urls': { const b = await readJson(req); return send(res, 200, Object.assign({ ok: true }, setSlug(String(b.file || ''), b.slug, !!b.reset))), true; }
       case 'GET /products': return send(res, 200, listProducts(sitePath(q('path')))), true;
       case 'POST /product': { const b = await readJson(req); const changed = saveProduct(sitePath(b.path), b); return send(res, 200, { ok: true, changed }), true; }
       case 'POST /product/duplicate': { const b = await readJson(req); return send(res, 200, { ok: true, id: duplicateProduct(sitePath(b.path), b.id) }), true; }
       case 'POST /product/delete': { const b = await readJson(req); deleteProduct(sitePath(b.path), b.id); return send(res, 200, { ok: true }), true; }
       case 'GET /blog': { const src = blogSources(); return send(res, 200, blogFiles().map(blogSummary).map(m => Object.assign({}, m, { sources: src[path.basename(m.path, '.html')] || [] })).sort((a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0))), true; }
       case 'GET /blog/post': return send(res, 200, blogModel(sitePath(q('path')))), true;
-      case 'POST /blog/post': { const b = await readJson(req); return send(res, 200, { ok: true, path: saveBlog(b) }), true; }
+      case 'POST /blog/post': { const b = await readJson(req); const p = saveBlog(b); invalidateSlugs(); return send(res, 200, { ok: true, path: p }), true; }
       case 'GET /theme': return send(res, 200, getTheme()), true;
       case 'POST /theme': {
         const b = await readJson(req);

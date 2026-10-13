@@ -63,6 +63,7 @@
   var NAV = [
     ['#/', 'Dashboard', I.home],
     ['#/pages', 'Pages', I.pages],
+    ['#/urls', 'URLs', '<svg viewBox="0 0 24 24"><path d="M10.6 13.4a1 1 0 0 1 0-1.4l3.4-3.4a1 1 0 1 1 1.4 1.4L12 13.4a1 1 0 0 1-1.4 0zM7.8 19a4 4 0 0 1-2.8-6.8l2.5-2.5 1.4 1.4-2.5 2.5a2 2 0 1 0 2.8 2.8l2.5-2.5 1.4 1.4-2.5 2.5A4 4 0 0 1 7.8 19zm8.7-5.3-1.4-1.4 2.5-2.5a2 2 0 1 0-2.8-2.8l-2.5 2.5-1.4-1.4 2.5-2.5a4 4 0 0 1 5.6 5.6z"/></svg>'],
     ['#/products', 'Products', I.box],
     ['#/blog', 'Blog', I.blog],
     ['#/media', 'Media', I.image],
@@ -638,6 +639,79 @@
     };
     saveBtn.onclick = onSave;
     return load(0);
+  };
+
+  // ================================================================ URLS
+  // Every page's public address. Editing a slug is live at once: the page answers at the new URL,
+  // links on every page point there, and the old URL redirects (301) to it.
+  ROUTES['/urls'] = function (view) {
+    return api('/urls').then(function (list) {
+      function groupOf(u) {
+        if (u.file === 'index.html' || /\/index\.html$/.test(u.file)) return 'Home & product sites';
+        if (/^blog\//.test(u.file)) return 'Blog posts';
+        if (/^category\//.test(u.file) || /^pages\/author-/.test(u.file)) return 'Archives';
+        return 'Pages & series';
+      }
+      var order = ['Home & product sites', 'Pages & series', 'Blog posts', 'Archives'];
+      view.innerHTML = head('URLs', 'The address of every page. Use lowercase letters and hyphens (digits only for product codes). A change is live at once, and the old address keeps working by redirecting to the new one.') +
+        '<div class="urls__bar"><input class="input" type="search" placeholder="Search pages or URLs" data-q /><span class="pill" data-count></span></div>' +
+        '<div data-groups></div>';
+      var host = $('[data-groups]', view);
+      function draw(q) {
+        q = (q || '').toLowerCase();
+        var shown = 0;
+        host.innerHTML = '';
+        order.forEach(function (g) {
+          var rows = list.filter(function (u) { return groupOf(u) === g && (!q || (u.url + ' ' + (u.title || '') + ' ' + u.file).toLowerCase().indexOf(q) >= 0); });
+          if (!rows.length) return;
+          shown += rows.length;
+          var sec = h('<section class="panel urls__group"><div class="panel__head"><h2>' + esc(g) + ' <span class="pill">' + rows.length + '</span></h2></div><div class="urls__list"></div></section>');
+          var box = $('.urls__list', sec);
+          rows.forEach(function (u) { box.appendChild(row(u)); });
+          host.appendChild(sec);
+        });
+        $('[data-count]', view).textContent = shown + ' of ' + list.length + ' pages';
+        if (!shown) host.innerHTML = '<div class="empty">No page matches.</div>';
+      }
+      function row(u) {
+        var clean = u.url.replace(/^\//, '');
+        var isDir = /\/$/.test(clean);
+        var parts = clean.replace(/\/$/, '').split('/');
+        var slug = parts.pop();
+        var prefix = '/' + (parts.length ? parts.join('/') + '/' : '');
+        var home = u.file === 'index.html';
+        var r = h('<div class="urls__row">' +
+          '<div class="urls__info"><b>' + esc(u.title || u.file) + '</b><a href="' + esc(u.url) + '" target="_blank" rel="noopener">' + esc(u.url) + '</a>' +
+          (u.old.length ? '<small>Old address' + (u.old.length > 1 ? 'es' : '') + ' redirect here: ' + u.old.map(esc).join(', ') + '</small>' : '') + '</div>' +
+          (home ? '<div class="urls__edit"><span class="urls__fixed">/ (always)</span></div>' :
+          '<div class="urls__edit"><span class="urls__prefix">' + esc(prefix) + '</span><input class="input" type="text" spellcheck="false" maxlength="90" />' + (isDir ? '<span class="urls__prefix">/</span>' : '') +
+          '<button class="btn btn--sm btn--primary" data-save disabled>Save</button>' +
+          (u.custom ? '<button class="btn btn--sm" data-reset title="Back to ' + esc(u.default) + '">Reset</button>' : '') + '</div>') +
+          '</div>');
+        if (home) return r;
+        var input = $('input', r), save = $('[data-save]', r);
+        input.value = slug;
+        input.oninput = function () {
+          var v = input.value.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/-{2,}/g, '-');
+          if (v !== input.value) input.value = v;
+          save.disabled = !v || v === slug;
+        };
+        input.onkeydown = function (e) { if (e.key === 'Enter' && !save.disabled) save.click(); };
+        function apply(body) {
+          save.disabled = true;
+          return api('/urls', body).then(function (res) {
+            toast(res.changed ? 'Live now: ' + res.url + ' (the old address redirects)' : 'No change', 'ok');
+            return api('/urls').then(function (l) { list = l; draw($('[data-q]', view).value); });
+          }).catch(function (e) { save.disabled = false; fail(e); });
+        }
+        save.onclick = function () { apply({ file: u.file, slug: input.value.replace(/^-+|-+$/g, '') }); };
+        var reset = $('[data-reset]', r);
+        if (reset) reset.onclick = function () { if (confirm('Go back to the default address ' + u.default + '?')) apply({ file: u.file, reset: true }); };
+        return r;
+      }
+      $('[data-q]', view).oninput = function (e) { draw(e.target.value); };
+      draw('');
+    });
   };
 
   // ================================================================ PRODUCTS

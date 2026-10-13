@@ -1729,3 +1729,15 @@
   .pi-home *, .pi-reveal { transition: none !important; }
   .pi-reveal { opacity: 1; transform: none; }
 }
+
+/* ---- keep the main object in view (2026-10-13) ----
+   Product range: a collapsed card shows only ~30% of its 2:1 photo, so each one is aimed at its
+   subject instead of the middle (painter + gun, airless pump + operator, torch, note counter, heat gun). */
+.pi-exp__img[src*="spray-guns1"] { object-position: 47% 50%; }
+.pi-exp__img[src*="airless-spray-systems"] { object-position: 14% 50%; }
+.pi-exp__img[src*="welding-equipments"] { object-position: 50% 50%; }
+.pi-exp__img[src*="note-counting-machines"] { object-position: 83% 50%; }
+.pi-exp__img[src*="img-5657"] { object-position: 67% 50%; }
+/* capability illustrations are whole drawings: fit them (the gear and chimney were cut off) */
+.pi-cap__shot { background: linear-gradient(135deg, #f6f0e8, #eae1d4); }
+.pi-cap__shot img { object-fit: contain; }

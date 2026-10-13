@@ -2177,3 +2177,13 @@ computer only); edits are written into the site files and published with a norma
 - Result: 62 visible cards identical in width/padding/radius/columns/stage (338x480), none with a picture taller than the stage; Legacy cards 1360-1656px -> 940-1023px. Phone width: no overflow. Content untouched (CSS only).
 - Not changed: Power Tools BL-25/BL-26VS cards are hidden in the product view only in the other session's uncommitted power-tools.html (unclosed divs nest them inside HG-25); the committed page is fine.
 - Test note: this machine had ~600 MB free RAM, headless Chrome crashed / stalled; used a separate test server (port 8097, RATE_SITE raised) and --renderer-process-limit=1.
+- Home page: the same side gutter and column as the product pages (pi-home.css, v=7). Before: text started at 74 px (hero), 61 px (figures), 43 px (every other section) and 400 px (closing band is centred) at 1440 wide, and 34 / 32 / 20 px on a phone, with a 1660 px column that grew with the screen.
+  - `.pi-home` now holds `--pg-gut` (24 px phone, up to 64 px), `--pg-max` (1240 px) and `--shell` (the 18 px, or 12 px on phones, that the rounded hero / figures / closing shells are inset by).
+  - the wrap, the figures grid and the capability list use the column; the hero, the figures and the closing band take the gutter minus their inset, so their text starts where the text of every other section starts.
+  - measured: every section's text starts at 100 px at 1440, 130 px at 1500, 339 px at 1917, and 24 px at 390.
+
+## Product photo fully visible, figure card below it (2026-10-13)
+- User: the photo was cropped/overlapped by the "0.34 litres / 449 gms" card; keep that card in the photo tile but put it below the product, for all products.
+- `pg-series.css`: stage column with a figure card wraps: photo area `flex: 1 1 100%` at `--pg-stage-h` (480/380px), figure card `position: static` on its own line inside the tile (was absolute, bottom 26px, right -30px over the photo); 22px padding round every photo (`background-origin/clip: content-box` for background-image photos, which were drawn edge to edge).
+- Gotcha: with `flex: 1 1 0` on the photo and the card at `calc(100% - 36px) + 36px margins`, both fit on ONE flex line and the photo shrank to 52px - force the photo to basis 100%.
+- Verified with a script that computes each photo's drawn rectangle from its natural size (img or background, contain) for all 62 visible models at 1440/1280/1024 (183 views): 0 clipped, 0 overlapped by the figure card; photo area identical per width. Spot-checked 8 stages visually.

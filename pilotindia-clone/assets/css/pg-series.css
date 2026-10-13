@@ -1072,3 +1072,39 @@ body.pg-series { overflow-x: clip !important; }
 .pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1):has(.et_pb_video, .et_pb_video_slider) .et_pb_text { flex: 0 0 auto; }
 /* some "areas of application" tables carry an inline height (343px on Legacy) that left a tall empty block */
 .pg-series .pg-prod .pg-areas table { height: auto !important; }
+
+/* ---- figure card below the product, inside the same tile (2026-10-13) ----
+   The product picture gets the full stage (nothing drawn over it); the "0.34 litres / 449 gms" card
+   sits under it, still inside the white tile. */
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2):has(.pg-fig) {
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  padding-bottom: 18px !important;
+}
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2):has(.pg-fig) .et_pb_image {
+  flex: 1 1 100%;   /* the picture takes the whole first line, so the figure card wraps below it */
+  height: var(--pg-stage-h);
+}
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2):has(.pg-fig) .et_pb_image_wrap { padding-bottom: 34px; }
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) .pg-fig {
+  position: static;
+  order: 9;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: calc(100% - 36px);
+  margin: 0 18px;
+  justify-content: center;
+}
+.pg-series .pg-prod--desk .et_pb_row:hover .et_pb_column_1_5:nth-child(2) .pg-fig { transform: none; }
+/* breathing room round every picture: background-image photos were drawn edge to edge in the stage */
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) .et_pb_image {
+  padding: 22px !important;
+  background-origin: content-box !important;
+  background-clip: content-box !important;
+  box-sizing: border-box;
+}
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) .et_pb_image_wrap,
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2):has(.pg-fig) .et_pb_image_wrap { padding: 10px; }

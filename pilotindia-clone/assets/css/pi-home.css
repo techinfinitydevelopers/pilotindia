@@ -1741,3 +1741,14 @@
 /* capability illustrations are whole drawings: fit them (the gear and chimney were cut off) */
 .pi-cap__shot { background: linear-gradient(135deg, #f6f0e8, #eae1d4); }
 .pi-cap__shot img { object-fit: contain; }
+
+/* ---- hero: a little more air left and right (2026-10-13) ----
+   The headline, the figure card and the two glass cards sit a bit further in from the frame. Done with
+   margins on the three blocks, so it adds to whatever padding the hero already has. Desktop only: the
+   tablet and phone layouts have their own spacing. */
+@media (min-width: 961px) {
+  .pi-hero { --hero-in: clamp(16px, 2.3vw, 40px); }
+  .pi-hero__head { margin-left: var(--hero-in); }
+  .pi-deck { margin-right: var(--hero-in); }
+  .pi-hero__cards { margin-left: var(--hero-in); margin-right: var(--hero-in); }
+}

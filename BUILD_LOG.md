@@ -2236,3 +2236,22 @@ admin/index.html no longer loads Google Roboto/Open Sans; it links the new `pilo
 - Gas Cutting Torches had its banner text in the first column, Pressure Feed Tanks / Electro Hydraulic / Currency Sorters in one full-width column, so the copy sat on the product photo. `pg-series.css` (>=981px): banner columns on one grid row, the column with text always in grid column 2, empty columns in column 1; photo held at the standard banner height (`auto min(100%, clamp(380px, 30vw, 480px))`) so a long introduction does not enlarge the product under the text.
 - Eyebrow: shown once (Currency Counters splits its title over two h3s) and per product line, read from the page's series menu via :has - "Pilot Airless", "Pilot Welding", "Pilot Office Products" (was "Pilot Spray Guns" everywhere).
 - Checked all 15 series banners at 1440: text starts at 707px on every page, correct eyebrow; phone width no overflow. Only my block of pg-series.css committed (other session's gutter edits stay uncommitted).
+
+## 2026-10-13 - Phone view audit (320 / 360 / 390 px)
+Method: Chrome mobile emulation, scripted sweep for horizontal overflow + clipped text (mob.mjs-style), plus segment screenshots of home, welding, evolution series, about, contact, blog post.
+Found and fixed:
+- Product pages (welding/airless/office): hero copy pushed 24 px off the right edge (my pg-gutters margins on a width:100% box) -> horizontal scroll. pg-gutters.css v=3 (phone: no margins, side padding = gutter).
+- 320 px: second hero button ran off screen (flex-wrap:nowrap) -> pg-hero-coll.css v=18 wraps. Nav pill grew past the screen on long section labels, burger off-screen -> pi-nav.css max-width + ellipsis.
+- Blog posts, category and author pages: headline/first picture sat under the floating nav pill (phone and desktop) -> content starts below it (pi-nav.css); phone reading column widened to the site gutter.
+- Series pages phone: hero title and paragraph on one left edge (paragraph carried 30 px extra) -> pg-series.css.
+- Product pages phone: feature boxes ("Built for ...") aligned with their heading (pg-gutters.css v=5).
+- Home phone: "20+" application-areas counter left-aligned with its label (pi-home.css v=9).
+- About phone: "Pilot at a glance" tab text touched the screen edge, headline hard against the nav -> pi-about.css v=11.
+Result: no horizontal scroll at 390 on 12 page types, 320 on 15, 360 on 14 more. Left as designed: swipe strips (collection cards, filter chips, fan gallery, application pills). Note: the hero's 1.3 MB Manufacturing PNG loads late on a cold phone load (lazy, kept at full size per the no-image-reduction rule).
+
+## 2026-10-13 - Home: stats band removed
+Removed the "70 / 700 / 7000 / 12" figures band (section 2) from `tools/home.mjs`; home regenerated with `node tools/home.mjs` + `node tools/perf-hints.mjs index.html`. The `.pi-stats` CSS and the count-up JS selector are now unused (left in place; the JS skips missing elements). The same four figures still appear in the hero's deck card.
+
+## Home hero: more air left and right (2026-10-13)
+- `pi-home.css` (appended, >=961px): `--hero-in: clamp(16px, 2.3vw, 40px)` as margin on `.pi-hero__head` (left), `.pi-deck` (right) and `.pi-hero__cards` (both sides). Margins, not padding, so it adds to whatever hero padding is set (the other session's column-based padding stays untouched and independent of this commit). Tablet/phone layouts unchanged.
+- Measured at 1735/1440/1280/1024: text and cards inset equally left and right (1440: 115px from the frame, was 82px), no overlaps (title, deck, both cards), no horizontal scroll; gap between the two glass cards 153-184px (24px at 1024).

@@ -1108,3 +1108,23 @@ body.pg-series { overflow-x: clip !important; }
 }
 .pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) .et_pb_image_wrap,
 .pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2):has(.pg-fig) .et_pb_image_wrap { padding: 10px; }
+
+/* ---- series banners: copy always in the right-hand column (2026-10-13) ----
+   Some pages carry the banner text in the FIRST column (Gas Cutting Torches) or in a single full-width
+   column (Pressure Feed Tanks, Electro Hydraulic, Currency Sorters), so it sat on top of the product
+   photo. Every banner now has the photo on the left and the text on the right, like Legacy Series. */
+@media (min-width: 981px) {
+  .pg-series .pg-hero .et_pb_row > .et_pb_column { grid-row: 1; }
+  .pg-series .pg-hero .et_pb_row > .et_pb_column:not(:has(.et_pb_text)) { grid-column: 1; }
+  .pg-series .pg-hero .et_pb_row > .et_pb_column:has(.et_pb_text) { grid-column: 2; width: auto !important; }
+  /* a long introduction makes the banner taller; the photo keeps the standard banner height
+     so the product does not grow under the text */
+  .pg-series .et_pb_section.pg-hero { background-size: auto min(100%, clamp(380px, 30vw, 480px)) !important; }
+}
+/* the eyebrow above the banner title: once (a title split over two <h3>s showed it twice), and naming
+   the right product line - it said "Pilot Spray Guns" on airless, welding and office pages too.
+   The line is read from the page's own series menu. */
+.pg-series .pg-hero h3 ~ h3::before { content: none !important; }
+.pg-series:has(.pg-nav a[href*="electric-series"], .pg-nav a[href*="pneumatic-series"], .pg-nav a[href*="electro-hydraulic"]) .pg-hero h3::before { content: "Pilot Airless"; }
+.pg-series:has(.pg-nav a[href*="gas-cutting"], .pg-nav a[href*="gas-regulator"], .pg-nav a[href*="gas-welding"]) .pg-hero h3::before { content: "Pilot Welding"; }
+.pg-series:has(.pg-nav a[href*="currency-"], .pg-nav a[href*="paper-shredder"]) .pg-hero h3::before { content: "Pilot Office Products"; }

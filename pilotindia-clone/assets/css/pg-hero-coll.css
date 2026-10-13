@@ -105,3 +105,57 @@
 /* the tray photo must be the tile's size: on the office page the theme's img{height:auto} made it
    200-351px tall inside a 108px tile, so the shredder, counter and sorter were cut off (2026-10-13) */
 .pi-coll__img img { width: 100% !important; height: 100% !important; max-width: none !important; }
+
+/* ---- hero photo placeholder (2026-10-13) ----
+   On a hero with data-hero-ph the photo is replaced by a placeholder that covers exactly the visible
+   part of the hero (top edge to the collection tray; height set by pg-hero-fit.js), with the size
+   printed on it. To put a photo back: remove data-hero-ph and set --pi-hero: url(...) on the hero. */
+#select-series-re.e-con[data-hero-ph] { background-image: none !important; background-color: #121214 !important; }
+.pg-hero-ph {
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--pg-hero-vis-h, calc(100% - 290px));
+  pointer-events: none;
+  background:
+    radial-gradient(55% 75% at 76% 50%, rgba(245, 134, 52, 0.12), transparent 70%),
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 48px 48px,
+    #121214;
+}
+.pg-hero-ph::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+}
+.pg-hero-ph__label {
+  position: absolute;
+  left: 74%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: min(420px, 44%);
+  text-align: center;
+  font-family: var(--pi-font-body);
+  color: rgba(255, 255, 255, 0.62);
+}
+.pg-hero-ph__label svg { width: 44px; height: 44px; fill: var(--pi-accent, #f58634); opacity: 0.9; margin-bottom: 4px; }
+.pg-hero-ph__label strong {
+  font-family: var(--pi-font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+}
+.pg-hero-ph__size { font-size: 15px; font-weight: 600; color: var(--pi-accent, #f58634); font-variant-numeric: tabular-nums; }
+.pg-hero-ph__hint { font-size: 13px; line-height: 1.45; }
+@media (max-width: 767px) {
+  .pg-hero-ph__label { left: 50%; top: auto; bottom: 28px; transform: translateX(-50%); width: 80%; }
+  .pg-hero-ph__label svg, .pg-hero-ph__hint { display: none; }
+}

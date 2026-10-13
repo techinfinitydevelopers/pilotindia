@@ -483,3 +483,8 @@ a.stat:hover::after { transform: scaleX(1); }
 .chips button.is-on { border-color: var(--ink); background: var(--ink); color: #fff; }
 .field .check { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: var(--body); font-size: 13px; font-weight: 600; cursor: pointer; }
 .field .check input { width: 16px; height: 16px; accent-color: var(--orange); }
+
+/* new series / new category (Products list) */
+.series__acts { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 6px 6px; padding-top: 14px; border-top: 1px solid var(--line); }
+.series__empty { margin: 2px 12px 8px; color: var(--mute); font-size: 12.5px; }
+.drawer__panel--sm { width: min(460px, 100%); }

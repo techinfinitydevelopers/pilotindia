@@ -2206,3 +2206,14 @@ Not changed: Brightvolt still delays JS (scripts) until first interaction. Uncom
 - User: the hero photo is covered by the collection tray; put a placeholder in the visible hero area (marked on a screenshot).
 - `data-hero-ph` on `#select-series-re` (spray-guns only). `pg-hero-fit.js` builds `.pg-hero-ph` and sets `--pg-hero-vis-h` = hero top -> tray top on load/resize, printing "W x H px visible on this screen" (1440x900 -> 1440x609, 1920x1080 -> 1920x790, 1366x768 -> 1366x518) plus "use a 2560 x 1080 px photo (~2.4:1), subject on the right half". `pg-hero-coll.css`: placeholder styling (dark grid, dashed frame, label on the right half), photo layer removed on that hero (old photo no longer requested). Welding / airless / office heroes unchanged.
 - To put a photo back: remove `data-hero-ph` and set `--pi-hero: url(...)` on the hero.
+
+## 2026-10-13 - Home hero spacing
+Cause: headline capped at 780px wrapped to 3 lines on laptop windows (~1346x700), leaving no gap above the sub-text and cards. Fix (tail of pi-home.css, v=8): headline uses the full column left of the figure deck (2 lines), type scale min(5.4vw,10vh) max 88px, hero min-height 620px, gap above cards clamp(28px,5vh,48px). Left/right edges verified aligned (headline, card A, deck, card B) at 1346, 1683, 1024, 390 px.
+
+## Admin: add a category and a new series (2026-10-13)
+- Products screen: "New series" and "New category" buttons under the series list; empty categories show "No series yet".
+- Categories: `tools/product-lines.json` (created on first change; starts from the built-in LINES in admin/server.mjs; in production stored in Postgres via store.mjs). `POST /admin/api/series/category {name}` (2-60 chars, no < > ", unique).
+- New series: `POST /admin/api/series/create {name, line, from}` copies `pages/<from>.html` to `pages/<slug>.html`, sets title/og/twitter/description/canonical, renames the current series-menu entry (+href), replaces the banner headings with the name (drops a split second line) and the banner text with a "replace this text" line, keeps only the first model (deleteProduct) renamed "New model" (saveProduct), adds the slug to the category. Refuses an existing address.
+- Tested on a separate server: validation, duplicates, category + series created, page 200, div balance 105/105, series list and product list correct, UI drawer works, no JS errors; test page and json removed afterwards.
+- Not automatic: the new page is not added to the site navbar / landing-page tray, its banner photo is the template's, and its series menu keeps the template's sibling series.
+- Gotcha (again): writing JS with regexes through python strings / bash -e turned \b into a backspace and \1 into \x01; write such code with the Write tool and splice it in with a node script.

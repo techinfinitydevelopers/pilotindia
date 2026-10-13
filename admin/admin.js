@@ -650,13 +650,64 @@
       var path = q.get('path') || (all[0] && all[0].path);
       view.innerHTML = head('Products', 'Products grouped by series. Edit a product, add a new one, or remove it.') +
         '<div class="split"><nav class="series">' + groups.map(function (g) {
-          return '<h4>' + esc(g.line) + '</h4>' + g.series.map(function (s) {
+          return '<h4>' + esc(g.line) + '</h4>' + (g.series.length ? '' : '<p class="series__empty">No series yet</p>') + g.series.map(function (s) {
             return '<a href="#/products?path=' + encodeURIComponent(s.path) + '"' + (s.path === path ? ' class="is-on"' : '') + '>' + esc(s.name) + ' <small>' + s.products + '</small></a>';
           }).join('');
-        }).join('') + '</nav><div data-list><div class="empty"><span class="spin"></span></div></div></div>';
-      return drawSeries(path, q.get('open'));
+        }).join('') + '<div class="series__acts"><button class="btn btn--sm btn--primary" data-new-series>' + I.plus + 'New series</button><button class="btn btn--sm" data-new-cat>' + I.plus + 'New category</button></div></nav><div data-list><div class="empty"><span class="spin"></span></div></div></div>';
+      $('[data-new-series]', view).onclick = function () { newSeries(groups); };
+      $('[data-new-cat]', view).onclick = newCategory;
+      return path ? drawSeries(path, q.get('open')) : null;
     });
   };
+  // ---- new category / new series (buttons under the series list)
+  function smallDrawer(title, bodyHtml, actionLabel, onSubmit) {
+    var d = h('<div class="drawer"><div class="drawer__panel drawer__panel--sm"><div class="drawer__head"><h2>' + esc(title) + '</h2>' +
+      '<button class="btn btn--sm btn--primary" data-go>' + esc(actionLabel) + '</button><button class="icon-btn" data-x title="Close">' + I.x + '</button></div>' +
+      '<div class="drawer__body"><section>' + bodyHtml + '</section></div></div></div>');
+    document.body.appendChild(d);
+    function close() { d.remove(); }
+    $('[data-x]', d).onclick = close;
+    d.addEventListener('click', function (e) { if (e.target === d) close(); });
+    var go = $('[data-go]', d);
+    go.onclick = function () {
+      go.disabled = true;
+      Promise.resolve(onSubmit(d)).then(function (ok) { if (ok !== false) close(); else go.disabled = false; }).catch(function (e) { go.disabled = false; fail(e); });
+    };
+    var first = $('input, select', d); if (first) first.focus();
+    return d;
+  }
+  function newCategory() {
+    smallDrawer('New category',
+      '<label class="field"><span>Category name</span><input type="text" data-name placeholder="e.g. Industrial Coatings" maxlength="60" /></label>' +
+      '<p class="hint" style="color:var(--mute);margin:0">The category appears in this list; add a series to it with "New series".</p>',
+      'Add category', function (d) {
+        return api('/series/category', { name: $('[data-name]', d).value }).then(function (r) {
+          toast('Category "' + r.name + '" added', 'ok');
+          return ROUTES['/products'](view);
+        });
+      });
+  }
+  function newSeries(groups) {
+    var cats = groups.filter(function (g) { return g.line !== 'Other'; });
+    var all = []; groups.forEach(function (g) { g.series.forEach(function (s) { all.push(s); }); });
+    smallDrawer('New series',
+      '<label class="field"><span>Series name</span><input type="text" data-name placeholder="e.g. Turbo Series" maxlength="60" /></label>' +
+      '<label class="field"><span>Category</span><select class="input" data-line>' + cats.map(function (g) { return '<option>' + esc(g.line) + '</option>'; }).join('') + '</select></label>' +
+      '<label class="field"><span>Start from the layout of</span><select class="input" data-from>' + all.map(function (s) {
+        return '<option value="' + esc(s.path.replace(/^pages\//, '').replace(/\.html$/, '')) + '">' + esc(s.name) + ' (' + s.products + ' product' + (s.products === 1 ? '' : 's') + ')</option>';
+      }).join('') + '</select></label>' +
+      '<p class="hint" style="color:var(--mute);margin:0">A new page is made from the series you choose: same layout and spec table, with one product named "New model". ' +
+      'Then edit that product (name, picture, features, specs), add more products, and replace the banner text in the page editor. ' +
+      'The new page is not in the site menu yet.</p>',
+      'Create series', function (d) {
+        var body = { name: $('[data-name]', d).value, line: $('[data-line]', d).value, from: $('[data-from]', d).value };
+        return api('/series/create', body).then(function (r) {
+          toast('Series created: ' + r.path, 'ok');
+          location.hash = '#/products?path=' + encodeURIComponent(r.path) + (r.id ? '&open=' + encodeURIComponent(r.id) : '');
+        });
+      });
+  }
+
   // a series can span several pages (e.g. Currency Counters + its Currency Sorters page): one block per page
   function seriesInfo(path) {
     var hit = null;

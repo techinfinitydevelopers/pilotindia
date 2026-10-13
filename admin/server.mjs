@@ -535,11 +535,95 @@ function listSeries() {
     o.products += p.products;
     pages.splice(pages.indexOf(p), 1);
   }
-  const groups = LINES.map(([line, order]) => ({ line, series: order.map(b => pages.find(p => p.base === b)).filter(Boolean) }));
-  const known = new Set(LINES.flatMap(l => l[1]));
+  const ls = productLines();
+  const groups = ls.map(([line, order]) => ({ line, series: order.map(b => pages.find(p => p.base === b)).filter(Boolean) }));
+  const known = new Set(ls.flatMap(l => l[1]));
   const other = pages.filter(p => !known.has(p.base));
   if (other.length) groups.push({ line: 'Other', series: other });
-  return groups.filter(g => g.series.length);
+  // a category the admin just created has no series yet: keep it, so a series can be added to it
+  return groups;
+}
+
+// ---------------------------------------------------------------- categories and new series
+// The admin can add a category (a product line in the Products list) and a new series page. The
+// categories live in tools/product-lines.json, which starts as the built-in LINES above (in
+// production this file is kept in Postgres like every other admin edit, see store.mjs).
+const LINES_FILE = () => path.join(REPO, 'tools', 'product-lines.json');
+function productLines() {
+  try {
+    const j = JSON.parse(fs.readFileSync(LINES_FILE(), 'utf8'));
+    if (Array.isArray(j)) return j.filter(x => x && typeof x.line === 'string').map(x => [x.line, Array.isArray(x.series) ? x.series.map(String) : []]);
+  } catch (e) { /* no file yet: built-in list */ }
+  return LINES.map(([l, o]) => [l, o.slice()]);
+}
+function saveProductLines(ls) {
+  fs.writeFileSync(LINES_FILE(), JSON.stringify(ls.map(([line, series]) => ({ line, series })), null, 1) + '\n');
+}
+const cleanName = (v, what) => {
+  const t = String(v || '').replace(/\s+/g, ' ').trim();
+  if (t.length < 2 || t.length > 60) throw new Error(what + ' must be 2 to 60 characters');
+  if (/[<>"]/.test(t)) throw new Error(what + ' cannot contain < > or "');
+  return t;
+};
+function addCategory(b) {
+  const name = cleanName(b.name, 'Category name');
+  const ls = productLines();
+  if (ls.some(([l]) => l.toLowerCase() === name.toLowerCase()) || name.toLowerCase() === 'other') throw new Error('a category with this name already exists');
+  ls.push([name, []]);
+  saveProductLines(ls);
+  return name;
+}
+const slugOf = s => s.toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+// A new series page is a copy of an existing series page (the admin picks which, so the layout and
+// spec table fit). Its title, address, series-menu entry and banner take the new name; it keeps only
+// its first model, renamed "New model", which is then edited (and duplicated) like any product.
+function createSeries(b) {
+  const name = cleanName(b.name, 'Series name');
+  const base = slugOf(name);
+  if (!base) throw new Error('the series name needs letters or numbers');
+  const abs = path.join(ROOT, 'pages', base + '.html');
+  if (fs.existsSync(abs)) throw new Error('a page with this address already exists: pages/' + base + '.html');
+  const ls = productLines();
+  const line = ls.find(([l]) => l === b.line);
+  if (!line) throw new Error('choose a category');
+  const srcAbs = sitePath('pages/' + String(b.from || '') + '.html');
+  if (!fs.existsSync(srcAbs) || !pageInfo(srcAbs).series) throw new Error('choose a series to start from');
+
+  const esc = t => escText(t).replace(/"/g, '&quot;');
+  let html = fs.readFileSync(srcAbs, 'utf8');
+  const title = name + ' | Pilot India';
+  html = html
+    .replace(/<title>[\s\S]*?<\/title>/, '<title>' + escText(title) + '</title>')
+    .replace(/(<meta\b[^>]*\b(?:property|name)="(?:og:title|twitter:title)"[^>]*\bcontent=")[^"]*"/g, (m, a) => a + esc(title) + '"')
+    .replace(/(<meta\b[^>]*\b(?:property|name)="(?:description|og:description|twitter:description)"[^>]*\bcontent=")[^"]*"/g, (m, a) => a + esc(name + ' from Pilot India.') + '"')
+    .replace(/(<meta\b[^>]*\bproperty="og:url"[^>]*\bcontent=")[^"]*"/, (m, a) => a + base + '.html"')
+    .replace(/(<link rel="canonical" href=")[^"]*"/, (m, a) => a + base + '.html"');
+  // the series menu: the current entry becomes this series
+  html = html.replace(/(<li[^>]*current-menu-item[^>]*>\s*)(<a\b[^>]*>)([^<]+)(<\/a>)/i, (m, li, a, t, end) =>
+    li + a.replace(/\shref="[^"]*"/, ' href="' + base + '.html"') + escText(name.toUpperCase()) + end);
+  // the banner (desktop and phone copies, between the first banner and the first model): the first
+  // heading of each copy carries the name, a heading right after it (a name split over two lines) goes,
+  // and the introduction becomes a line to replace in the page editor
+  const from = html.search(/class="[^"]*\bpg-hero\b/), to = html.search(/class="[^"]*\bpg-prod\b/);
+  if (from > 0 && to > from) {
+    let region = html.slice(from, to), prevHeading = false;
+    region = region.replace(/<(h[1-6])\b([^>]*)>[\s\S]*?<\/\1>|<p\b([^>]*)>[\s\S]*?<\/p>/g, (m, h, ha, pa) => {
+      if (h) { const out = prevHeading ? '' : '<' + h + ha + '>' + escText(name.toUpperCase()) + '</' + h + '>'; prevHeading = true; return out; }
+      prevHeading = false;
+      return '<p' + pa + '>Introduce the ' + escText(name) + ' here: open this page in the page editor and replace this text.</p>';
+    });
+    html = html.slice(0, from) + region + html.slice(to);
+  }
+  fs.writeFileSync(abs, html, 'utf8');
+  // one model to start from
+  const ids = sectionsOf(parseDoc(html)).desk.map(s => attr(s, 'id'));
+  for (const id of ids.slice(1)) deleteProduct(abs, id);
+  if (ids[0]) saveProduct(abs, { id: ids[0], name: 'New model' });
+
+  for (const l of ls) l[1] = l[1].filter(x => x !== base);
+  line[1].push(base);
+  saveProductLines(ls);
+  return { path: 'pages/' + base + '.html', id: ids[0] || null };
 }
 
 function sectionsOf(doc) {
@@ -1064,6 +1148,8 @@ export async function handleAdmin(req, res) {
       case 'GET /page-model': return send(res, 200, pageModel(sitePath(q('path')))), true;
       case 'POST /page/section': { const b = await readJson(req); sectionAction(sitePath(b.path), b); return send(res, 200, { ok: true }), true; }
       case 'GET /series': return send(res, 200, listSeries()), true;
+      case 'POST /series/category': { const b = await readJson(req); return send(res, 200, { ok: true, name: addCategory(b) }), true; }
+      case 'POST /series/create': { const b = await readJson(req); return send(res, 200, Object.assign({ ok: true }, createSeries(b))), true; }
       case 'GET /products': return send(res, 200, listProducts(sitePath(q('path')))), true;
       case 'POST /product': { const b = await readJson(req); const changed = saveProduct(sitePath(b.path), b); return send(res, 200, { ok: true, changed }), true; }
       case 'POST /product/duplicate': { const b = await readJson(req); return send(res, 200, { ok: true, id: duplicateProduct(sitePath(b.path), b.id) }), true; }

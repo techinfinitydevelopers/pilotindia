@@ -1764,7 +1764,7 @@
    never gets shorter than 620px, and there is a clear gap above the cards. */
 .pi-hero { min-height: max(620px, calc(100svh - 100px)); }
 .pi-hero__head { max-width: none; }
-.pi-hero__title { font-size: clamp(40px, min(5.4vw, 10vh), 88px); }
+.pi-hero__title { font-size: clamp(32px, min(3.9vw, 7vh), 60px); }
 .pi-hero__cards { margin-top: clamp(28px, 5vh, 48px); }
 
 /* ---- phone: "20+" sits on the left with its label (it was right-aligned and floated in from nowhere) ---- */

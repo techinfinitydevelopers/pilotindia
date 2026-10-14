@@ -64,7 +64,7 @@
   font-family: var(--pi-font-heading);
   font-style: italic;
   font-weight: 700;
-  font-size: clamp(40px, 6vw, 84px);
+  font-size: clamp(30px, 3.6vw, 52px);
   line-height: 1;
   letter-spacing: -0.03em;
   color: #fff;

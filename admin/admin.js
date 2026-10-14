@@ -1027,17 +1027,17 @@
         '<div class="stat"><span class="stat__label">Catalogues behind the form</span><span class="stat__n">' + (d.catalogues || 0) + '</span><span class="stat__open">Stored in ' + (d.storage === 'postgres' ? 'Postgres' : 'a local file (not in git)') + '</span></div>' +
         '</div>' +
         '<div class="bar"><label class="search">' + I.search + '<input placeholder="Search name, email, phone, company or catalogue" /></label><span class="pill" data-n></span></div>' +
-        '<div class="leads-wrap"><table class="leads"><thead><tr><th>Date</th><th>Time</th><th>Name</th><th>Email</th><th>Phone</th><th>Country</th><th>Company</th><th>Catalogue</th><th>Page</th></tr></thead><tbody></tbody></table></div>';
+        '<div class="leads-wrap"><table class="leads"><thead><tr><th>Date</th><th>Time</th><th>Name</th><th>Email</th><th>Phone</th><th>Country</th><th>Company</th><th>Catalogue / enquiry</th><th>Message</th><th>Page</th></tr></thead><tbody></tbody></table></div>';
       var body = $('tbody', view), n = $('[data-n]', view);
       function draw(q) {
-        var rows = leads.filter(function (l) { return !q || [l.name, l.email, l.phone, l.country, l.company, l.file, l.page].join(' ').toLowerCase().indexOf(q) >= 0; });
+        var rows = leads.filter(function (l) { return !q || [l.name, l.email, l.phone, l.country, l.company, l.file, l.message, l.page].join(' ').toLowerCase().indexOf(q) >= 0; });
         n.textContent = rows.length + ' of ' + leads.length;
         body.innerHTML = rows.map(function (l) {
           return '<tr><td>' + dateOf(l.created_at) + '</td><td>' + timeOf(l.created_at) + '</td><td>' + esc(l.name) + '</td>' +
             '<td><a href="mailto:' + esc(l.email) + '">' + esc(l.email) + '</a></td><td><a href="tel:' + esc(String(l.phone).replace(/[^\d+]/g, '')) + '">' + esc(l.phone) + '</a></td>' +
             '<td>' + esc(l.country || '') + '</td><td>' + esc(l.company || '') + '</td>' +
-            '<td title="' + esc(l.file) + '">' + esc(fileOf(l.file)) + '</td><td>' + esc(l.page || '') + '</td></tr>';
-        }).join('') || '<tr><td colspan="9" class="leads__empty">' + (leads.length ? 'No leads match.' : 'No leads yet. They appear here as soon as someone fills the catalogue form.') + '</td></tr>';
+            '<td title="' + esc(l.file) + '">' + esc(/^Enquiry: /.test(l.file || '') ? l.file : fileOf(l.file)) + '</td><td class="leads__msg" title="' + esc(l.message || '') + '">' + esc(l.message || '') + '</td><td>' + esc(l.page || '') + '</td></tr>';
+        }).join('') || '<tr><td colspan="10" class="leads__empty">' + (leads.length ? 'No leads match.' : 'No leads yet. They appear here as soon as someone fills the catalogue form or the Contact page enquiry form.') + '</td></tr>';
       }
       $('input', view).addEventListener('input', function (e) { draw(e.target.value.trim().toLowerCase()); });
       draw('');

@@ -47,7 +47,7 @@
 .pa-hero::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(to top, rgba(10,10,10,.85) 0%, rgba(10,10,10,0) 34%); }
 .pa-hero__copy { margin: auto 0 clamp(14px, 4.5vh, 40px) clamp(20px, 3.4vw, 56px); padding-top: 110px; width: min(720px, 56vw); }
 .pi-about .pa-hero__title { font-family: var(--pi-font-heading, system-ui, sans-serif); font-style: italic; font-weight: 600; text-transform: uppercase;
-  font-size: clamp(30px, min(3.6vw, 6.4vh), 62px); line-height: 1.03; letter-spacing: -.01em; color: #fff; }
+  font-size: clamp(26px, min(2.7vw, 4.9vh), 44px); line-height: 1.05; letter-spacing: -.01em; color: #fff; }
 .pa-hero__title span, .pa-hero__title em { display: block; }
 .pa-hero__title span { color: rgba(255,255,255,.58); font-weight: 500; }
 .pa-hero__title span:nth-child(2) { color: #fff; font-weight: 600; }
@@ -181,7 +181,7 @@
   .pa-hero { min-height: 0; padding-top: 0; border-radius: 0; }
   .pa-hero__bg { background: linear-gradient(180deg, rgba(10,10,10,.8) 0%, var(--pa-ink) 62%), url("../img/about-hero.jpg") 62% top / auto 55% no-repeat; }
   .pa-hero__copy { margin: 0; padding: 96px 20px 0; width: 100%; }
-  .pi-about .pa-hero__title { font-size: clamp(28px, 8.4vw, 38px); }
+  .pi-about .pa-hero__title { font-size: clamp(24px, 7vw, 32px); }
   .pa-hero__cta { flex-wrap: nowrap; gap: 8px; }
   .pi-about a.pa-btn { padding: 11px 16px; font-size: 13px; white-space: nowrap; }
   .pa-tray { width: 100%; margin-top: 52px; padding: 16px 20px 20px; --r: 20px; }
@@ -205,3 +205,6 @@
    the tab's curved corner and lost its last letter. Same selector weight as the phone rule. (2026-10-14) */
 .pa-tray .pa-tray__label { padding: 8px 34px 0 clamp(18px, 3vw, 40px); white-space: nowrap; }
 @media (max-width: 767px) { .pa-tray .pa-tray__label { padding-left: 20px; padding-right: 36px; } }
+
+/* hero sub-text gap: the generic paragraph reset (.pi-about p, 0,1,1) was zeroing .pa-hero__sub margin on desktop */
+.pi-about .pa-hero__sub { margin-top: 16px; }

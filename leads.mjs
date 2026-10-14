@@ -33,6 +33,7 @@ export async function initLeads(repoRoot, siteRoot) {
       file text, page text, ip text, user_agent text,
       created_at timestamptz not null default now())`);
     await pool.query('alter table leads add column if not exists country text, add column if not exists company text');
+    await pool.query('alter table leads add column if not exists topic text, add column if not exists message text');
   }
   scanCatalogues();
 }
@@ -122,11 +123,34 @@ export async function handleLeadPost(req, res) {
   });
 }
 
+// ---- the Contact page enquiry form (pages/contact-us.html, assets/js/pi-contact.js). Stored with the catalogue leads;
+// file = "Enquiry: <topic>" so the admin's Leads screen and CSV show both kinds in one list. No cookie is set.
+export const TOPICS = ['Spray Guns', 'Airless Spray Systems', 'Power Tools', 'Welding Equipments', 'Office Products', 'Customer service', 'Exports', 'Something else'];
+export async function handleEnquiryPost(req, res) {
+  let b;
+  try { b = await readJson(req); } catch { return json(res, 400, { ok: false, error: 'Bad request.' }); }
+  if (clean(b.website, 200)) return json(res, 200, { ok: true });
+  const v = validate(b);
+  const topic = TOPICS.includes(clean(b.topic, 60)) ? clean(b.topic, 60) : '';
+  const message = String(b.message == null ? '' : b.message).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, ' ').replace(/\r\n?/g, '\n').trim().slice(0, 2000);
+  if (!topic) v.errors.topic = 'Please choose what your enquiry is about.';
+  if (message.length < 10) v.errors.message = 'Please write a little more (at least 10 characters).';
+  if (Object.keys(v.errors).length) return json(res, 422, { ok: false, errors: v.errors });
+  const row = {
+    name: v.name, email: v.email, phone: v.phone, country: v.country, company: v.company,
+    file: 'Enquiry: ' + topic, page: clean(b.page, 300), topic, message,
+    ip: clientIp(req), user_agent: clean(req.headers['user-agent'], 300),
+    created_at: new Date().toISOString(),
+  };
+  try { await saveLead(row); } catch (e) { console.error('leads: enquiry save failed', e); return json(res, 500, { ok: false, error: 'Could not send your enquiry. Please try again, or email info@pilotindia.com.' }); }
+  return json(res, 200, { ok: true });
+}
+
 async function saveLead(row) {
   const pool = dbPool();
   if (pool) {
-    await pool.query('insert into leads (name, email, phone, country, company, file, page, ip, user_agent, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',
-      [row.name, row.email, row.phone, row.country, row.company, row.file, row.page, row.ip, row.user_agent, row.created_at]);
+    await pool.query('insert into leads (name, email, phone, country, company, file, page, ip, user_agent, created_at, topic, message) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)',
+      [row.name, row.email, row.phone, row.country, row.company, row.file, row.page, row.ip, row.user_agent, row.created_at, row.topic || null, row.message || null]);
     return;
   }
   fs.mkdirSync(path.dirname(LOCAL()), { recursive: true });
@@ -137,7 +161,7 @@ async function saveLead(row) {
 export async function listLeads() {
   const pool = dbPool();
   if (pool) {
-    const { rows } = await pool.query('select id, name, email, phone, country, company, file, page, ip, created_at from leads order by created_at desc limit 5000');
+    const { rows } = await pool.query('select id, name, email, phone, country, company, file, page, ip, created_at, topic, message from leads order by created_at desc limit 5000');
     return rows.map(r => ({ ...r, created_at: new Date(r.created_at).toISOString() }));
   }
   if (!fs.existsSync(LOCAL())) return [];
@@ -148,10 +172,10 @@ export async function listLeads() {
 export async function leadsCsv() {
   const rows = await listLeads();
   const cell = v => { const s = String(v == null ? '' : v); return /[",\n]/.test(s) || /^[=+\-@]/.test(s) ? '"' + s.replace(/^([=+\-@])/, "'$1").replace(/"/g, '""') + '"' : s; };
-  const head = ['Date', 'Time (UTC)', 'Name', 'Email', 'Phone', 'Country', 'Company', 'Catalogue', 'Page'];
+  const head = ['Date', 'Time (UTC)', 'Name', 'Email', 'Phone', 'Country', 'Company', 'Catalogue / enquiry', 'Message', 'Page'];
   return [head.join(',')].concat(rows.map(r => {
     const d = new Date(r.created_at);
-    return [d.toISOString().slice(0, 10), d.toISOString().slice(11, 19), r.name, r.email, r.phone, r.country, r.company, r.file, r.page].map(cell).join(',');
+    return [d.toISOString().slice(0, 10), d.toISOString().slice(11, 19), r.name, r.email, r.phone, r.country, r.company, r.file, r.message, r.page].map(cell).join(',');
   })).join('\r\n') + '\r\n';
 }
 

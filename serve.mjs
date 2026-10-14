@@ -18,7 +18,7 @@ await initStore(REPO);
 import { initSlugs, resolveRequest, rewriteHtml, slugVersion, sitemapXml, cleanUrlOf } from './slugs.mjs';
 initSlugs(ROOT, REPO);
 // catalogue downloads need the short form first (leads.mjs)
-import { initLeads, handleLeadPost, isCatalogue, hasAccess, gatePage } from './leads.mjs';
+import { initLeads, handleLeadPost, handleEnquiryPost, isCatalogue, hasAccess, gatePage } from './leads.mjs';
 await initLeads(REPO, ROOT);
 if (dbMode() && !authEnabled()) console.warn('admin disabled: set ADMIN_PASSWORD to use /admin in production');
 
@@ -141,12 +141,13 @@ async function handle(req, res) {
   const isAdmin = req.url.startsWith('/admin') || /[?&]__cms=1(&|$)/.test(req.url);
   if (!rateLimit(req, res, isAdmin ? 'admin' : 'site')) return;
   if (isAdmin && req.method === 'POST' && !req.url.startsWith('/admin/login') && !rateLimit(req, res, 'write')) return;
-  // the one public form: catalogue downloads (leads.mjs)
-  if (!isAdmin && req.method === 'POST' && req.url.split('?')[0] === '/api/leads') {
+  // the two public forms: catalogue downloads and the Contact page enquiry (leads.mjs); they share the lead rate limits
+  const formPost = !isAdmin && req.method === 'POST' && { '/api/leads': handleLeadPost, '/api/enquiry': handleEnquiryPost }[req.url.split('?')[0]];
+  if (formPost) {
     if (!sameOrigin(req)) { res.writeHead(403).end('forbidden'); return; }
     if (!rateLimit(req, res, 'lead') || !rateLimit(req, res, 'lead*')) return;
     if (!admitBody(req, res, 8192)) return;
-    await handleLeadPost(req, res);
+    await formPost(req, res);
     return;
   }
   if (!isAdmin && req.method === 'POST') { res.writeHead(405, { Allow: 'GET, HEAD' }).end(); return; }

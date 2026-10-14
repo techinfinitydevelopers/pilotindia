@@ -429,6 +429,7 @@ a.stat:hover::after { transform: scaleX(1); }
 .leads td { padding: 13px 16px; border-bottom: 1px solid var(--line); color: var(--ink); white-space: nowrap; }
 .leads td:nth-child(1), .leads td:nth-child(2) { color: var(--body); font-variant-numeric: tabular-nums; }
 .leads td:nth-child(6) { max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
+.leads td.leads__msg { max-width: 320px; overflow: hidden; text-overflow: ellipsis; }
 .leads tr:last-child td { border-bottom: 0; }
 .leads tbody tr:hover td { background: #fbfaf7; }
 .leads a { color: var(--ink); text-decoration: underline; text-decoration-color: rgba(17, 17, 20, 0.25); }

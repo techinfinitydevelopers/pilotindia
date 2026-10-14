@@ -309,3 +309,6 @@ Owned by `tools/product-hero.mjs` (per-page config) + `assets/css/pg-hero-coll.c
 
 ### About Us (2026-10-12)
 Rebuilt by `tools/about-us.mjs` (+ `pi-about.css/js`); original Divi article is gone from the file (in git history). Scroll reveals key off `#pi-about.pa-js`. Never put motion flags on `<html>` - Divi resets its className.
+
+### Contact page (2026-10-14)
+Rebuilt by `tools/contact-us.mjs` (+ `pi-contact.css/js`). Enquiry form posts to `/api/enquiry` -> leads storage (file "Enquiry: <topic>", topic/message columns) -> admin Leads. No outgoing email exists on this site. contact-us.html is still the page shell for `tools/products-page.mjs`, keep the block inside one `<article>`.

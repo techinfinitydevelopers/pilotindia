@@ -191,3 +191,8 @@
   .pa-range__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .pa-range__grid li:last-child { grid-column: span 2; }
 }
+
+/* "Pilot at a glance" tab: a generic paragraph reset zeroed its padding on desktop, so the text ran into
+   the tab's curved corner and lost its last letter. Same selector weight as the phone rule. (2026-10-14) */
+.pa-tray .pa-tray__label { padding: 8px 34px 0 clamp(18px, 3vw, 40px); white-space: nowrap; }
+@media (max-width: 767px) { .pa-tray .pa-tray__label { padding-left: 20px; padding-right: 36px; } }

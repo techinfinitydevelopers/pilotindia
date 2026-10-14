@@ -32,6 +32,12 @@ import { pathToFileURL } from 'node:url';
 import { flush, track, dbMode } from '../store.mjs';
 import { listBans, unban } from '../blocklist.mjs';
 import { listUrls, setSlug, invalidateSlugs } from '../slugs.mjs';
+// the /products page lists every series and model: rebuilt after any change to them
+// (loaded on demand: the tool's command-line mode imports this file; tracked so the save waits for it)
+function rebuildProducts() {
+  track(import('../tools/products-page.mjs').then(m => { m.buildProductsPage({ root: ROOT, lines: productLines(), partOf: PART_OF }); invalidateSlugs(); })
+    .catch(e => console.warn('products page not rebuilt:', e.message)));
+}
 import { admitBody, readLimited, takeUploadSlot, uploadQuota, checkUploadContent, rateLimit, clientIp } from '../security.mjs';
 import { listLeads, leadsCsv, catalogueCount } from '../leads.mjs';
 
@@ -515,7 +521,7 @@ const LINES = [
   ['Power Tools', ['power-tools']],
 ];
 // pages that are part of another series, not a series of their own (the site menu has no entry for them)
-const PART_OF = { 'currency-sorters': 'currency-counters' };
+export const PART_OF = { 'currency-sorters': 'currency-counters' };
 const norm = s => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
 function seriesName(html, base) {
   const m = html.match(/<li[^>]*current-menu-item[^>]*>\s*<a[^>]*>([^<]+)<\/a>/i);
@@ -550,7 +556,7 @@ function listSeries() {
 // categories live in tools/product-lines.json, which starts as the built-in LINES above (in
 // production this file is kept in Postgres like every other admin edit, see store.mjs).
 const LINES_FILE = () => path.join(REPO, 'tools', 'product-lines.json');
-function productLines() {
+export function productLines() {
   try {
     const j = JSON.parse(fs.readFileSync(LINES_FILE(), 'utf8'));
     if (Array.isArray(j)) return j.filter(x => x && typeof x.line === 'string').map(x => [x.line, Array.isArray(x.series) ? x.series.map(String) : []]);
@@ -1149,14 +1155,14 @@ export async function handleAdmin(req, res) {
       case 'GET /page-model': return send(res, 200, pageModel(sitePath(q('path')))), true;
       case 'POST /page/section': { const b = await readJson(req); sectionAction(sitePath(b.path), b); return send(res, 200, { ok: true }), true; }
       case 'GET /series': return send(res, 200, listSeries()), true;
-      case 'POST /series/category': { const b = await readJson(req); return send(res, 200, { ok: true, name: addCategory(b) }), true; }
-      case 'POST /series/create': { const b = await readJson(req); const r = createSeries(b); invalidateSlugs(); return send(res, 200, Object.assign({ ok: true }, r)), true; }
+      case 'POST /series/category': { const b = await readJson(req); const name = addCategory(b); rebuildProducts(); return send(res, 200, { ok: true, name }), true; }
+      case 'POST /series/create': { const b = await readJson(req); const r = createSeries(b); rebuildProducts(); return send(res, 200, Object.assign({ ok: true }, r)), true; }
       case 'GET /urls': return send(res, 200, listUrls().map(u => Object.assign(u, { title: (() => { try { return pageInfo(path.join(ROOT, u.file)).title; } catch (e) { return ''; } })() }))), true;
       case 'POST /urls': { const b = await readJson(req); return send(res, 200, Object.assign({ ok: true }, setSlug(String(b.file || ''), b.slug, !!b.reset))), true; }
       case 'GET /products': return send(res, 200, listProducts(sitePath(q('path')))), true;
-      case 'POST /product': { const b = await readJson(req); const changed = saveProduct(sitePath(b.path), b); return send(res, 200, { ok: true, changed }), true; }
-      case 'POST /product/duplicate': { const b = await readJson(req); return send(res, 200, { ok: true, id: duplicateProduct(sitePath(b.path), b.id) }), true; }
-      case 'POST /product/delete': { const b = await readJson(req); deleteProduct(sitePath(b.path), b.id); return send(res, 200, { ok: true }), true; }
+      case 'POST /product': { const b = await readJson(req); const changed = saveProduct(sitePath(b.path), b); if (changed) rebuildProducts(); return send(res, 200, { ok: true, changed }), true; }
+      case 'POST /product/duplicate': { const b = await readJson(req); const id = duplicateProduct(sitePath(b.path), b.id); rebuildProducts(); return send(res, 200, { ok: true, id }), true; }
+      case 'POST /product/delete': { const b = await readJson(req); deleteProduct(sitePath(b.path), b.id); rebuildProducts(); return send(res, 200, { ok: true }), true; }
       case 'GET /blog': { const src = blogSources(); return send(res, 200, blogFiles().map(blogSummary).map(m => Object.assign({}, m, { sources: src[path.basename(m.path, '.html')] || [] })).sort((a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0))), true; }
       case 'GET /blog/post': return send(res, 200, blogModel(sitePath(q('path')))), true;
       case 'POST /blog/post': { const b = await readJson(req); const p = saveBlog(b); invalidateSlugs(); return send(res, 200, { ok: true, path: p }), true; }

@@ -178,8 +178,19 @@
         dropdownBtn.addEventListener('click', function (e) {
           if (window.innerWidth <= 900) return;
           e.preventDefault();
+          // with a mouse the dropdown opens on hover, so a click on "Products" opens the Products page;
+          // on touch screens a tap still opens the dropdown (which starts with "All products")
+          if (window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) { window.location.href = '/products'; return; }
           dropdown.classList.toggle('is-open');
         });
+      }
+      // "All products" at the top of the dropdown: the full catalogue page (pages/products.html, URL /products)
+      var ddList = dropdown.querySelector('.framer-dyn-dropdown-list');
+      if (ddList && !ddList.querySelector('.pi-nav-all')) {
+        var all = document.createElement('li');
+        all.className = 'pi-nav-all';
+        all.innerHTML = '<a href="/products"><span class="framer-dyn-dd-title">All products</span><span class="framer-dyn-dd-desc">Every line, series and model</span></a>';
+        ddList.insertBefore(all, ddList.firstChild);
       }
     }
   }

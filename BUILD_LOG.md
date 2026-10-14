@@ -2350,3 +2350,9 @@ Checked: desktop + phone screenshots, FAQ block, no horizontal scroll at 390 on 
 
 ## 2026-10-14 - Fan gallery corner brackets removed
 pg-fan.css v=7: .pg-fan__mark hidden on all 5 product pages.
+
+## 2026-10-14 - Contact page: guided enquiry
+tools/contact-us.mjs (V=15) + pi-contact.js/css: section "Send an enquiry" is now 3 steps: 1) pick what it is about (8 topic cards, each showing the desk and email that answer it), 2) that desk leads the "Direct lines" list with a "Write an email" button (mailto with subject "Enquiry: <topic>") and Copy, 3) "Your details" form with the topic already chosen (Change link). Step pills track progress. Without JS all parts show with the topic chips. Topic->desk: Office Products->sales@, Customer service->csd@, Exports->export@, others->info@ (from the page's own directory).
+
+## 2026-10-14 - Home hero arrow no longer bounces
+pi-home.css (v=13): hover lift removed from .pi-hero__slot and .pi-hero__card--b (the lift moved the box out from under the pointer at its edge, so it bounced). Arrow keeps its orange-fill / turn hover.

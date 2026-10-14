@@ -198,3 +198,69 @@
   .pc-visit__shot { height: 200px; }
   .pc-map { height: 240px; }
 }
+
+/* ==========================================================================
+   Guided enquiry (2026-10-14): 1. what it is about  2. the desk that answers it  3. your details.
+   pi-contact.js adds .pc-flow--js; until a topic is chosen only step 1 shows. Without scripting everything shows.
+   ========================================================================== */
+.pc-flow__head { max-width: 760px; margin: 0 auto clamp(22px, 3vw, 34px); text-align: center; }
+.pc-flow__head .pc-eyebrow { justify-content: center; }
+.pc-steps { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; }
+.pc-steps__i { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px 7px 8px; border-radius: 999px; border: 1px solid var(--pc-line); background: #fff; font-size: 13px; font-weight: 600; color: var(--pc-text); transition: background .25s, color .25s, border-color .25s; }
+.pc-steps__i b { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #f1ece4; font-size: 11.5px; color: #111114; transition: background .25s; }
+.pc-steps__i.is-on b { background: var(--pc-acc); }
+.pc-steps__i.is-now { border-color: #111114; background: #111114; color: #fff; }
+
+/* step 1: the topics as large cards */
+.pc-purpose { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; scroll-margin-top: 110px; }
+.pc-pur {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-height: 118px;
+  padding: 18px 54px 18px 18px; border: 1px solid var(--pc-line); border-radius: 20px; background: #fff; color: #111114;
+  font: inherit; text-align: left; cursor: pointer;
+  transition: border-color .25s, transform .4s cubic-bezier(.16,1,.3,1), box-shadow .4s, background .25s;
+}
+.pc-pur:hover { transform: translateY(-3px); border-color: rgba(245,134,52,.55); box-shadow: 0 22px 40px -30px rgba(17,17,20,.45); }
+.pc-pur:focus-visible { outline: 2px solid var(--pc-acc); outline-offset: 3px; }
+.pc-pur__t { font-family: var(--pi-font-heading, system-ui, sans-serif); font-style: italic; font-size: 19px; font-weight: 600; line-height: 1.2; }
+.pc-pur__d { margin-top: auto; font-size: 12px; line-height: 1.45; color: var(--pc-text); overflow-wrap: anywhere; }
+.pc-pur__go { position: absolute; top: 16px; right: 16px; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: #f3efe8; color: #111114; transition: background .25s, transform .35s cubic-bezier(.16,1,.3,1); }
+.pc-pur__go svg { width: 15px; height: 15px; fill: currentColor; }
+.pc-pur:hover .pc-pur__go { background: var(--pc-acc); transform: translateX(2px); }
+.pc-pur.is-on { background: #111114; border-color: #111114; color: #fff; }
+.pc-pur.is-on .pc-pur__d { color: rgba(255,255,255,.7); }
+.pc-pur.is-on .pc-pur__go { background: var(--pc-acc); color: #111; }
+
+/* steps 2 + 3 */
+.pc-next { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr); gap: clamp(20px, 2.6vw, 36px); align-items: start; margin-top: clamp(28px, 4vw, 48px); scroll-margin-top: 110px; }
+.pc-flow--js .pc-next { display: none; }
+.pc-flow--js.is-picked .pc-next { display: grid; animation: pcIn .5s cubic-bezier(.16,1,.3,1) both; }
+@keyframes pcIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.pc-flow--js .pc-topics { display: none; }
+.pc-h2--sm { font-size: clamp(22px, 2vw, 28px); }
+.pc-picked { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px 0 0; font-size: 13.5px; color: var(--pc-text); }
+.pc-picked b { padding: 4px 12px; border-radius: 999px; background: #111114; color: #fff; font-weight: 600; }
+.pc-change { padding: 0; border: 0; background: none; color: var(--pc-acc-dk); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+/* the chosen desk leads the directory, larger, with a direct "Write an email" button */
+.pc-dept { padding-right: 16px; }
+.pc-dept__acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.pc-dept .pc-copy { position: static; }
+.pi-contact a.pc-dept__write { display: none; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; background: var(--pc-acc); color: #111 !important; font-size: 13px; font-weight: 700; text-decoration: none; transition: background .2s, transform .2s; }
+.pi-contact a.pc-dept__write svg { width: 16px; height: 16px; }
+.pi-contact a.pc-dept__write:hover { background: #ff9a4f; transform: translateY(-1px); }
+.pc-dept.is-picked { padding: 20px; border-color: #111114; box-shadow: 0 24px 44px -32px rgba(17,17,20,.5); transform: none; }
+.pc-dept.is-picked .pc-dept__mail { font-size: 19px; }
+.pc-dept.is-picked a.pc-dept__write { display: inline-flex; }
+.pc-flow:not(.pc-flow--js) a.pc-dept__write { display: inline-flex; }
+.pc-flow--js.is-picked .pc-dept:not(.is-picked) { opacity: .78; }
+
+@media (max-width: 1000px) { .pc-purpose { grid-template-columns: repeat(2, minmax(0, 1fr)); } .pc-next { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .pc-pur { min-height: 96px; } .pc-pur__t { font-size: 17px; } }
+@media (prefers-reduced-motion: reduce) { .pc-flow--js.is-picked .pc-next { animation: none; } .pc-pur { transition: none; } }
+.pi-contact .pc-dept .pc-copy { position: static; translate: none; top: auto; bottom: auto; left: auto; right: auto; }
+@media (max-width: 520px) {
+  .pc-pur { padding: 16px 16px 48px; min-height: 0; }
+  .pc-pur__go { top: auto; bottom: 12px; right: 12px; width: 28px; height: 28px; }
+  .pc-pur__m { display: none; }
+  .pc-steps__i { padding: 6px 12px 6px 6px; font-size: 12px; }
+}

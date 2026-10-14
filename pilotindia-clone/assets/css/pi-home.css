@@ -1794,3 +1794,7 @@
 /* ---- hero headline: two balanced lines (2026-10-14) ----
    Capped in em so it wraps the same way at every size ("India's largest maker of / surface coating equipment."). */
 .pi-hero__title { max-width: 15.5em; text-wrap: balance; }
+
+/* hero cards: no lift on hover. The lift moved the box away from the pointer at its edge (around the round arrow), so it
+   dropped back, got hovered again and bounced up and down. The arrow keeps its own hover (orange fill, arrow turns). */
+.pi-hero__slot:hover, .pi-hero__card--b:hover { transform: none; }

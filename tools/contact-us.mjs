@@ -11,7 +11,7 @@ import path from 'node:path';
 const ROOT = path.join(process.cwd(), 'pilotindia-clone');
 const file = path.join(ROOT, 'pages', 'contact-us.html');
 let html = fs.readFileSync(file, 'utf8');
-const V = 14;
+const V = 16;
 
 const PHONE = '+91 22 6604 7000', TEL = '+912266047000';
 const WA = 'https://wa.me/919930347000';
@@ -26,6 +26,8 @@ const DEPTS = [
   ['Customer service', 'csd@pilotindia.com', 'After-sales help for Pilot products'],
   ['Exports', 'export@pilotindia.com', 'Enquiries from outside India'],
 ];
+// which desk answers each topic (index into DEPTS): office products, customer service and exports have their own; the rest go to info@
+const DESK_OF = t => t === 'Office Products' ? 1 : t === 'Customer service' ? 2 : t === 'Exports' ? 3 : 0;
 // form topics (must match TOPICS in leads.mjs)
 const TOPICS = ['Spray Guns', 'Airless Spray Systems', 'Power Tools', 'Welding Equipments', 'Office Products', 'Customer service', 'Exports', 'Something else'];
 const COUNTRIES = ['India', 'United Arab Emirates', 'Saudi Arabia', 'Qatar', 'Oman', 'Kuwait', 'Bahrain', 'Nepal', 'Bangladesh', 'Sri Lanka',
@@ -68,66 +70,83 @@ const block = `<!-- pi-contact:start -->
     </ul>
   </section>
 
-  <section class="pc-main" id="pc-enquiry">
-    <div class="pc-wrap pc-main__grid">
+  <section class="pc-main pc-flow" id="pc-enquiry">
+    <div class="pc-wrap">
 
-      <div class="pc-formcard" data-reveal>
-        <div class="pc-formcard__head">
-          <p class="pc-eyebrow pc-eyebrow--dark">Send an enquiry</p>
-          <h2 class="pc-h2">Tell us what you need.</h2>
-          <p class="pc-muted">Fields marked * are required.</p>
-        </div>
-        <form class="pc-form" id="pc-form" novalidate>
-          <div class="pc-topics" role="radiogroup" aria-label="Enquiry about">
-            <p class="pc-topics__k">Enquiry about *</p>
-            <div class="pc-topics__list">
-${TOPICS.map((t, i) => `              <label class="pc-chip"><input type="radio" name="topic" value="${esc(t)}"${i === 0 ? ' checked' : ''}><span>${esc(t)}</span></label>`).join('\n')}
-            </div>
-          </div>
-          <div class="pc-row">
-            ${field('name', 'Full name *', '<input id="pc-name" name="name" type="text" autocomplete="name" maxlength="80" required>')}
-            ${field('company', 'Company', '<input id="pc-company" name="company" type="text" autocomplete="organization" maxlength="120">')}
-          </div>
-          <div class="pc-row">
-            ${field('email', 'Email *', '<input id="pc-email" name="email" type="email" autocomplete="email" maxlength="120" required>')}
-            ${field('phone', 'Phone *', '<input id="pc-phone" name="phone" type="tel" autocomplete="tel" maxlength="24" required>')}
-          </div>
-          ${field('country', 'Country *', `<span class="pc-select"><select id="pc-country" name="country" autocomplete="country-name" required>${COUNTRIES.map(c => `<option${c === 'India' ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select>${ICON.chev}</span>`)}
-          ${field('message', 'Message *', '<textarea id="pc-message" name="message" rows="4" maxlength="2000" required placeholder="Product or model, quantity, your city - anything that helps us answer quickly."></textarea><span class="pc-count" aria-hidden="true"><b>0</b> / 2000</span>')}
-          <div class="pc-hp" aria-hidden="true"><label>Website <input name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
-          <div class="pc-field pc-consent" data-f="consent"><label><input type="checkbox" name="consent"><span>I agree to the <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy Policy</a>. Pilot India uses these details only to answer this enquiry.</span></label><em class="pc-err"></em></div>
-          <div class="pc-submit">
-            <button class="pc-btn" type="submit"><span>Send enquiry</span>${arrow}</button>
-            <p class="pc-status" role="status" aria-live="polite"></p>
-          </div>
-        </form>
-        <div class="pc-done" hidden>
-          <span class="pc-done__ic">${ICON.check}</span>
-          <h3>Thank you - your enquiry is with us.</h3>
-          <p>Our team will get back to you shortly. For anything urgent, call <a href="tel:${TEL}">${PHONE}</a>.</p>
-          <button class="pc-btn pc-btn--ghost" type="button" data-again>Send another enquiry</button>
-        </div>
+      <div class="pc-flow__head" data-reveal>
+        <p class="pc-eyebrow pc-eyebrow--dark">Send an enquiry</p>
+        <h2 class="pc-h2">Tell us what you need.</h2>
+        <ol class="pc-steps" aria-label="Steps">
+          <li class="pc-steps__i is-on" data-step="1"><b>1</b>What it is about</li>
+          <li class="pc-steps__i" data-step="2"><b>2</b>The right desk</li>
+          <li class="pc-steps__i" data-step="3"><b>3</b>Your details</li>
+        </ol>
       </div>
 
-      <aside class="pc-dir">
-        <div class="pc-dir__head" data-reveal>
-          <p class="pc-eyebrow pc-eyebrow--dark">Direct lines</p>
-          <h2 class="pc-h2">Write to the right desk.</h2>
+      <div class="pc-purpose" data-reveal>
+${TOPICS.map(t => { const d = DESK_OF(t); return `        <button type="button" class="pc-pur" data-topic="${esc(t)}" data-desk="${d}"><span class="pc-pur__t">${esc(t)}</span><span class="pc-pur__d">${esc(DEPTS[d][0])}<span class="pc-pur__m"> &middot; ${DEPTS[d][1]}</span></span><span class="pc-pur__go">${arrow}</span></button>`; }).join('\n')}
+      </div>
+
+      <div class="pc-next" id="pc-next">
+        <aside class="pc-dir">
+          <div class="pc-dir__head">
+            <p class="pc-eyebrow pc-eyebrow--dark">Direct lines</p>
+            <h2 class="pc-h2 pc-h2--sm">Write to the right desk.</h2>
+          </div>
+          <ul class="pc-dir__list">
+${DEPTS.map((d, i) => `            <li class="pc-dept" data-desk="${i}">
+              <span class="pc-dept__k">${esc(d[0])}</span>
+              <a class="pc-dept__mail" href="mailto:${d[1]}" data-mail="${d[1]}">${d[1]}</a>
+              <span class="pc-dept__d">${esc(d[2])}</span>
+              <span class="pc-dept__acts"><a class="pc-dept__write" href="mailto:${d[1]}" data-mail="${d[1]}">${ICON.mail}<span>Write an email</span></a><button class="pc-copy" type="button" data-copy="${d[1]}" aria-label="Copy ${d[1]}">${ICON.copy}<span>Copy</span></button></span>
+            </li>`).join('\n')}
+          </ul>
+          <div class="pc-callcard">
+            <span class="pc-callcard__k">Head office</span>
+            <a class="pc-callcard__tel" href="tel:${TEL}">${PHONE}</a>
+            <span class="pc-callcard__d">One number for all Pilot product lines.</span>
+          </div>
+        </aside>
+
+        <div class="pc-formcard">
+          <div class="pc-formcard__head">
+            <p class="pc-eyebrow pc-eyebrow--dark">Or send it from here</p>
+            <h2 class="pc-h2 pc-h2--sm">Your details</h2>
+            <p class="pc-picked" hidden>Enquiry about <b data-picked></b> <button type="button" class="pc-change" data-change>Change</button></p>
+            <p class="pc-muted">Fields marked * are required.</p>
+          </div>
+          <form class="pc-form" id="pc-form" novalidate>
+            <div class="pc-topics" role="radiogroup" aria-label="Enquiry about">
+              <p class="pc-topics__k">Enquiry about *</p>
+              <div class="pc-topics__list">
+${TOPICS.map((t, i) => `                <label class="pc-chip"><input type="radio" name="topic" value="${esc(t)}"${i === 0 ? ' checked' : ''}><span>${esc(t)}</span></label>`).join('\n')}
+              </div>
+            </div>
+            <div class="pc-row">
+              ${field('name', 'Full name *', '<input id="pc-name" name="name" type="text" autocomplete="name" maxlength="80" required>')}
+              ${field('company', 'Company', '<input id="pc-company" name="company" type="text" autocomplete="organization" maxlength="120">')}
+            </div>
+            <div class="pc-row">
+              ${field('email', 'Email *', '<input id="pc-email" name="email" type="email" autocomplete="email" maxlength="120" required>')}
+              ${field('phone', 'Phone *', '<input id="pc-phone" name="phone" type="tel" autocomplete="tel" maxlength="24" required>')}
+            </div>
+            ${field('country', 'Country *', `<span class="pc-select"><select id="pc-country" name="country" autocomplete="country-name" required>${COUNTRIES.map(c => `<option${c === 'India' ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select>${ICON.chev}</span>`)}
+            ${field('message', 'Message *', '<textarea id="pc-message" name="message" rows="4" maxlength="2000" required placeholder="Product or model, quantity, your city - anything that helps us answer quickly."></textarea><span class="pc-count" aria-hidden="true"><b>0</b> / 2000</span>')}
+            <div class="pc-hp" aria-hidden="true"><label>Website <input name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
+            <div class="pc-field pc-consent" data-f="consent"><label><input type="checkbox" name="consent"><span>I agree to the <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy Policy</a>. Pilot India uses these details only to answer this enquiry.</span></label><em class="pc-err"></em></div>
+            <div class="pc-submit">
+              <button class="pc-btn" type="submit"><span>Send enquiry</span>${arrow}</button>
+              <p class="pc-status" role="status" aria-live="polite"></p>
+            </div>
+          </form>
+          <div class="pc-done" hidden>
+            <span class="pc-done__ic">${ICON.check}</span>
+            <h3>Thank you - your enquiry is with us.</h3>
+            <p>Our team will get back to you shortly. For anything urgent, call <a href="tel:${TEL}">${PHONE}</a>.</p>
+            <button class="pc-btn pc-btn--ghost" type="button" data-again>Send another enquiry</button>
+          </div>
         </div>
-        <ul class="pc-dir__list">
-${DEPTS.map((d, i) => `          <li class="pc-dept" data-reveal style="--d:${i * 70}ms">
-            <span class="pc-dept__k">${esc(d[0])}</span>
-            <a class="pc-dept__mail" href="mailto:${d[1]}">${d[1]}</a>
-            <span class="pc-dept__d">${esc(d[2])}</span>
-            <button class="pc-copy" type="button" data-copy="${d[1]}" aria-label="Copy ${d[1]}">${ICON.copy}<span>Copy</span></button>
-          </li>`).join('\n')}
-        </ul>
-        <div class="pc-callcard" data-reveal>
-          <span class="pc-callcard__k">Head office</span>
-          <a class="pc-callcard__tel" href="tel:${TEL}">${PHONE}</a>
-          <span class="pc-callcard__d">One number for all Pilot product lines.</span>
-        </div>
-      </aside>
+      </div>
 
     </div>
   </section>

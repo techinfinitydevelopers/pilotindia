@@ -37,6 +37,44 @@
 
   // ---- enquiry form
   var form = document.getElementById('pc-form');
+
+  // ---- guided enquiry: 1. what it is about -> 2. the desk that answers it (email it directly) -> 3. the form.
+  // Without this script every part is simply shown, with the topic chips inside the form.
+  var flow = root.querySelector('.pc-flow');
+  if (flow) {
+    flow.classList.add('pc-flow--js');
+    var next = flow.querySelector('.pc-next'), purpose = flow.querySelector('.pc-purpose');
+    var steps = flow.querySelectorAll('.pc-steps__i'), pickedBox = flow.querySelector('.pc-picked');
+    var go = function (el) { if (el) el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); };
+    var setStep = function (n) { Array.prototype.forEach.call(steps, function (li) { li.classList.toggle('is-on', +li.getAttribute('data-step') <= n); li.classList.toggle('is-now', +li.getAttribute('data-step') === n); }); };
+    var pick = function (btn, scroll) {
+      var topic = btn.getAttribute('data-topic'), desk = btn.getAttribute('data-desk');
+      Array.prototype.forEach.call(flow.querySelectorAll('.pc-pur'), function (b) { b.classList.toggle('is-on', b === btn); b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+      var list = flow.querySelector('.pc-dir__list');
+      Array.prototype.forEach.call(list.querySelectorAll('.pc-dept'), function (li) { li.classList.toggle('is-picked', li.getAttribute('data-desk') === desk); });
+      var mine = list.querySelector('.pc-dept[data-desk="' + desk + '"]');
+      if (mine) list.insertBefore(mine, list.firstChild);
+      // every email link opens with the subject already filled in
+      Array.prototype.forEach.call(flow.querySelectorAll('[data-mail]'), function (a) {
+        a.setAttribute('href', 'mailto:' + a.getAttribute('data-mail') + '?subject=' + encodeURIComponent('Enquiry: ' + topic));
+      });
+      if (form) {
+        var r = form.querySelector('input[name="topic"][value="' + topic.replace(/"/g, '\\"') + '"]');
+        if (r) r.checked = true;
+      }
+      if (pickedBox) { pickedBox.hidden = false; pickedBox.querySelector('[data-picked]').textContent = topic; }
+      flow.classList.add('is-picked');
+      setStep(2);
+      if (scroll) go(next);
+    };
+    flow.addEventListener('click', function (e) {
+      var b = e.target.closest('.pc-pur');
+      if (b) { pick(b, true); return; }
+      if (e.target.closest('[data-change]')) { flow.classList.remove('is-picked'); setStep(1); go(purpose); }
+    });
+    if (form) form.addEventListener('focusin', function () { if (flow.classList.contains('is-picked')) setStep(3); });
+  }
+
   if (!form) return;
   var done = root.querySelector('.pc-done'), status = form.querySelector('.pc-status');
   var msg = form.elements.message, count = form.querySelector('.pc-count b');

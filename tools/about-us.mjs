@@ -9,7 +9,7 @@ import path from 'node:path';
 const ROOT = path.join(process.cwd(), 'pilotindia-clone');
 const file = path.join(ROOT, 'pages', 'about-us.html');
 let html = fs.readFileSync(file, 'utf8');
-const V = 9;
+const V = 14;
 
 const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3z"/></svg>';
 const COUNTRIES = ['Africa', 'Australia', 'Bangladesh', 'Cyprus', 'Israel', 'New Zealand', 'Philippines', 'South Africa', 'Srilanka', 'Turkey', 'United Arab Emirates'];
@@ -55,7 +55,6 @@ const block = `<!-- pi-about:start -->
         <span class="pa-rule" aria-hidden="true"></span>
       </div>
       <div class="pa-story__body">
-        <p class="pa-story__lead" data-reveal>Pioneering and dominating the Indian Market since the past 70 years, PILOT is the largest manufacturer of Surface Coating &amp; Refinishing Equipments in India.</p>
         <p data-reveal>Our company has understood the domestic &amp; international markets, building relations with organisations that keep coming back to us for the reliability, quality and performance of our products.</p>
         <p data-reveal>PILOT’s product portfolio includes a complete range of: Spray Guns, Airless Spray Systems, Pressure Feed Tanks, Gas Welding Equipments and various Office Products. Our state of the art manufacturing facilities and a professional Research &amp; Development team gives us an edge above the rest.</p>
       </div>

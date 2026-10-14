@@ -1,5 +1,5 @@
 // Contact Us redesign: replaces the Divi <article> in pages/contact-us.html with a hand-built page (hero with quick
-// actions, enquiry form + department directory, visit us with map, follow strip).
+// actions, enquiry form + department directory, visit us with map).
 // Every address, number, email and social link is taken from the original page; nothing is invented.
 // The form posts to /api/enquiry (leads.mjs): enquiries land in the admin's Leads screen next to catalogue leads.
 // Styles: assets/css/pi-contact.css. Behaviour: assets/js/pi-contact.js.
@@ -11,7 +11,7 @@ import path from 'node:path';
 const ROOT = path.join(process.cwd(), 'pilotindia-clone');
 const file = path.join(ROOT, 'pages', 'contact-us.html');
 let html = fs.readFileSync(file, 'utf8');
-const V = 12;
+const V = 14;
 
 const PHONE = '+91 22 6604 7000', TEL = '+912266047000';
 const WA = 'https://wa.me/919930347000';
@@ -49,7 +49,6 @@ const ICON = {
   check: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
   chev: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>',
 };
-const social = (s, cls) => `<a class="${cls}" href="${s[1]}" target="_blank" rel="noopener" aria-label="${s[0]}"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">${s[2]}</svg><span>${s[0]}</span></a>`;
 const field = (name, label, control, extra = '') => `<div class="pc-field${extra}" data-f="${name}"><label for="pc-${name}">${label}</label>${control}<em class="pc-err" id="pc-${name}-err"></em></div>`;
 
 const block = `<!-- pi-contact:start -->
@@ -141,20 +140,12 @@ ${DEPTS.map((d, i) => `          <li class="pc-dept" data-reveal style="--d:${i 
         <address class="pc-addr">${ADDR.join('<br>')}</address>
         <div class="pc-visit__cta">
           <a class="pc-btn" href="https://www.google.com/maps/dir/?api=1&amp;destination=${MAP_Q}" target="_blank" rel="noopener"><span>Get directions</span>${arrow}</a>
-          <button class="pc-btn pc-btn--ghost" type="button" data-copy="PILOT INDIA, ${ADDR.join(' ')}">${ICON.copy}<span>Copy address</span></button>
         </div>
       </div>
       <figure class="pc-visit__shot" data-reveal style="--d:80ms"><img src="../assets/img/about-fac-1.jpg" alt="Pilot manufacturing facility in Andheri, Mumbai" width="1200" height="831" loading="lazy"><figcaption>Manufacturing facility in Andheri, Mumbai</figcaption></figure>
       <div class="pc-map" data-reveal>
         <iframe src="${MAP_EMBED}" title="Map: Pilot India, Andheri East, Mumbai" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
       </div>
-    </div>
-  </section>
-
-  <section class="pc-follow">
-    <div class="pc-wrap pc-follow__row" data-reveal>
-      <p class="pc-follow__t">Follow Pilot India</p>
-      <div class="pc-follow__links">${SOCIAL.map(s => social(s, 'pc-soc')).join('')}</div>
     </div>
   </section>
 

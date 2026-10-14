@@ -76,7 +76,8 @@
 .pa-rule { display: block; width: 44px; height: 3px; margin-top: 22px; border-radius: 3px; background: var(--pa-acc); transform-origin: left; }
 .pa-story__body { display: grid; gap: 22px; }
 .pa-story__body p { font-size: clamp(15px, 1.15vw, 17px); line-height: 1.75; color: var(--pa-text); }
-.pi-about .pa-story__body p.pa-story__lead { font-family: var(--pi-font-heading, system-ui, sans-serif); font-size: clamp(20px, 2vw, 28px); line-height: 1.35; font-weight: 500; letter-spacing: -.01em; color: #111114; }
+.pa-story__body { gap: 24px; }
+.pa-story__body p { font-size: clamp(16px, 1.25vw, 19px); }
 
 /* ---------- range ---------- */
 .pa-range { padding: 0 0 clamp(56px, 8vw, 104px); }
@@ -208,3 +209,9 @@
 
 /* hero sub-text gap: the generic paragraph reset (.pi-about p, 0,1,1) was zeroing .pa-hero__sub margin on desktop */
 .pi-about .pa-hero__sub { margin-top: 16px; }
+
+/* Our story: the first line of the text lines up with the first line of the headline (the headline sits under the eyebrow).
+   Side-by-side layout only; below 861px the two stack. */
+@media (min-width: 861px) {
+  .pa-story__body { padding-top: 32px; }
+}

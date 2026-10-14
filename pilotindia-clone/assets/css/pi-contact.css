@@ -45,7 +45,7 @@
 .pi-contact .pc-btn--ghost:hover { background: rgba(17,17,20,.05); color: #111114; border-color: rgba(17,17,20,.3); }
 .pi-contact .pc-visit .pc-btn--ghost { color: #fff; border-color: rgba(255,255,255,.28); }
 .pi-contact .pc-visit .pc-btn--ghost:hover { background: rgba(255,255,255,.1); color: #fff; border-color: rgba(255,255,255,.55); }
-.pc-btn:focus-visible, .pc-q:focus-visible, .pc-copy:focus-visible, .pc-soc:focus-visible { outline: 2px solid var(--pc-acc); outline-offset: 3px; }
+.pc-btn:focus-visible, .pc-q:focus-visible, .pc-copy:focus-visible { outline: 2px solid var(--pc-acc); outline-offset: 3px; }
 
 /* ---------- hero ---------- */
 /* framed like the home and Products heroes: inset from the page edges, rounded on all four corners */
@@ -151,7 +151,7 @@
 .pc-callcard__d { font-size: 12.5px; color: rgba(255,255,255,.62); }
 
 /* ---------- visit ---------- */
-.pc-visit { background: var(--pc-ink); color: #fff; border-radius: var(--pc-r); margin: 0 18px; padding: clamp(36px, 4.5vw, 60px) 0; }
+.pc-visit { background: var(--pc-ink); color: #fff; border-radius: var(--pc-r); margin: 0 18px clamp(24px, 3vw, 40px); padding: clamp(36px, 4.5vw, 60px) 0; }
 /* fill the dark card (small inset) instead of the 1240px column, so no wide black side strips on large screens */
 .pc-visit .pc-wrap { width: calc(100% - clamp(32px, 4vw, 64px)); max-width: none; }
 .pc-visit__grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1fr) minmax(0, 1.25fr); gap: clamp(20px, 3vw, 40px); align-items: stretch; }
@@ -163,16 +163,6 @@
   background: rgba(10,10,10,.6); backdrop-filter: blur(6px); }
 .pc-map { position: relative; min-height: 260px; border-radius: 14px; overflow: hidden; background: #1a1a1a; }
 .pc-map iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; filter: grayscale(.25) contrast(1.05); }
-
-/* ---------- follow ---------- */
-.pc-follow { padding: clamp(28px, 3.5vw, 44px) 0; }
-.pc-follow__row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-top: 24px; border-top: 1px solid var(--pc-line); }
-.pi-contact .pc-follow__t { font-family: var(--pi-font-heading, system-ui, sans-serif); font-style: italic; font-weight: 700; font-size: clamp(20px, 2vw, 28px); }
-.pc-follow__links { display: flex; flex-wrap: wrap; gap: 10px; }
-.pi-contact a.pc-soc { display: inline-flex; align-items: center; gap: 9px; padding: 11px 18px; border-radius: 999px; border: 1px solid var(--pc-line); background: #fff;
-  color: #111114; text-decoration: none; font-size: 14px; font-weight: 600; transition: background-color .2s, color .2s, border-color .2s, transform .2s; }
-.pc-soc svg { width: 18px; height: 18px; }
-.pi-contact a.pc-soc:hover { background: #111114; color: #fff; border-color: #111114; transform: translateY(-2px); }
 
 /* ---------- reveal (only once pi-contact.js has run) ---------- */
 .pi-contact.pc-js [data-reveal] { opacity: 0; translate: 0 22px; transition: opacity .7s cubic-bezier(.16,1,.3,1) var(--d, 0ms), translate .7s cubic-bezier(.16,1,.3,1) var(--d, 0ms); }
@@ -203,9 +193,8 @@
   .pc-formcard { padding: 20px 16px; border-radius: 20px; }
   .pc-dept { padding: 16px 16px 54px; }
   .pc-copy { top: auto; bottom: 14px; translate: none; left: 16px; right: auto; }
-  .pc-visit { margin: 0; border-radius: 20px; }
+  .pc-visit { margin: 0 0 24px; border-radius: 20px; }
   .pc-visit__grid { grid-template-columns: 1fr; }
   .pc-visit__shot { height: 200px; }
   .pc-map { height: 240px; }
-  .pc-follow__row { flex-direction: column; align-items: flex-start; }
 }

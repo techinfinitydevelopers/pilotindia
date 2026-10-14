@@ -97,7 +97,7 @@ const IND_SPEEDS = [44, 54, 38];
 const BLOG_SOURCES = JSON.parse(fs.readFileSync(path.join(CLONE, '..', 'tools', 'blog-sources.json'), 'utf8'));
 const POSTS = Object.keys(BLOG_SOURCES).map(slug => { const m = postMeta(slug); return [m.title, slug, m]; })
   .sort((a, b) => (Date.parse(b[2].date) || 0) - (Date.parse(a[2].date) || 0) || a[0].localeCompare(b[0]))
-  .slice(0, 6);
+  .slice(0, 4);
 
 // Expanding panel: compact vertical column that grows on hover, revealing the
 // title, a line of copy and the link over full-bleed imagery with a dark scrim.

@@ -30,12 +30,12 @@
        floor: on a very short window the hero overflows a little rather than crushing
        the heading against the strip. */
     --pg-floor: 480px;
-    --min-height: max(var(--pg-floor), calc(100vh - var(--pg-top, 77px) - var(--pg-mq, 0px)));
+    --min-height: max(var(--pg-floor), calc(100vh - var(--pg-top, 0px) - var(--pg-mq, 0px)));
   }
 
   @supports (height: 100svh) {
     #select-series-re.e-con {
-      --min-height: max(var(--pg-floor), calc(100svh - var(--pg-top, 77px) - var(--pg-mq, 0px)));
+      --min-height: max(var(--pg-floor), calc(100svh - var(--pg-top, 0px) - var(--pg-mq, 0px)));
     }
   }
 

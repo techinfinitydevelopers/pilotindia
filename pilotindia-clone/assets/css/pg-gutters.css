@@ -1,0 +1,78 @@
+/* ==========================================================================
+   Pilot India - one side gutter and one content column for the product pages (spray-guns, airless, welding, office)
+
+   Before this, every section chose its own: 16 px on phones (text almost touching the screen edge), 32 px, 40 px, or none at
+   all (the long "Why choose ..." block ran from edge to edge with a 10 px padding), and the content widths differed too
+   (1176, 1240, 1296, 1360), so left edges did not line up from one section to the next.
+
+   --pg-gut  the empty space left and right of the content: 24 px on a phone, growing to 64 px
+   --pg-max  the width of the content column (1240 px)
+   Sections that already have 16 px of their own padding get the difference. Full-width pictures and carousels that are meant
+   to run to the edges are left alone.
+   ========================================================================== */
+
+:root {
+  --pg-gut: clamp(24px, 5vw, 64px);
+  --pg-max: 1240px;
+}
+
+/* hero: the copy and the collection strip line up with the column */
+.pi-sg-hero__copy { margin-left: var(--pg-gut) !important; margin-right: var(--pg-gut) !important; }
+/* phone: the copy is full width with its own padding (pg-hero-coll.css), so margins on top of width:100% pushed it 24px off the right edge */
+@media (max-width: 767px) { .pi-sg-hero__copy { margin-left: 0 !important; margin-right: 0 !important; width: auto !important; padding-left: var(--pg-gut); padding-right: var(--pg-gut); box-sizing: border-box; } }
+.pi-sg-hero .pi-coll { padding-left: var(--pg-gut) !important; padding-right: var(--pg-gut) !important; }
+
+/* "Built with trust" bento */
+#trust.bento { padding-left: var(--pg-gut) !important; padding-right: var(--pg-gut) !important; }
+#trust .bento__wrap { max-width: var(--pg-max) !important; margin-left: auto; margin-right: auto; }
+
+/* "Applications": the heading and the paragraph sit in the column; the card stage keeps its own width */
+#pg-chain .pg-chain__intro { max-width: calc(820px + 2 * (var(--pg-gut) - 16px)); padding-left: calc(var(--pg-gut) - 16px); padding-right: calc(var(--pg-gut) - 16px); box-sizing: border-box; }
+
+/* Technical Excellence */
+#pg-tech .pg-tech__wrap {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: calc(var(--pg-max) + 2 * var(--pg-gut)) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: var(--pg-gut) !important;
+  padding-right: var(--pg-gut) !important;
+}
+#pg-tech .pg-tech__head { padding-left: 0; padding-right: 0; }
+
+/* FAQ */
+#faq .pi-faq__wrap {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: calc(var(--pg-max) + 2 * var(--pg-gut)) !important;
+  padding-left: var(--pg-gut) !important;
+  padding-right: var(--pg-gut) !important;
+}
+
+/* the long text sections below (Elementor boxed containers: "Why choose ...", "Why professionals trust ...", and so on) */
+.e-con-boxed.e-parent { padding-left: 0 !important; padding-right: 0 !important; }
+.e-con-boxed.e-parent > .e-con-inner {
+  box-sizing: border-box;
+  width: 100% !important;
+  max-width: calc(var(--pg-max) + 2 * var(--pg-gut)) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: var(--pg-gut) !important;
+  padding-right: var(--pg-gut) !important;
+}
+
+/* Elementor gives each first-level box 10 px of its own: drop it so these headings line up with the other sections */
+.e-con-boxed.e-parent > .e-con-inner > .e-con { padding-left: 0 !important; padding-right: 0 !important; }
+
+/* phone: the small feature boxes ("Built for ...", icon + title + text) carry 10 px of their own side padding, so their text started
+   10 px right of the heading above them. */
+@media (max-width: 767px) {
+  .e-con:has(> .elementor-widget-icon-box) { padding-left: 0 !important; padding-right: 0 !important; }
+}
+
+/* very narrow phones (320-380 px): the two hero buttons are set not to wrap, which ran the second one off the screen */
+@media (max-width: 400px) {
+  .pi-sg-hero__cta { flex-wrap: wrap !important; }
+  .pi-sg-hero .pi-sg-hero__btn { padding: 12px 18px; }
+}

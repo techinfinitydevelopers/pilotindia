@@ -1,5 +1,5 @@
 /* Pilot India admin dashboard: the site's own palette (ink, Pilot orange, warm off-white) and type
-   (Roboto for headings and figures, Open Sans for the interface: the site theme fonts) */
+   (DM Sans Italic for headings and figures, SF Pro Display for the interface; faces in assets/css/pi-fonts.css) */
 :root {
   --side: #0a0a0a;
   --side-2: #141414;
@@ -20,8 +20,8 @@
   --danger: #c2410c;
   --ok: #15803d;
   --radius: 22px;
-  --display: "Italiana", "Cormorant Garamond", Georgia, "Times New Roman", serif;
-  font-family: "Open Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: var(--pi-font-heading);
+  font-family: var(--pi-font-body);
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; }
@@ -71,7 +71,7 @@ svg { width: 18px; height: 18px; fill: currentColor; flex: 0 0 auto; }
 .head h1 { margin: 0 0 8px; font-family: var(--display); font-size: 46px; font-weight: 400; line-height: 1.05; letter-spacing: 0.01em; }
 .head p { margin: 0; max-width: 640px; color: var(--body); font-size: 14.5px; }
 .head__actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.eyebrow { display: block; font-family: "Open Sans", sans-serif; margin-bottom: 10px; color: var(--orange); font-size: 11px; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase; }
+.eyebrow { display: block; font-family: var(--pi-font-body); margin-bottom: 10px; color: var(--orange); font-size: 11px; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase; }
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -142,7 +142,7 @@ a.stat:hover::after { transform: scaleX(1); }
 .group { margin-bottom: 16px; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; overflow: hidden; }
 .group > summary { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; cursor: pointer; font-family: var(--display); font-size: 21px; list-style: none; }
 .group > summary::-webkit-details-marker { display: none; }
-.group > summary small { font-family: "Open Sans", sans-serif; color: var(--mute); font-size: 12px; font-weight: 600; }
+.group > summary small { font-family: var(--pi-font-body); color: var(--mute); font-size: 12px; font-weight: 600; }
 .rows a, .rows .row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 22px; border-top: 1px solid var(--line); color: var(--ink); transition: background 0.2s ease; }
 .rows a:hover { background: #fbfaf7; }
 .rows a:hover .pill { background: var(--ink); color: #fff; }
@@ -383,10 +383,10 @@ a.stat:hover::after { transform: scaleX(1); }
 .side__out:hover { color: #fff; background: rgba(255, 255, 255, .08); }
 
 /* ---------- theme fonts and the website's card design ----------
-   The admin uses the site's own type: Roboto for headings and figures, Open Sans for text (the display serif made
+   The admin uses the site's own type: DM Sans Italic for headings and figures, SF Pro Display for text (the display serif made
    digits hard to read: 15 looked like I5). Cards follow the website's cards: white, 24px corners, hairline border,
    orange accent on hover. */
-:root { --display: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif; }
+:root { --display: var(--pi-font-heading); }
 .head h1 { font-size: clamp(30px, 3.4vw, 42px); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; }
 .eyebrow { letter-spacing: 0.24em; }
 .panel__head h2 { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; }
@@ -457,7 +457,7 @@ a.stat:hover::after { transform: scaleX(1); }
 .pt__name b { font-size: 15.5px; font-weight: 700; }
 .pt__name a:hover b { color: var(--orange-ink); }
 .pt__pill { padding: 3px 10px; border-radius: 999px; background: var(--panel); color: var(--mute); font-size: 11.5px; font-weight: 700; white-space: nowrap; }
-.pt__url code { color: var(--body); font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-size: 12.5px; word-break: break-all; }
+.pt__url code { color: var(--body); font-family: var(--pi-font-body); font-size: 12.5px; word-break: break-all; }
 .pt__n { color: var(--body); font-size: 15px; font-variant-numeric: tabular-nums; }
 .pt__none { color: var(--mute); }
 .pt__date { color: var(--mute); font-size: 13px; white-space: nowrap; }
@@ -488,6 +488,9 @@ a.stat:hover::after { transform: scaleX(1); }
 .series__acts { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 6px 6px; padding-top: 14px; border-top: 1px solid var(--line); }
 .series__empty { margin: 2px 12px 8px; color: var(--mute); font-size: 12.5px; }
 .drawer__panel--sm { width: min(460px, 100%); }
+
+/* every heading and figure that uses --display is DM Sans Italic */
+.head h1, .stat__n, .panel__head h2, .group > summary, .insp h3, .rte--big h2, .rte--big h3, .pcard__body b, .drawer__head h2, .modal__head h2, .blog-ed .title-in { font-style: italic; }
 
 /* URLs screen */
 .urls__bar { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }

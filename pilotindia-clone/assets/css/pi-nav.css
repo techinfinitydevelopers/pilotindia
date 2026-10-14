@@ -730,3 +730,21 @@
     padding: 6px 8px 6px 12px;
   }
 }
+
+/* phones: the pill never grows past the screen. The section label ("Hero", "Technical Excellence" ...) changes as you scroll, and a long one
+   pushed the menu button off the right edge on a 320 px phone; it now shortens with an ellipsis instead. */
+@media (max-width: 480px) {
+  .framer-dyn-pill { max-width: calc(100vw - 24px); min-width: 0; }
+  .framer-dyn-section { min-width: 0; max-width: min(150px, 38vw); overflow: hidden; }
+  .framer-dyn-section-text { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+/* blog posts, category and author pages (Divi theme layout, no hero): the floating pill (about 82 px tall from the top) sat on top of the
+   headline / first picture, hiding part of it. The content now starts below the pill. */
+body.single-post #main-content > .container,
+body.archive #main-content > .container { padding-top: 120px !important; }
+@media (max-width: 767px) {
+  body.single-post #main-content > .container,
+  body.archive #main-content > .container { padding-top: 96px !important; width: 100% !important; box-sizing: border-box; padding-left: 24px; padding-right: 24px; }
+  body.single-post #left-area, body.archive #left-area { padding-right: 0; }
+}

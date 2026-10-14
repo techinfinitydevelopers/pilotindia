@@ -163,15 +163,6 @@ const main = `
     </div>
   </section>
 
-  <!-- 2. figures -->
-  <section class="pi-stats">
-    <div class="pi-stats__grid">
-      ${STATS.map(([n, l], i) => `<div class="pi-stat pi-reveal" style="transition-delay:${i * 70}ms">
-        <span class="pi-stat__n" data-count="${n}">${n}</span><span class="pi-stat__l">${l}</span>
-      </div>`).join('\n      ')}
-    </div>
-  </section>
-
   <!-- 3. product range -->
   <section class="pi-sec" id="products">
     <div class="pi-home__wrap">
@@ -322,9 +313,18 @@ const footer2 = `<footer class="pi-f2" id="pi-footer">
     <div class="pi-f2__prow">
       <p class="pi-f2__say">Surface coating and refinishing equipment, <b>made in India</b>.</p>
       <div class="pi-f2__reach">
-        <span>Speak to us</span>
-        <a href="tel:+912266047000">+91 22 6604 7000</a>
-        <a href="mailto:info@pilotindia.com">info@pilotindia.com</a>
+        <p class="pi-f2__reach-t">Speak to us</p>
+        <a class="pi-f2__call" href="tel:+912266047000">
+          <span class="pi-f2__ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.4 0 .7-.2 1l-2.2 2.2z"/></svg></span>
+          <span class="pi-f2__num">+91 22 6604 7000</span>
+          <span class="pi-f2__go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13.2 5.4 11.8 6.8l4.2 4.2H4v2h12l-4.2 4.2 1.4 1.4L20 12z"/></svg></span>
+        </a>
+        <ul class="pi-f2__mails">
+          <li><a href="mailto:info@pilotindia.com"><small>Spray Guns, Airless, Power Tools, Welding</small><span>info@pilotindia.com</span></a></li>
+          <li><a href="mailto:sales@pilotindia.com"><small>Office Products</small><span>sales@pilotindia.com</span></a></li>
+          <li><a href="mailto:csd@pilotindia.com"><small>Customer Service</small><span>csd@pilotindia.com</span></a></li>
+          <li><a href="mailto:export@pilotindia.com"><small>Exports</small><span>export@pilotindia.com</span></a></li>
+        </ul>
       </div>
     </div>
 

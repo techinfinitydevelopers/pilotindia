@@ -90,7 +90,7 @@
   }
   .pi-sg-hero__copy { margin: 0; padding: 84px 20px 0; width: 100%; }
   .pi-sg-hero__sub { margin-top: 12px; font-size: 14px; }
-  .pi-sg-hero__cta { flex-wrap: nowrap; gap: 8px; margin-top: 16px; }
+  .pi-sg-hero__cta { flex-wrap: wrap; gap: 8px; margin-top: 16px; }   /* wrap: nowrap ran the second button off a 320 px screen */
   .pi-sg-hero .pi-sg-hero__btn { padding: 11px 16px; font-size: 13px; white-space: nowrap; }
   .pi-coll__note { display: none; }
   .pi-sg-hero .pi-sg-hero__title { font-size: clamp(26px, 8vw, 36px); }

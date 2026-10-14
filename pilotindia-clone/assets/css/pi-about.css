@@ -192,6 +192,15 @@
   .pa-range__grid li:last-child { grid-column: span 2; }
 }
 
+/* phone: the "Pilot at a glance" tab had lost its left padding (text touched the screen edge), the headline sat right on the nav pill,
+   and the sub-text ran straight on from the last headline line */
+@media (max-width: 767px) {
+  .pa-tray .pa-tray__label { padding-left: 20px; padding-right: 36px; }
+  .pa-hero__copy { padding-top: 104px; }
+  .pi-about .pa-hero__title + * { margin-top: 14px; }
+  .pa-hero__cta { flex-wrap: wrap; }
+}
+
 /* "Pilot at a glance" tab: a generic paragraph reset zeroed its padding on desktop, so the text ran into
    the tab's curved corner and lost its last letter. Same selector weight as the phone rule. (2026-10-14) */
 .pa-tray .pa-tray__label { padding: 8px 34px 0 clamp(18px, 3vw, 40px); white-space: nowrap; }

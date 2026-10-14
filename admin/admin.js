@@ -543,6 +543,8 @@
         var card = h('<div class="pe__card"><div class="pe__chead"><div><h2>Search & sharing</h2><p>What search engines and link previews show for this page.</p></div></div></div>');
         model.seo.forEach(function (x) {
           var f = textField(x.label, 'text', x.value, function (v) { queue(x.id, x.op, v, x.name); });
+          var inp = f.querySelector('input, textarea');
+          if (x.placeholder && inp) inp.placeholder = x.placeholder;
           if (x.hint) f.appendChild(h('<small class="pe__hint"></small>')).textContent = x.hint;
           card.appendChild(f);
         });

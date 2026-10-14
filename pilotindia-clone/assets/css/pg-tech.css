@@ -867,7 +867,7 @@
 }
 
 .pg-reel__counter {
-  font-family: monospace, system-ui, sans-serif;
+  font-family: var(--pi-font-body);
   font-size: 13px;
   font-weight: 800;
   color: var(--pi-accent, #f58634);
@@ -1294,7 +1294,7 @@
 }
 
 .pg-3d__card-num {
-  font-family: monospace, system-ui, sans-serif;
+  font-family: var(--pi-font-body);
   font-size: 12px;
   font-weight: 700;
   color: #8c8f96;
@@ -1405,7 +1405,7 @@
 }
 
 .pg-3d__counter {
-  font-family: monospace, system-ui, sans-serif;
+  font-family: var(--pi-font-body);
   font-size: 13px;
   font-weight: 800;
   color: var(--pi-accent, #f58634);

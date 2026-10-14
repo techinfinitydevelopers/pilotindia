@@ -76,11 +76,11 @@ function readForm(req) {
 }
 
 const page = msg => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Admin sign in</title><style>
+<title>Admin sign in</title><link rel="stylesheet" href="/assets/css/pi-fonts.css"><style>
 :root{--bg:#f3efe8;--ink:#111114;--mute:#6b6b73;--accent:#f58634}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg);font:15px/1.5 "Open Sans",system-ui,sans-serif;color:var(--ink);padding:16px}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg);font:15px/1.5 var(--pi-font-body);color:var(--ink);padding:16px}
 form{width:100%;max-width:360px;background:#fff;border-radius:18px;padding:32px;box-shadow:0 20px 50px -30px rgba(0,0,0,.35)}
-h1{font:700 22px Roboto,system-ui,sans-serif;margin:0 0 6px}p{margin:0 0 22px;color:var(--mute)}
+h1{font:italic 600 22px/1.2 var(--pi-font-heading);margin:0 0 6px}p{margin:0 0 22px;color:var(--mute)}
 label{display:block;font-weight:600;margin-bottom:6px}input{width:100%;padding:12px 14px;border:1px solid #ddd;border-radius:10px;font:inherit}
 button{margin-top:18px;width:100%;padding:12px;border:0;border-radius:999px;background:var(--accent);color:#fff;font-weight:700;font-size:15px;cursor:pointer}
 .err{color:#b42318;margin:14px 0 0}</style></head><body>

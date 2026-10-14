@@ -72,31 +72,39 @@
 
 .pi-f2__say b { color: var(--f-accent); font-weight: 400; }
 
-/* Contact: the two lines were plain right-aligned text, then two loose chips. Now one glass
-   card: an eyebrow, then two rows, each an orange icon disc, the figure in the body face
-   (Italiana only has old-style numerals, which make a phone number hard to read), and an
-   arrow that slides in on hover. Same two links,
-   same information. */
+/* Contact card ("Speak to us"). One card: the phone number as the main action (solid orange disc, large figure, arrow that
+   fills on hover), then the four e-mail addresses from the Contact page as tiles, each under the department it belongs to.
+   Figures use the body face (the display face has old-style numerals that make a phone number hard to read). */
 .pi-f2__reach {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  width: min(100%, 392px);
-  padding: 22px 22px 10px;
-  border: 1px solid var(--f-line);
+  isolation: isolate;
+  width: min(100%, 540px);
+  padding: 22px;
   border-radius: 28px;
   background:
-    radial-gradient(120% 140% at 100% 0%, rgba(245, 134, 52, 0.1) 0%, rgba(245, 134, 52, 0) 60%),
-    rgba(255, 255, 255, 0.025);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+    radial-gradient(120% 140% at 100% 0%, rgba(245, 134, 52, 0.14) 0%, rgba(245, 134, 52, 0) 60%),
+    #101010;
+}
+/* hairline gradient border: orange at two corners, near-invisible between */
+.pi-f2__reach::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(245, 134, 52, 0.6), rgba(255, 255, 255, 0.07) 38%, rgba(255, 255, 255, 0.04) 68%, rgba(245, 134, 52, 0.28));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
 }
 
-.pi-f2__reach span {
+.pi-f2__reach-t {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin: 0 0 10px 4px;
+  margin: 0 0 14px 2px;
   font-size: 11.5px;
   font-weight: 700;
   letter-spacing: 0.22em;
@@ -104,7 +112,7 @@
   color: #8a8a90;
 }
 /* a quiet pulse: someone is at the other end */
-.pi-f2__reach span::before {
+.pi-f2__reach-t::before {
   content: "";
   width: 7px;
   height: 7px;
@@ -118,67 +126,92 @@
   100% { box-shadow: 0 0 0 0 rgba(245, 134, 52, 0); }
 }
 
-.pi-f2 .pi-f2__reach a {
-  position: relative;
+/* phone: the main action */
+.pi-f2 .pi-f2__call {
   display: grid;
-  grid-template-columns: 46px minmax(0, 1fr) 18px;
+  grid-template-columns: 52px minmax(0, 1fr) 40px;
   align-items: center;
   gap: 16px;
-  padding: 14px 4px;
-  border: 0;
-  border-top: 1px solid var(--f-line);
-  border-radius: 0;
-  background: transparent;
-  font-family: var(--pi-font-body, "Open Sans", system-ui, sans-serif);
-  font-size: clamp(20px, 1.9vw, 24px);
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: 0.01em;
-  font-variant-numeric: tabular-nums;
+  padding: 12px 14px 12px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.04);
   color: var(--f-strong);
   text-decoration: none;
-  white-space: nowrap;
-  transition: color 0.25s ease, padding 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: border-color 0.3s ease, background-color 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.pi-f2 .pi-f2__reach a[href^="mailto"] { font-size: clamp(16px, 1.4vw, 18px); font-weight: 500; }
-
-/* icon disc: a tint with the glyph centred on it */
-.pi-f2 .pi-f2__reach a::before {
-  content: "";
-  width: 46px;
-  height: 46px;
+.pi-f2__ico {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background-color: rgba(245, 134, 52, 0.12);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 20px 20px;
-  transition: background-color 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.pi-f2 .pi-f2__reach a[href^="tel"]::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f58634'%3E%3Cpath d='M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.4 0 .7-.2 1l-2.2 2.2z'/%3E%3C/svg%3E"); }
-.pi-f2 .pi-f2__reach a[href^="mailto"]::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f58634'%3E%3Cpath d='M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm9 7.2L4.4 7H4v.4l8 5.5 8-5.5V7h-.4L12 12.2zM4 9.8V17h16V9.8l-8 5.5-8-5.5z'/%3E%3C/svg%3E"); }
-
-/* arrow, hidden until the row is hovered */
-.pi-f2 .pi-f2__reach a::after {
-  content: "";
-  width: 18px;
-  height: 18px;
   background: var(--f-accent);
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13.2 5.4 11.8 6.8l4.2 4.2H4v2h12l-4.2 4.2 1.4 1.4L20 12z'/%3E%3C/svg%3E") center / contain no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13.2 5.4 11.8 6.8l4.2 4.2H4v2h12l-4.2 4.2 1.4 1.4L20 12z'/%3E%3C/svg%3E") center / contain no-repeat;
-  opacity: 0;
-  transform: translateX(-8px);
-  transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
+.pi-f2__ico svg { width: 22px; height: 22px; fill: #0a0a0a; }
+.pi-f2__num {
+  font-family: var(--pi-font-body);
+  font-size: clamp(22px, 2.3vw, 29px);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0.005em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.pi-f2__go {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  color: var(--f-strong);
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+.pi-f2__go svg { width: 16px; height: 16px; fill: currentColor; transform: rotate(-45deg); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.pi-f2 .pi-f2__call:hover,
+.pi-f2 .pi-f2__call:focus-visible { border-color: rgba(245, 134, 52, 0.55); background: rgba(245, 134, 52, 0.09); transform: translateY(-2px); }
+.pi-f2 .pi-f2__call:hover .pi-f2__go,
+.pi-f2 .pi-f2__call:focus-visible .pi-f2__go { background: var(--f-accent); border-color: var(--f-accent); color: #0a0a0a; }
+.pi-f2 .pi-f2__call:hover .pi-f2__go svg,
+.pi-f2 .pi-f2__call:focus-visible .pi-f2__go svg { transform: none; }
 
-.pi-f2 .pi-f2__reach a:hover,
-.pi-f2 .pi-f2__reach a:focus-visible {
-  padding-left: 10px;
-  color: var(--f-accent);
+/* e-mail: one tile per department */
+.pi-f2__mails {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
 }
-.pi-f2 .pi-f2__reach a:hover::before,
-.pi-f2 .pi-f2__reach a:focus-visible::before { background-color: rgba(245, 134, 52, 0.22); transform: scale(1.06); }
-.pi-f2 .pi-f2__reach a:hover::after,
-.pi-f2 .pi-f2__reach a:focus-visible::after { opacity: 1; transform: none; }
+.pi-f2__mails li { display: flex; margin: 0; }
+.pi-f2 .pi-f2__mails a {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 18px;
+  color: var(--f-strong);
+  text-decoration: none;
+  transition: border-color 0.3s ease, background-color 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pi-f2__mails small {
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8a8a90;
+}
+.pi-f2__mails span { font-size: 14px; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; transition: color 0.25s ease; }
+.pi-f2 .pi-f2__mails a:hover,
+.pi-f2 .pi-f2__mails a:focus-visible { border-color: rgba(245, 134, 52, 0.55); background: rgba(245, 134, 52, 0.07); transform: translateY(-2px); }
+.pi-f2 .pi-f2__mails a:hover span,
+.pi-f2 .pi-f2__mails a:focus-visible span { color: var(--f-accent); }
 
 /* ---------- link columns ---------- */
 
@@ -302,18 +335,24 @@
 @media (max-width: 900px) {
   .pi-f2__cols { grid-template-columns: repeat(2, 1fr); gap: 30px; }
   .pi-f2__prow { padding: 48px 0 34px; }
-  .pi-f2__reach { width: 100%; max-width: 440px; }
+  .pi-f2__reach { width: 100%; max-width: 540px; }
 }
 
 @media (max-width: 560px) {
   .pi-f2__wrap { padding: 0 20px; }
   .pi-f2__cols { grid-template-columns: 1fr; }
+  .pi-f2__reach { padding: 18px; border-radius: 24px; }
+  .pi-f2__mails { grid-template-columns: 1fr; }
+  .pi-f2 .pi-f2__call { grid-template-columns: 46px minmax(0, 1fr) 36px; gap: 12px; }
+  .pi-f2__ico { width: 46px; height: 46px; }
+  .pi-f2__go { width: 36px; height: 36px; }
+  .pi-f2__num { font-size: 22px; }
   .pi-f2__base { flex-direction: column; align-items: flex-start; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .pi-f2 * { transition: none !important; }
-  .pi-f2__reach span::before { animation: none; }
+  .pi-f2__reach-t::before { animation: none; }
   .pi-f2 .pi-f2__list a:hover,
   .pi-f2 .pi-f2__social a:hover { transform: none; }
 }

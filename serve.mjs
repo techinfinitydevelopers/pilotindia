@@ -15,7 +15,7 @@ import { authEnabled, isAuthed, handleAuth, sameOrigin, isBlocked, blockedPage }
 import { rateLimit, securityHeaders, forbiddenPath, hardenServer, SVG_HEADERS, admitBody } from './security.mjs';
 await initStore(REPO);
 // clean page URLs (/about-us, /blog/<post>): see slugs.mjs
-import { initSlugs, resolveRequest, rewriteHtml, slugVersion, sitemapXml } from './slugs.mjs';
+import { initSlugs, resolveRequest, rewriteHtml, slugVersion, sitemapXml, cleanUrlOf } from './slugs.mjs';
 initSlugs(ROOT, REPO);
 // catalogue downloads need the short form first (leads.mjs)
 import { initLeads, handleLeadPost, isCatalogue, hasAccess, gatePage } from './leads.mjs';
@@ -55,18 +55,38 @@ const squeezed = new Map();     // path + mtime + encoding -> compressed bytes
 // not followed to the PDF, and pi-lead.js opens the card for it as soon as it runs.
 const LEAD_STUB = "<script>(function(){var d=document;d.addEventListener('click',function(e){if(window.__piLead)return;var a=e.target.closest&&e.target.closest('a[href]');if(!a)return;var h=a.getAttribute('href')||'';if(!/\\.pdf(\\?|#|$)/i.test(h)||!/catalog/i.test((a.textContent||'')+' '+(a.getAttribute('aria-label')||'')+' '+h)||/(?:^|;\\s*)pi_dl_ok=1/.test(d.cookie))return;e.preventDefault();e.stopImmediatePropagation();window.__piLeadQ=a.href},true)})()</script>\n";
 const LEAD_TAGS = '<link rel="stylesheet" href="/assets/css/pi-lead.css?v=6" />\n' + LEAD_STUB + '<script src="/assets/js/pi-lead.js?v=6" async></script>\n';
+// The two fonts the whole site uses (theme.css @font-face, font-display: swap). Without a preload the browser only finds them
+// after theme.css is parsed and text has laid out, so headlines paint in the fallback face and reflow when the real one arrives.
+const FONT_PRELOAD = '<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/pi-dm-sans-italic-latin.woff2" crossorigin>\n<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/pi-inter-latin.woff2" crossorigin>\n';
 function withLeadGate(buf) {
-  const html = buf.toString('utf8');
+  let html = buf.toString('utf8');
   if (html.includes('pi-lead.js')) return buf;
+  const head = html.match(/<head[^>]*>/i);
+  if (head) html = html.slice(0, head.index + head[0].length) + '\n' + FONT_PRELOAD + html.slice(head.index + head[0].length);
   const at = html.search(/<\/head>/i);
   return Buffer.from(at < 0 ? LEAD_TAGS + html : html.slice(0, at) + LEAD_TAGS + html.slice(at), 'utf8');
+}
+
+// error page: the site's two fonts (theme.css), not the browser default
+function notFoundPage() {
+  return '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Page not found</title><link rel="stylesheet" href="/theme/theme.css"><style>body{margin:0;min-height:100vh;display:grid;place-content:center;gap:12px;text-align:center;background:#0a0a0a;color:#fff;font-family:var(--pi-font-body)}h1{margin:0;font-family:var(--pi-font-heading);font-style:italic;font-weight:600;font-size:clamp(64px,14vw,140px)}p{margin:0;color:rgba(255,255,255,.7)}a{color:#f58634}</style><h1>404</h1><p>This page could not be found. <a href="/">Back to home</a></p>';
+}
+
+// The canonical tag (and og:url) must be a full address to count for search engines. The pages store a relative one, so when it is
+// relative it is served as origin + the page's clean URL. An absolute value (set per page in the admin's SEO tab) is left as it is.
+function withAbsoluteUrls(html, origin, clean) {
+  if (!clean) return html;
+  const full = origin + clean;
+  html = html.replace(/(<link\b[^>]*\brel=["']canonical["'][^>]*\bhref=")([^"]*)"/i, (m, a, v) => /^https?:\/\//i.test(v) ? m : a + full + '"');
+  html = html.replace(/(<meta\b[^>]*\bproperty="og:url"[^>]*\bcontent=")([^"]*)"/i, (m, a, v) => /^https?:\/\//i.test(v) ? m : a + full + '"');
+  return html;
 }
 
 function serveFile(req, res, fp, extra = {}) {
   const ext = path.extname(fp).toLowerCase();
   const st = fs.statSync(fp);
   // "-l1": pages carry the injected form script, so their validator changes with it
-  const etag = 'W/"' + st.size.toString(16) + '-' + Math.floor(st.mtimeMs).toString(16) + (ext === '.html' ? '-l4-u' + slugVersion() : '') + '"';
+  const etag = 'W/"' + st.size.toString(16) + '-' + Math.floor(st.mtimeMs).toString(16) + (ext === '.html' ? '-l5-u' + slugVersion() : '') + '"';
   const headers = {
     'Content-Type': TYPES[ext] || 'application/octet-stream',
     'ETag': etag,
@@ -79,12 +99,16 @@ function serveFile(req, res, fp, extra = {}) {
   };
   if (req.headers['if-none-match'] === etag) { res.writeHead(304, headers).end(); return; }
   let body = fs.readFileSync(fp);
-  if (ext === '.html') body = Buffer.from(rewriteHtml(withLeadGate(body).toString('utf8'), path.relative(ROOT, fp).split(path.sep).join('/')), 'utf8');
+  const origin = process.env.SITE_URL ? process.env.SITE_URL.replace(/\/+$/, '') : (req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http') + '://' + req.headers.host;
+  if (ext === '.html') {
+    const rel = path.relative(ROOT, fp).split(path.sep).join('/');
+    body = Buffer.from(withAbsoluteUrls(rewriteHtml(withLeadGate(body).toString('utf8'), rel), origin, cleanUrlOf(rel)), 'utf8');
+  }
   if (COMPRESSIBLE.has(ext) && body.length > 1024) {
     const accept = String(req.headers['accept-encoding'] || '');
     const enc = /\bbr\b/.test(accept) ? 'br' : /\bgzip\b/.test(accept) ? 'gzip' : '';
     if (enc) {
-      const key = fp + '|' + st.mtimeMs + '|' + enc + (ext === '.html' ? '|u' + slugVersion() : '');
+      const key = fp + '|' + st.mtimeMs + '|' + enc + (ext === '.html' ? '|u' + slugVersion() + '|' + origin : '');
       let z = squeezed.get(key);
       if (!z) {
         z = enc === 'br'
@@ -163,7 +187,7 @@ async function handle(req, res) {
 
   let p;
   try { p = decodeURIComponent(req.url.split('?')[0].split('#')[0]); } catch { res.writeHead(400).end('bad request'); return; }
-  if (forbiddenPath(p)) { res.writeHead(404, { 'Content-Type': 'text/html' }).end('<h1>404</h1>'); return; }
+  if (forbiddenPath(p)) { res.writeHead(404, { 'Content-Type': 'text/html' }).end(notFoundPage()); return; }
   if (p.endsWith('/')) p += 'index.html';
   let fp = path.join(ROOT, path.normalize(p).replace(/^([/\\])+/, ''));
   if (!fp.startsWith(ROOT)) { res.writeHead(403).end('forbidden'); return; }
@@ -199,7 +223,7 @@ async function handle(req, res) {
                 path.join(ROOT, site, 'category', rest + '.html'));
     }
     const hit = alts.find(a => fs.existsSync(a) && fs.statSync(a).isFile());
-    if (!hit) { res.writeHead(404, { 'Content-Type': 'text/html' }).end('<h1>404</h1><p>' + p + '</p>'); return; }
+    if (!hit) { res.writeHead(404, { 'Content-Type': 'text/html' }).end(notFoundPage()); return; }
     fp = hit;
   }
 

@@ -278,6 +278,13 @@ function applyVisualEdits(pageAbs, edits, version) {
         if (/^(https?:|mailto:|tel:|#|\/\/)/i.test(v) || !v) set.href = v;
         else { const p = v.match(/^([^?#]*)([\s\S]*)$/); set.href = refFrom(pageAbs, p[1]) + (/\/$/.test(p[1]) ? '/' : '') + p[2]; }
       }
+      else if (e.op === 'canon') {
+        // canonical URL: always a full address, never rewritten to a relative path
+        const v = String(e.value || '').trim();
+        if (v === '') set.href = path.basename(pageAbs);          // automatic: the server publishes this page's own full address
+        else if (!/^https?:\/\/[^\s"<>]+$/i.test(v)) throw new Error('Canonical URL must be a full address starting with https://');
+        else set.href = v;
+      }
       else if (e.op === 'alt') set.alt = e.value;
       else if (e.op === 'attr' && /^(content|title)$/.test(e.name || '')) set[e.name] = e.value;
       else throw new Error('unknown edit ' + e.op);
@@ -473,6 +480,8 @@ function pageModel(abs) {
     const m = meta(k, v);
     if (m) seo.push({ id: idOf.get(m), op: 'attr', name: 'content', label, value: decode(attr(m, 'content') || ''), hint });
   }
+  const canon = find(doc, e => e.tagName === 'link' && attr(e, 'rel') === 'canonical');
+  if (canon) seo.push({ id: idOf.get(canon), op: 'canon', label: 'Canonical URL (optional)', value: /^https?:\/\//i.test(attr(canon, 'href') || '') ? decode(attr(canon, 'href')) : '', hint: 'The one address search engines treat as this page, so copies of it (?tracking, /index.html, http/https, www) do not compete. Leave empty and the site publishes this page\'s own full address automatically. Fill it in only to point to another page when this one is a duplicate (https://...).', placeholder: 'Automatic: this page\'s own address' });
   return { path: relOf(abs), title: titleOf(src), version: versionOf(src), generated: relOf(abs) === 'index.html', sections, seo };
 }
 

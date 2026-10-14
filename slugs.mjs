@@ -228,6 +228,8 @@ export function setSlug(rel, slug, reset) {
 }
 
 // ---------------------------------------------------------------- sitemap
+// the clean URL ("/welding/") of a page file ("welding/index.html"), or null
+export const cleanUrlOf = rel => { const c = index().byFile.get(rel); return c == null ? null : "/" + c; };
 export function sitemapXml(origin) {
   const ix = index();
   const urls = [...ix.byFile].filter(([rel]) => !/^pages\/author-|\/hello\.html$/.test(rel)).map(([, c]) => origin + '/' + c);

@@ -1,3 +1,4 @@
+:root { --pg-gut: clamp(24px, 5vw, 64px); }   /* the empty space left and right of the content, shared with pg-gutters.css */
 /* ==========================================================================
    Pilot Spray Guns - series pages (evolution-series and siblings)
 
@@ -520,7 +521,7 @@ body.pg-series { overflow-x: clip !important; }
 
 /* Divi's clearfix is switched off above (it would become a grid cell on desktop), so the
    floated columns of this copy need the row to contain them another way */
-.pg-series .pg-prod--mob .et_pb_row { display: flow-root !important; width: 92% !important; padding: 28px 22px !important; border-radius: 26px; }
+.pg-series .pg-prod--mob .et_pb_row { display: flow-root !important; width: calc(100% - 2 * var(--pg-gut, 24px)) !important; padding: 28px 22px !important; border-radius: 26px; }
 .pg-series .pg-prod--mob .et_pb_column { float: none !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
 .pg-series .pg-prod--mob .et_pb_text { margin-bottom: 14px !important; }
 .pg-series .pg-prod--mob h1 { font-size: clamp(38px, 11vw, 52px) !important; }
@@ -723,9 +724,11 @@ body.pg-series { overflow-x: clip !important; }
    control at its end, a "Showing X of N" line, then a grid of cells divided by hairlines (no gaps,
    no rounded cards). Image panels alternate between a soft square and a soft circle. */
 .pg-gallery {
-  width: min(1320px, 94%);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: calc(1240px + 2 * var(--pg-gut, 24px));
   margin: 0 auto;
-  padding: 56px 0 80px;
+  padding: 56px var(--pg-gut, 24px) 80px;
 }
 .pg-gallery__head { margin: 0 0 34px; text-align: center; }
 .pg-gallery__eyebrow {
@@ -940,7 +943,7 @@ body.pg-series { overflow-x: clip !important; }
 
 /* phones: the product page shows the desktop card in one column (not every model has a phone twin) */
 @media (max-width: 767px) {
-  .pg-gallery { padding: 32px 0 56px; }
+  .pg-gallery { padding: 32px var(--pg-gut, 24px) 56px; }
   .pg-gallery__head { margin-bottom: 24px; }
   .pg-gallery__bar { flex-direction: column; align-items: stretch; }
   .pg-sort { align-self: flex-start; }
@@ -1128,3 +1131,10 @@ body.pg-series { overflow-x: clip !important; }
 .pg-series:has(.pg-nav a[href*="electric-series"], .pg-nav a[href*="pneumatic-series"], .pg-nav a[href*="electro-hydraulic"]) .pg-hero h3::before { content: "Pilot Airless"; }
 .pg-series:has(.pg-nav a[href*="gas-cutting"], .pg-nav a[href*="gas-regulator"], .pg-nav a[href*="gas-welding"]) .pg-hero h3::before { content: "Pilot Welding"; }
 .pg-series:has(.pg-nav a[href*="currency-"], .pg-nav a[href*="paper-shredder"]) .pg-hero h3::before { content: "Pilot Office Products"; }
+
+/* phone: the hero's title and its paragraph start on the same left edge (the paragraph carried an extra 30 px of Divi padding),
+   and both sit on the site gutter */
+@media (max-width: 767px) {
+  .pg-series .et_pb_section_1.et_pb_with_background .et_pb_column { padding-left: var(--pg-gut) !important; padding-right: var(--pg-gut) !important; }
+  .pg-series .et_pb_section_1.et_pb_with_background .et_pb_text { padding-left: 0 !important; padding-right: 0 !important; }
+}

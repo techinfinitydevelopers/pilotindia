@@ -9,6 +9,10 @@
    ========================================================================== */
 
 .pi-home {
+  /* the empty space left and right of the content, and the content column: the same on every page of the site */
+  --pg-gut: clamp(24px, 5vw, 64px);
+  --pg-max: 1240px;
+  --shell: 18px;                              /* the inset of the rounded hero / figures / closing shells */
   --h-ink: var(--pi-ink, #0a0a0a);
   --h-accent: var(--pi-accent, #f58634);
   --h-paper: #ffffff;
@@ -29,9 +33,9 @@
   width: 100%;
   /* was 1280/24: on a wide monitor that left a deep empty margin either side.
      The measure now tracks the viewport and only caps on very large screens. */
-  max-width: 1660px;
+  max-width: calc(var(--pg-max) + 2 * var(--pg-gut));
   margin: 0 auto;
-  padding: 0 clamp(20px, 3vw, 48px);
+  padding: 0 var(--pg-gut);
 }
 
 .pi-home__eyebrow {
@@ -513,9 +517,9 @@
 .pi-stats__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  max-width: 1660px;
+  max-width: calc(var(--pg-max) + 2 * var(--pg-gut));
   margin: 0 auto;
-  padding: 0 clamp(20px, 3vw, 48px);
+  padding: 0 var(--pg-gut);
 }
 
 .pi-stat {
@@ -948,9 +952,9 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 1660px;
+  max-width: calc(var(--pg-max) + 2 * var(--pg-gut));
   margin: 0 auto;
-  padding: 0 clamp(20px, 3vw, 48px);
+  padding: 0 var(--pg-gut);
   position: relative;
 }
 
@@ -980,7 +984,7 @@
   pointer-events: none;
 }
 .pi-cap::before {
-  inset: 0 calc(-1 * clamp(20px, 3vw, 48px));
+  inset: 0 calc(-1 * var(--pg-gut));
   background: linear-gradient(90deg, rgba(245, 134, 52, 0.10) 0%, rgba(245, 134, 52, 0.03) 55%, rgba(245, 134, 52, 0) 100%);
   opacity: 0;
   transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -988,7 +992,7 @@
 .pi-cap::after {
   top: 0;
   bottom: 0;
-  left: calc(-1 * clamp(20px, 3vw, 48px));
+  left: calc(-1 * var(--pg-gut));
   width: 3px;
   background: var(--h-accent, #f58634);
   transform: scaleY(0);
@@ -1730,6 +1734,18 @@
   .pi-reveal { opacity: 1; transform: none; }
 }
 
+/* ============================ side gutters ============================
+   The sections that sit inside rounded shells (hero, figures, closing band) are inset by --shell, so their own padding is the
+   gutter minus that inset: their text then starts exactly where the text of every other section starts. */
+.pi-stats__grid {
+  max-width: calc(var(--pg-max) + 2 * (var(--pg-gut) - var(--shell)));
+  padding: 0 calc(var(--pg-gut) - var(--shell));
+}
+.pi-hero { padding-left: max(calc(var(--pg-gut) - var(--shell)), calc((100vw - var(--pg-max)) / 2 - var(--shell))); padding-right: max(calc(var(--pg-gut) - var(--shell)), calc((100vw - var(--pg-max)) / 2 - var(--shell))); }
+.pi-hero__head { padding-left: 0; }
+.pi-close { padding-left: calc(var(--pg-gut) - var(--shell)); padding-right: calc(var(--pg-gut) - var(--shell)); }
+@media (max-width: 680px) { .pi-home { --shell: 12px; } }
+
 /* ---- keep the main object in view (2026-10-13) ----
    Product range: a collapsed card shows only ~30% of its 2:1 photo, so each one is aimed at its
    subject instead of the middle (painter + gun, airless pump + operator, torch, note counter, heat gun). */
@@ -1741,6 +1757,21 @@
 /* capability illustrations are whole drawings: fit them (the gear and chimney were cut off) */
 .pi-cap__shot { background: linear-gradient(135deg, #f6f0e8, #eae1d4); }
 .pi-cap__shot img { object-fit: contain; }
+
+/* ---- hero: room to breathe (2026-10-13) ----
+   The headline was capped at 780px, so on a laptop window it wrapped to three lines and sat right on top of the sub-text and the
+   two cards. It now uses the whole column left of the figure deck (two lines), the type scales a little less with height, the hero
+   never gets shorter than 620px, and there is a clear gap above the cards. */
+.pi-hero { min-height: max(620px, calc(100svh - 100px)); }
+.pi-hero__head { max-width: none; }
+.pi-hero__title { font-size: clamp(40px, min(5.4vw, 10vh), 88px); }
+.pi-hero__cards { margin-top: clamp(28px, 5vh, 48px); }
+
+/* ---- phone: "20+" sits on the left with its label (it was right-aligned and floated in from nowhere) ---- */
+@media (max-width: 680px) {
+  .pi-ind__count { align-items: flex-start; margin-right: 0; }
+  .pi-ind__num { margin-right: 0; }
+}
 
 /* ---- hero: a little more air left and right (2026-10-13) ----
    The headline, the figure card and the two glass cards sit a bit further in from the frame. Done with

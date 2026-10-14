@@ -1783,3 +1783,14 @@
   .pi-deck { margin-right: var(--hero-in); }
   .pi-hero__cards { margin-left: var(--hero-in); margin-right: var(--hero-in); }
 }
+
+/* ---- hero: side inset (2026-10-14) ----
+   The text and cards were aligned to the 1240px content column, which left ~200px of empty photo on each side on wide
+   screens. They now sit a fixed, modest distance inside the frame at every desktop width. Desktop only. */
+@media (min-width: 961px) {
+  .pi-hero { --hero-in: 0px; padding-left: clamp(24px, 3vw, 56px); padding-right: clamp(24px, 3vw, 56px); }
+}
+
+/* ---- hero headline: two balanced lines (2026-10-14) ----
+   Capped in em so it wraps the same way at every size ("India's largest maker of / surface coating equipment."). */
+.pi-hero__title { max-width: 15.5em; text-wrap: balance; }

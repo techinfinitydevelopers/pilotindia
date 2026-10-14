@@ -41,7 +41,7 @@
   margin: 0;
   padding: 0;
   border: 0;
-  border-radius: 3px;
+  border-radius: 20px;   /* same corners as the cards under the gallery */
   overflow: hidden;
   background: #f3f0eb;
   transform: translate(-50%, -50%) translateX(var(--x, 0px)) scale(var(--s, 1));
@@ -204,3 +204,6 @@
 @media (max-width: 1100px) { .pg-tech--fan .pg-tech__cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .pg-tech--fan .pg-tech__cards { grid-template-columns: 1fr; } .pg-tech--fan .pg-tech__cards .pg-tech__card { padding: 22px 20px 26px; } }
 @media (prefers-reduced-motion: reduce) { .pg-tech--fan .pg-tech__cards .pg-tech__card, .pg-tech--fan .pg-tech__card-line { transition: none; } }
+
+/* corner brackets around the front picture: removed (2026-10-14) */
+.pg-fan__mark { display: none !important; }

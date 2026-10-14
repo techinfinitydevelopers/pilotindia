@@ -122,6 +122,12 @@ export function invalidateSlugs() { idx = null; }
 export const slugVersion = () => index().version;
 export const cleanOf = rel => index().byFile.get(rel);
 
+// ---------------------------------------------------------------- product model pages
+// A series page holds one card per model (id="model-<model>"). Does that page have this model?
+function modelExists(rel, model) {
+  try { return fs.readFileSync(path.join(ROOT, rel), 'utf8').includes('id="model-' + model + '"'); } catch (e) { return false; }
+}
+
 // ---------------------------------------------------------------- requests
 // What to do with a request path. Returns { file } to serve, { redirect } for a 301, or null (not a page URL).
 export function resolveRequest(pathname, search) {
@@ -129,9 +135,24 @@ export function resolveRequest(pathname, search) {
   const key = p.replace(/^\/+/, '');
   const q = search || '';
   let ix = index();
-  const go = rel => ({ redirect: '/' + ix.byFile.get(rel) + q });
+  const go = rel => {
+    const mm = q.match(/^\?model=model-([a-z0-9]+(?:-[a-z0-9]+)*)$/), clean = ix.byFile.get(rel);
+    if (mm && !clean.endsWith('/') && modelExists(rel, mm[1])) return { redirect: '/' + clean + '/' + mm[1] };   // old model link: one hop
+    return { redirect: '/' + clean + q };
+  };
 
+  // an old model address, "/evolution-series?model=model-hvlp-03", becomes "/evolution-series/hvlp-03"
+  const oldModel = q.match(/^\?model=model-([a-z0-9]+(?:-[a-z0-9]+)*)$/);
+  if (oldModel && ix.byClean.has(key) && modelExists(ix.byClean.get(key), oldModel[1])) return { redirect: '/' + key.replace(/\/$/, '') + '/' + oldModel[1] };
   if (ix.byClean.has(key)) return { file: ix.byClean.get(key) };
+  // a model page: "/<series>/<model>" is the series page, which then shows only that model
+  const cut = key.replace(/\/$/, '').lastIndexOf('/');
+  if (cut > 0) {
+    const series = key.slice(0, cut), model = key.slice(cut + 1).replace(/\/$/, '');
+    if (ix.byClean.has(series) && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(model) && modelExists(ix.byClean.get(series), model)) {
+      return key.endsWith('/') ? { redirect: '/' + series + '/' + model + q } : { file: ix.byClean.get(series) };
+    }
+  }
   // a clean URL with or without its trailing slash
   if (key.endsWith('/') && ix.byClean.has(key.slice(0, -1))) return go(ix.byClean.get(key.slice(0, -1)));
   if (!key.endsWith('/') && ix.byClean.has(key + '/')) return go(ix.byClean.get(key + '/'));
@@ -174,7 +195,12 @@ export function rewriteHtml(html, rel) {
     if (t.startsWith('..')) t = t.replace(/^(\.\.\/)+/, '');
     if (t === '.') t = '';
     const page = t === '' ? 'index.html' : (p.endsWith('/') || t.endsWith('/')) ? t.replace(/\/?$/, '/') + 'index.html' : t;
-    if (ix.byFile.has(page)) return '/' + ix.byFile.get(page) + m[2];
+    if (ix.byFile.has(page)) {
+      // a link to one model of a series ("evolution-series.html?model=model-hvlp-03") becomes /evolution-series/hvlp-03
+      const mm = m[2].match(/^\?model=model-([a-z0-9]+(?:-[a-z0-9]+)*)$/);
+      if (mm && !ix.byFile.get(page).endsWith('/')) return '/' + ix.byFile.get(page) + '/' + mm[1];
+      return '/' + ix.byFile.get(page) + m[2];
+    }
     if (t && isFile(t)) return '/' + t.split('/').map(encodeURIComponent).join('/') + m[2];
     return null;
   }

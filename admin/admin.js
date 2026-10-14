@@ -68,6 +68,7 @@
     ['#/blog', 'Blog', I.blog],
     ['#/media', 'Media', I.image],
     ['#/leads', 'Leads', '<svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-3.3 0-8 1.7-8 5v1h16v-1c0-3.3-4.7-5-8-5z"/></svg>'],
+    ['#/visitors', 'User tracker', '<svg viewBox="0 0 24 24"><path d="M4 19h16v2H4zM6 10h3v7H6zm5-4h3v11h-3zm5 7h3v4h-3z"/></svg>'],
     ['#/theme', 'Theme & UI', I.palette],
   ];
   $('#nav').innerHTML = NAV.map(function (n) { return '<a href="' + n[0] + '">' + n[2] + '<span>' + n[1] + '</span></a>'; }).join('');
@@ -1010,6 +1011,75 @@
   };
 
   // ================================================================ MEDIA
+  // ================================================================ USER TRACKER (visits.mjs)
+  // How many people visit and where they came from: Google (ads / search), Meta (ads / social), campaigns (utm_*),
+  // other sites, or Direct. One series per chart, one hue; every bar has a hover title and the numbers are printed.
+  ROUTES['/visitors'] = function (view) {
+    var days = +(sessionStorage.getItem('pi-vis-days') || 30);
+    function num(n) { return Number(n || 0).toLocaleString('en-IN'); }
+    function pct(n, t) { return t ? Math.round(n * 100 / t) + '%' : '0%'; }
+    function short(d) { var p = d.split('-'); return +p[2] + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][+p[1] - 1]; }
+    function bars(rows, label, value, total) {
+      if (!rows.length) return '<div class="vt-empty">Nothing yet in this period.</div>';
+      var max = Math.max.apply(null, rows.map(value)) || 1;
+      return '<ul class="vt-bars">' + rows.map(function (r) {
+        var v = value(r);
+        return '<li title="' + esc(label(r)) + ': ' + num(v) + '"><span class="vt-bars__k">' + esc(label(r)) + '</span>' +
+          '<span class="vt-bars__track"><span class="vt-bars__fill" style="width:' + Math.max(2, v * 100 / max).toFixed(1) + '%"></span></span>' +
+          '<span class="vt-bars__v">' + num(v) + (total ? ' <small>' + pct(v, total) + '</small>' : '') + '</span></li>';
+      }).join('') + '</ul>';
+    }
+    function draw() {
+      return api('/visitors?days=' + days).then(function (d) {
+        var t = d.totals, sessions = d.sources.reduce(function (a, s) { return a + s.sessions; }, 0);
+        var maxDay = Math.max.apply(null, d.perDay.map(function (p) { return p.visitors; }).concat([1]));
+        var every = Math.ceil(d.perDay.length / 10);
+        view.innerHTML = head('User tracker', 'Visitors to the website and where they came from. Counted on the server when a page is opened; bots, link previews and the admin are left out. Dates in India time.',
+          '<span class="vt-live" title="People who opened a page in the last 5 minutes. This screen updates itself every 15 seconds."><i></i>' + num(d.live.active) + ' on the site now<small>updated ' + new Date(d.live.now).toLocaleTimeString() + (d.live.lastAt ? ' · last page view ' + new Date(d.live.lastAt).toLocaleTimeString() : '') + '</small></span>' +
+          '<div class="vt-range" role="group" aria-label="Period">' + [7, 30, 90].map(function (n) { return '<button class="btn btn--sm' + (n === days ? ' is-on' : '') + '" data-days="' + n + '">' + n + ' days</button>'; }).join('') + '</div>') +
+          '<div class="cards cards--vt">' +
+          '<div class="stat"><span class="stat__label">Visitors</span><span class="stat__n">' + num(t.visitors) + '</span><span class="stat__open">Different people, last ' + d.days + ' days</span></div>' +
+          '<div class="stat"><span class="stat__label">Visits</span><span class="stat__n">' + num(t.sessions) + '</span><span class="stat__open">A visit ends after 30 minutes idle</span></div>' +
+          '<div class="stat"><span class="stat__label">Page views</span><span class="stat__n">' + num(t.views) + '</span><span class="stat__open">' + (t.sessions ? (t.views / t.sessions).toFixed(1) : '0') + ' pages per visit</span></div>' +
+          '<div class="stat"><span class="stat__label">Today</span><span class="stat__n">' + num(d.today.visitors) + '</span><span class="stat__open">' + num(d.today.views) + ' page views</span></div>' +
+          '</div>' +
+          '<section class="panel vt-panel"><div class="panel__head"><h2>Visitors per day</h2><span class="pill">' + short(d.from) + ' – ' + short(d.to) + '</span></div>' +
+          '<div class="vt-days" style="--n:' + d.perDay.length + '">' + d.perDay.map(function (p, i) {
+            return '<div class="vt-day" title="' + short(p.date) + ': ' + num(p.visitors) + ' visitors, ' + num(p.sessions) + ' visits, ' + num(p.views) + ' page views">' +
+              '<span class="vt-day__bar" style="height:' + (p.visitors ? Math.max(3, p.visitors * 100 / maxDay) : 0).toFixed(1) + '%"></span>' +
+              '<span class="vt-day__x">' + (i % every === 0 || i === d.perDay.length - 1 ? short(p.date) : '') + '</span></div>';
+          }).join('') + '</div><p class="vt-note">Peak: ' + num(maxDay === 1 && !t.visitors ? 0 : maxDay) + ' visitors in a day. Hover a bar for the day’s numbers.</p></section>' +
+          '<div class="vt-grid">' +
+          '<section class="panel vt-panel"><div class="panel__head"><h2>Where visits come from</h2><span class="pill">' + num(sessions) + ' visits</span></div>' +
+          bars(d.sources, function (s) { return s.source; }, function (s) { return s.sessions; }, sessions) + '</section>' +
+          '<section class="panel vt-panel"><div class="panel__head"><h2>Devices</h2></div>' +
+          bars(d.devices, function (s) { return s.device; }, function (s) { return s.n; }, sessions) +
+          '<div class="panel__head vt-sub"><h2>Referring websites</h2></div>' +
+          bars(d.referrers, function (s) { return s.host; }, function (s) { return s.n; }) + '</section>' +
+          '</div>' +
+          '<section class="panel vt-panel"><div class="panel__head"><h2>Campaigns</h2><span class="pill">from utm_source / utm_medium / utm_campaign and ad click ids</span></div>' +
+          (d.campaigns.length ? '<div class="leads-wrap"><table class="leads"><thead><tr><th>Source</th><th>Medium</th><th>Campaign</th><th>Visits</th></tr></thead><tbody>' +
+            d.campaigns.map(function (c) { return '<tr><td>' + esc(c.source) + '</td><td>' + esc(c.medium || '–') + '</td><td>' + esc(c.campaign || '–') + '</td><td>' + num(c.n) + '</td></tr>'; }).join('') +
+            '</tbody></table></div>' : '<div class="vt-empty">No campaign visits yet. Tag ad and post links like <code>?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=spray-guns</code>; Google and Meta ad clicks (gclid / fbclid) are recognised on their own.</div>') +
+          '</section>' +
+          '<div class="vt-grid">' +
+          '<section class="panel vt-panel"><div class="panel__head"><h2>Most viewed pages</h2></div>' + bars(d.pages, function (p) { return p.path; }, function (p) { return p.n; }) + '</section>' +
+          '<section class="panel vt-panel"><div class="panel__head"><h2>Landing pages</h2><span class="pill">first page of a visit</span></div>' + bars(d.landings, function (p) { return p.path; }, function (p) { return p.n; }) + '</section>' +
+          '</div>' +
+          '<p class="vt-note">Stored in ' + (d.storage === 'postgres' ? 'Postgres' : 'a local file (data/visits.jsonl, not in git)') + '. No IP addresses or personal details are kept: a visitor is a random id in a first-party cookie.</p>';
+        Array.prototype.forEach.call(view.querySelectorAll('[data-days]'), function (b) {
+          b.onclick = function () { days = +b.getAttribute('data-days'); try { sessionStorage.setItem('pi-vis-days', days); } catch (e) { /* private mode */ } draw(); };
+        });
+      });
+    }
+    // live: re-read every 15 s while this screen is open and the tab is visible
+    var timer = setInterval(function () {
+      if (!document.body.contains(view)) { clearInterval(timer); return; }
+      if (!document.hidden) draw().catch(function () { /* keep the last numbers on a failed refresh */ });
+    }, 15000);
+    return draw();
+  };
+
   // ================================================================ LEADS (catalogue downloads)
   ROUTES['/leads'] = function (view) {
     return api('/leads').then(function (d) {
@@ -1064,6 +1134,27 @@
       });
     });
   };
+
+  // Leads stay live: a new catalogue / enquiry form shows up within 20 s while this screen is open
+  // (not while the search box is being used, so typing is never interrupted).
+  (function () {
+    var leadsView = ROUTES['/leads'];
+    ROUTES['/leads'] = function (view) {
+      var timer = setInterval(function () {
+        if (!document.body.contains(view)) { clearInterval(timer); return; }
+        var box = view.querySelector('.search input');
+        if (document.hidden || (box && (box.value || document.activeElement === box))) return;
+        var y = window.scrollY;
+        var holder = document.createElement('div');
+        Promise.resolve(leadsView(holder)).then(function () {
+          if (!document.body.contains(view)) return;
+          view.innerHTML = ''; while (holder.firstChild) view.appendChild(holder.firstChild);
+          window.scrollTo(0, y);
+        }).catch(function () { /* keep what is shown */ });
+      }, 20000);
+      return leadsView(view);
+    };
+  })();
 
   // ================================================================ THEME & UI
   var THEME_GROUPS = [

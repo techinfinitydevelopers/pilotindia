@@ -96,7 +96,13 @@
     var cards = Array.prototype.slice.call(document.querySelectorAll('.pg-prod--desk[id]'));
     if (cards.length < 2) return null;
     var body = document.body;
-    var base = location.pathname;
+    // A model's address is /<series>/<model>: letters, digits and hyphens only (no ".html", no "?model="). The card id is
+    // "model-<model>". Old ?model=model-x links are redirected by the server and are still understood here.
+    var path = location.pathname.replace(/\/+$/, '');
+    var seg = path.split('/').pop();
+    var pathCard = seg ? document.getElementById('model-' + seg) : null;
+    if (pathCard && cards.indexOf(pathCard) < 0) pathCard = null;
+    var base = pathCard ? path.slice(0, path.length - seg.length - 1) : path;
     var seriesName = (function () {
       // a page without a series menu (Power Tools) names itself
       var own = document.body.getAttribute('data-pg-series');
@@ -107,7 +113,7 @@
       return t.toLowerCase().replace(/\b[a-z]/g, function (c) { return c.toUpperCase(); });
     })();
     function nameOf(sec) { var h = sec.querySelector('h1'); return h ? h.textContent.replace(/\s+/g, ' ').trim() : ''; }
-    function urlOf(sec) { return base + '?model=' + encodeURIComponent(sec.id); }
+    function urlOf(sec) { return base + '/' + sec.id.replace(/^model-/, ''); }
     function imageOf(sec) {
       var col = sec.querySelector('.et_pb_row > .et_pb_column:nth-child(2)') || sec;
       var mod = col.querySelector('.et_pb_image') || col;
@@ -128,8 +134,10 @@
     var first = document.querySelector('.pg-prod');
 
     var wanted = new URLSearchParams(location.search).get('model');
-    var current = wanted ? document.getElementById(wanted) : null;
+    var current = pathCard || (wanted ? document.getElementById(wanted) : null);
     if (current && cards.indexOf(current) < 0) current = null;
+    // an old ?model= address in the bar becomes the clean one
+    if (current && !pathCard && history.replaceState) history.replaceState(null, '', base + '/' + current.id.replace(/^model-/, ''));
 
     if (!current) {
       // ---- the gallery ----

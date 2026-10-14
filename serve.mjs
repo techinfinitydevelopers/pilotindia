@@ -20,6 +20,8 @@ initSlugs(ROOT, REPO);
 // catalogue downloads need the short form first (leads.mjs)
 import { initLeads, handleLeadPost, handleEnquiryPost, isCatalogue, hasAccess, gatePage } from './leads.mjs';
 await initLeads(REPO, ROOT);
+import { initVisits, trackVisit } from './visits.mjs';
+await initVisits(REPO).catch(e => console.warn('visits: init failed: ' + e.message));
 if (dbMode() && !authEnabled()) console.warn('admin disabled: set ADMIN_PASSWORD to use /admin in production');
 
 // the admin dashboard (admin/server.mjs) - optional: the site still serves if it cannot load
@@ -182,8 +184,14 @@ async function handle(req, res) {
       return;
     }
     const r = resolveRequest(bare, qs);
-    if (r && r.redirect) { res.writeHead(301, { Location: r.redirect, 'Cache-Control': 'public, max-age=600' }).end(); return; }
-    if (r && r.file) { serveFile(req, res, path.join(ROOT, r.file)); return; }
+    // no-cache: a URL changed in the admin (URLs screen) must take effect at once, not after a browser's cached redirect expires
+    if (r && r.redirect) { res.writeHead(301, { Location: r.redirect, 'Cache-Control': 'no-cache' }).end(); return; }
+    if (r && r.file) {
+      // count the page view for the admin's User tracker (visits.mjs); it may set the visitor / session cookies
+      const ck = /\.html$/i.test(r.file) ? trackVisit(req, bare) : [];
+      serveFile(req, res, path.join(ROOT, r.file), ck.length ? { 'Set-Cookie': ck } : {});
+      return;
+    }
   }
 
   let p;

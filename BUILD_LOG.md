@@ -2302,3 +2302,51 @@ User: put the story text in 2 paras, then "reduce a little content". Was a large
 
 ## Home Insights: 6 posts -> 4 (2026-10-14)
 User: keep only 3-4 blogs. tools/home.mjs POSTS `.slice(0, 6)` -> `.slice(0, 4)`; pilotindia-clone/index.html edited directly (rows 05 and 06 removed) rather than regenerated, so other edits to the home file are not overwritten. Featured card + 4 listed rows (01 = featured post), section 771px at 1536 (was ~1000), same layout on phone, no JS errors, no horizontal scroll. pi-home.css v=12 in index.html. The two removed posts are still on /blogs.
+## 2026-10-14 - Clean model URLs in product series
+Series page URLs were already clean (checked all 283: only a-z, 0-9, hyphens, no .html). The remaining ugly address was a model page: `/evolution-series?model=model-hvlp-03` (`?`, `=`). Now `/evolution-series/hvlp-03`.
+- slugs.mjs: `/<series>/<model>` serves the series page when it has that model (`modelExists`); `?model=model-x` and `/pages/x.html?model=model-x` answer one 301 to the clean address; `rewriteHtml` turns model links in any page (products page etc.) into the clean form.
+- pg-series.js: gallery tiles, previous/next, back link use the clean path; reads the model from the path (legacy `?model=` still understood and replaced in the address bar).
+- Verified in Chrome: gallery tiles, model page (title, back, pager, only that card visible), legacy redirect, /power-tools/hg-25, /products links (0 with ? = or .html); unknown model and `.html` suffix give 404.
+- pg-powertools.js is not linked from any page (dead); left untouched. Model pages are not yet listed in sitemap.xml. Not pushed.
+
+## 2026-10-14 - Model card revamp (all series)
+Layout (pg-series.css, end of file): picture card left (sticky, compact: stage 360px, figure card smaller); right: model name, subtitle, technical data + downloads; below the whole block: features (2 columns; multiple lists such as "Features of construction" stack in page order), areas of application, then the video. First text column dissolved with display:contents so pieces place on the row grid; <=900px one column in the same order. Sizes reduced throughout (title, table rows, pills, bullets, area icons, padding).
+Checked at 1366 and 390 on one model of every series (order + no overlap + no horizontal scroll): all pass.
+YouTube check: 43 of 64 models have a video. Without one: Evolution Series (all 9), Power Tools (HG-25, BL-25, BL-26VS), Currency Counters (CV-70, CBT-30, CBF-30, PILOT-2101), Currency Sorters (PILOT-2101), Electric, Pneumatic and Electro-Hydraulic (x2) airless series. No links added (none in the original content).
+
+## 2026-10-14 - Card picture no longer follows the scroll; Blogs heading moved up
+pg-series.css: picture card sticky removed (position relative). pi-blogs.css v=3: #content-area top padding 150px -> clamp(30px, 3.4vw, 46px); heading now 104px from top on desktop (nav ends at 82), 88px on phone.
+
+## 2026-10-14 - Picture card on title line; FAQ centred; trust bento redesign
+- pg-series.css: model picture card starts on the model-name line (margin-top 30px, desktop).
+- pi-accordion.css v=2 (51 pages): FAQ heading centred with its rule, questions in one 880px column below.
+- bento-trust.css v=17 (spray-guns, airless, welding, office, power-tools): centred heading; card 01 is a tall ink feature card (orange glow, outlined numeral) spanning two rows, cards 02-05 in a 2x2 grid; icon + number on top, title, text, left-aligned. Tablet: feature card full width + 2x2; phone: one column. Same original text.
+
+## 2026-10-14 - Rounded image cards; trust bento redesign undone
+- pg-fan.css v=6: gallery tiles 3px -> 20px corners (same as the cards below; the focus ring follows). pg-series.css: model-gallery picture boxes 16px corners.
+- bento-trust.css restored to the committed version (redesign removed), link bumped to v=18 so browsers drop the redesign.
+
+## 2026-10-14 - Blog post pages in the site theme (all 180 posts)
+New assets/css/pi-post.css + assets/js/pi-post.js, linked into every blog/*.html with body.single-post by tools/blog-post-theme.mjs (v=3, idempotent; admin-made posts copy an existing post so they inherit it).
+Layout: header across (Blog / category pill, DM Sans italic title, author avatar . date . reading time, rounded cover), then a 760px article column + sticky rail (Contents of the post with active section, Recent posts, Products pills). Article typography: 17px body, lead paragraph larger, h2 with orange rule, orange-dot lists, orange underlined links. Empty editor headings removed by JS; reading-progress bar. Search and recent-comments widgets hidden (not live on a static site); comment form kept, restyled. <=980px one column, rail after the article. FAQ accordion inside posts excluded from post heading styles.
+Gotcha: the delayed-script loader fakes document.readyState as "loading", so pi-post.js runs directly (defer) instead of waiting on readyState.
+Checked: desktop + phone screenshots, FAQ block, no horizontal scroll at 390 on 3 posts. blog/hello.html (test post) also gets it.
+
+## 2026-10-14 - Blog rail fixed; admin User tracker
+- Blog posts (pi-post v5): rail = only "Contents", sticky with no inner scrollbar, left progress line with the active section in orange; Recent posts + product links moved under the article ("bp-more"). Root cause of the inner scrollbar/non-sticky: theme body{overflow-x:hidden} makes body a scroll box; now overflow-x: clip on posts.
+- visits.mjs (new): server-side page-view tracking on HTML page responses (serve.mjs, resolveRequest branch). Cookies pi_vid (2y) / pi_sid (30 min); source per visit from gclid/gbraid/wbraid, fbclid, msclkid, utm_*, Referer host, else Direct. Bots, previews, prefetch, admin, __cms excluded. No IP stored. Postgres table visits (production) / data/visits.jsonl (local, git-ignored).
+- Admin: #/visitors "User tracker" (GET /admin/api/visitors?days=7|30|90): visitors, visits, page views, today; visitors per day; sources; devices; referring sites; campaigns table; most viewed + landing pages.
+- Tested with simulated hits (direct, gclid, utm facebook paid, google referrer, instagram referrer, Googlebot, prefetch): 6 counted, bot + prefetch skipped, sources correct. Test data deleted.
+
+## 2026-10-14 - Admin changes live on the website
+- User tracker: "N on the site now" (page view in the last 5 min) + last page-view time; screen re-reads every 15 s while open (visits.mjs live{}).
+- Leads screen re-reads every 20 s (skips while the search box is in use).
+- Redirects (old URLs after a slug change in the URLs screen) now sent with Cache-Control: no-cache instead of max-age=600, so a URL change or reset is live at once for returning browsers.
+- Verified: slug change -> new URL 200, old 301, model pages and products links follow; reset -> back at once; a tracked visit appears in the API immediately. CSS/JS/HTML were already no-cache (ETag); only images/fonts/PDFs keep a 5-minute cache. Test slug file and test visit removed.
+
+## 2026-10-14 - Blog posts: contents card, recent posts cards, products box removed (pi-post v6)
+- Contents: white card with a read meter (% + bar), numbered sections, active one highlighted; the rail now spans only the article row, so it stops at the end of the article instead of following the reader down the whole page.
+- Under the article, full width: "From the blog / Recent posts" = 3 picture cards (newest other posts) read live from /blogs (rebuilt by the admin on every new post); falls back to the post's own recent-post links. "All articles" link. Products box removed.
+
+## 2026-10-14 - Fan gallery corner brackets removed
+pg-fan.css v=7: .pg-fan__mark hidden on all 5 product pages.

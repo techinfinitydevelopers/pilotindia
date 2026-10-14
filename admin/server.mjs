@@ -40,6 +40,7 @@ function rebuildProducts() {
 }
 import { admitBody, readLimited, takeUploadSlot, uploadQuota, checkUploadContent, rateLimit, clientIp } from '../security.mjs';
 import { listLeads, leadsCsv, catalogueCount } from '../leads.mjs';
+import { visitStats } from '../visits.mjs';
 
 let ROOT = '';
 let ADMIN_DIR = '';
@@ -1151,6 +1152,8 @@ export async function handleAdmin(req, res) {
     const q = k => url.searchParams.get(k);
     switch (route) {
       // catalogue-download leads (leads.mjs): the list, and a CSV export
+      // User tracker (visits.mjs): visitors, sessions and where they came from
+      case 'GET /visitors': return send(res, 200, await visitStats(q('days'))), true;
       case 'GET /leads': return send(res, 200, { leads: await listLeads(), catalogues: catalogueCount(), storage: dbMode() ? 'postgres' : 'local' }), true;
       case 'GET /leads.csv': {
         const csv = await leadsCsv();

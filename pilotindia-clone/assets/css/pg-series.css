@@ -1138,3 +1138,133 @@ body.pg-series { overflow-x: clip !important; }
   .pg-series .et_pb_section_1.et_pb_with_background .et_pb_column { padding-left: var(--pg-gut) !important; padding-right: var(--pg-gut) !important; }
   .pg-series .et_pb_section_1.et_pb_with_background .et_pb_text { padding-left: 0 !important; padding-right: 0 !important; }
 }
+
+/* ==========================================================================
+   Model card, new order (2026-10-14)
+   picture on the left; the model name on the right with the technical data directly under it;
+   below the whole block: the features, then the areas of application, then the video.
+   The first column (name, features, areas, video) is dissolved into the row's grid (display: contents) so each piece can be placed on its own.
+   ========================================================================== */
+.pg-series .pg-prod--desk .et_pb_row,
+.pg-view-model .pg-prod--desk.is-shown .et_pb_row {
+  display: grid !important;
+  grid-template-columns: minmax(300px, 0.95fr) minmax(0, 1.35fr) !important;
+  grid-template-rows: auto auto 1fr;
+  grid-template-areas:
+    "img ttl"
+    "img sub"
+    "img dat";
+  gap: 0 56px !important;
+  align-items: start;
+}
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1),
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text,
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner { display: contents !important; }
+
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) { grid-area: img !important; align-self: start !important; }
+.pg-series .pg-prod--desk .et_pb_column_3_5 { grid-area: dat !important; margin-top: 26px !important; align-self: start; }
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner > h1 { grid-area: ttl; align-self: end; margin: 0 !important; }
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner > p:not(.pg-areas p) { grid-area: sub; margin: 10px 0 0 !important; }
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner > hr { display: none !important; }
+
+/* below, in page order (they auto-place, so a card with two lists - "Features" and "Features of construction" - just stacks them):
+   features (two columns), areas, video. Only the first heading carries the divider line. */
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner > h5 {
+  grid-column: 1 / -1; margin: 30px 0 0 !important;
+}
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner > ul {
+  grid-column: 1 / -1; margin: 14px 0 0 !important; padding: 0; columns: 2; column-gap: 56px; width: 100%;
+}
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner > ul > li { break-inside: avoid; }
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner > .pg-areas {
+  grid-column: 1 / -1; margin: 0 !important; padding-top: 34px !important;
+}
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) > .et_pb_video,
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) > .et_pb_video_slider {
+  grid-column: 1 / -1; width: 100%; max-width: 760px; margin: 34px 0 0 !important;
+}
+
+/* narrower laptops: same order, tighter */
+@media (max-width: 1100px) {
+  .pg-series .pg-prod--desk .et_pb_row,
+  .pg-view-model .pg-prod--desk.is-shown .et_pb_row { grid-template-columns: minmax(240px, 0.9fr) minmax(0, 1.25fr) !important; gap: 0 34px !important; }
+  .pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner > ul { column-gap: 34px; }
+}
+
+/* tablets and phones: one column, in the same order: picture, name, data, features, areas, video */
+@media (max-width: 900px) {
+  .pg-series .pg-prod--desk .et_pb_row,
+  .pg-view-model .pg-prod--desk.is-shown .et_pb_row {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: none;
+    grid-template-areas: "img" "ttl" "sub" "dat";
+  }
+  .pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) { margin-bottom: 22px !important; order: 0 !important; position: static !important; max-width: 420px; justify-self: center; width: 100%; }
+  .pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner > ul { columns: 1; }
+  .pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner > h5 { margin-top: 34px !important; }
+}
+@media (max-width: 767px) {
+  .pg-view-model .pg-prod--desk.is-shown .et_pb_column_3_5 { margin-top: 22px !important; }
+}
+
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner > h5:first-of-type { margin-top: 44px !important; padding-top: 30px; border-top: 1px solid var(--s-line, #ebe6de); }
+
+/* ---- model card, compact (2026-10-14): smaller picture card, everything else scaled with it ---- */
+.pg-series .pg-prod--desk { --pg-stage-h: 360px; }
+@media (max-width: 1100px) { .pg-series .pg-prod--desk { --pg-stage-h: 320px; } }
+.pg-series .pg-prod--desk .et_pb_row,
+.pg-view-model .pg-prod--desk.is-shown .et_pb_row {
+  padding: 38px 44px !important;
+}
+@media (min-width: 901px) {
+  .pg-series .pg-prod--desk .et_pb_row,
+  .pg-view-model .pg-prod--desk.is-shown .et_pb_row { grid-template-columns: minmax(250px, 0.6fr) minmax(0, 1.4fr) !important; gap: 0 44px !important; }
+}
+/* the picture card stays in view while the long data column scrolls past it */
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) { position: sticky; top: 96px; border-radius: 24px; }
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) .et_pb_image { border-radius: 24px; }
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) .pg-fig { padding: 11px 14px 10px; gap: 14px; border-radius: 18px; margin: 0 14px; width: calc(100% - 28px); }
+.pg-series .pg-prod--desk .pg-fig__item + .pg-fig__item { padding-left: 14px; }
+.pg-series .pg-prod--desk .pg-fig__n { font-size: 21px; }
+.pg-series .pg-prod--desk .pg-fig__n small { font-size: 11px; }
+.pg-series .pg-prod--desk .pg-fig__l { margin-top: 5px; max-width: 104px; font-size: 10.5px; }
+
+/* name, subtitle, data */
+.pg-series .pg-prod--desk h1 { font-size: clamp(30px, 2.9vw, 42px) !important; margin: 0 0 4px !important; }
+.pg-series .pg-prod--desk h1.pg-h1--long { font-size: clamp(26px, 2.4vw, 34px) !important; }
+.pg-series .pg-prod--desk h1.pg-h1--xl { font-size: clamp(22px, 1.9vw, 28px) !important; }
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner > p:not(.pg-areas p) { margin-top: 6px !important; font-size: 13px; }
+.pg-series .pg-prod--desk h5 { margin-bottom: 10px !important; font-size: 10.5px !important; }
+.pg-series .pg-prod--desk .et_pb_column_3_5 { margin-top: 20px !important; }
+.pg-series .pg-prod--desk td { padding: 8px 6px !important; }
+.pg-series .pg-prod--desk table:not(:has(img)) td:first-child:not(:last-child) { font-size: 12.5px; }
+.pg-series .pg-prod--desk table:not(:has(img)) td:last-child:not(:first-child) { font-size: 13px; }
+.pg-series .pg-prod--desk table[border="0"] td { padding: 8px 16px !important; }
+.pg-series .pg-prod--desk table[border="0"] td a[href$=".pdf"] { font-size: 12px !important; }
+.pg-series .pg-prod--desk td img[src*="pdf"] { width: 18px !important; margin-right: 6px; }
+
+/* features, areas, video: the band under the picture and data */
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner > h5:first-of-type { margin-top: 34px !important; padding-top: 24px; }
+.pg-series .pg-prod--desk li { padding: 8px 0 8px 20px !important; }
+.pg-series .pg-prod--desk li::before { width: 6px; height: 6px; box-shadow: 0 0 0 3px rgba(245, 134, 52, 0.16); }
+.pg-series .pg-prod--desk h6 { font-size: 13.5px !important; line-height: 1.45 !important; }
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner > .pg-areas { padding-top: 24px !important; }
+.pg-series .pg-prod--desk .pg-areas > p { margin-bottom: 10px !important; font-size: 10.5px; }
+.pg-series .pg-prod--desk .pg-areas td img { width: 42px !important; height: 42px !important; border-radius: 12px; margin-bottom: 5px; }
+.pg-series .pg-prod--desk .pg-areas td { min-width: 42px; font-size: 10px; }
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) > .et_pb_video,
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) > .et_pb_video_slider { max-width: 640px; margin-top: 26px !important; }
+
+@media (max-width: 767px) {
+  .pg-series .pg-prod--desk .et_pb_row,
+  .pg-view-model .pg-prod--desk.is-shown .et_pb_row { padding: 22px 18px !important; }
+  .pg-series .pg-prod--desk { --pg-stage-h: 300px; }
+}
+.pg-series .pg-prod--desk li::before { top: 15px; }
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) { position: relative !important; top: auto !important; }
+
+/* the picture card starts on the line of the model name, below the "No. 01" label */
+@media (min-width: 901px) { .pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(2) { margin-top: 30px !important; } }
+
+/* rounded picture boxes in the model gallery, like every other card on the product pages */
+.pg-tile__pic:not(.pg-tile__pic--round) { border-radius: 16px; }

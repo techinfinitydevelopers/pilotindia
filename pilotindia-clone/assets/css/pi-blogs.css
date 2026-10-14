@@ -14,7 +14,7 @@
   letter-spacing: -0.03em;
   color: #111114;
 }
-.pi-blogs-page #content-area { padding-top: clamp(110px, 12vw, 150px); padding-bottom: clamp(56px, 8vw, 100px); }
+.pi-blogs-page #content-area { padding-top: clamp(30px, 3.4vw, 46px); padding-bottom: clamp(56px, 8vw, 100px); }
 
 .pi-blogs { font-family: var(--pi-font-body, "Open Sans", system-ui, sans-serif); color: #111114; }
 .pi-blogs__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 28px; }

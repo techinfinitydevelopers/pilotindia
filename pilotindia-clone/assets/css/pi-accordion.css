@@ -224,3 +224,15 @@ html[data-pi-acc] .pi-acc__item[data-state="open"] > .pi-acc__panel {
   .pi-acc__item, .pi-acc__chev, .pi-acc__n, .pi-acc__q,
   html[data-pi-acc] .pi-acc__panel { transition: none !important; }
 }
+
+/* ---------- FAQ section, centred (2026-10-14): heading centred on top, the questions in one column under it ---------- */
+.pi-faq .pi-faq__wrap {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(26px, 3.4vw, 40px) !important;
+}
+.pi-faq .pi-faq__side { position: static; width: 100%; text-align: center; }
+.pi-faq .pi-faq__h { text-align: center; }
+.pi-faq .pi-faq__h::after { margin: 16px auto 0; }
+.pi-faq .pi-faq__wrap > .pi-acc { width: 100%; max-width: 880px; }

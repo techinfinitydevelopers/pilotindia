@@ -110,7 +110,7 @@
    On a hero with data-hero-ph the photo is replaced by a placeholder that covers exactly the visible
    part of the hero (top edge to the collection tray; height set by pg-hero-fit.js), with the size
    printed on it. To put a photo back: remove data-hero-ph and set --pi-hero: url(...) on the hero. */
-#select-series-re.e-con[data-hero-ph] { background-image: none !important; background-color: #121214 !important; }
+#select-series-re.e-con[data-hero-ph] { background-image: none !important; background-color: #0a0a0a !important; }
 .pg-hero-ph {
   position: absolute;
   z-index: -1;
@@ -159,3 +159,22 @@
   .pg-hero-ph__label { left: 50%; top: auto; bottom: 28px; transform: translateX(-50%); width: 80%; }
   .pg-hero-ph__label svg, .pg-hero-ph__hint { display: none; }
 }
+
+/* ---- product heroes: orange and white only, no grey (2026-10-15) ----
+   Every landing hero (spray guns, airless, welding, office, power tools) shows the photo placeholder;
+   its own text on the left is unchanged. The text that was dimmed to grey is now white. */
+#select-series-re .pi-sg-hero__title span:first-child { color: #fff; }
+#select-series-re .pi-sg-hero__sub { color: #fff; }
+#select-series-re .pi-sg-hero .pi-sg-hero__btn--ghost { border-color: #fff; color: #fff; }
+#select-series-re .pi-sg-hero .pi-sg-hero__btn--ghost:hover { background: #fff; color: #0a0a0a; border-color: #fff; }
+#select-series-re .pi-coll__note { color: #fff; }
+/* the placeholder itself: orange frame and grid, white text */
+.pg-hero-ph {
+  background:
+    radial-gradient(55% 75% at 76% 50%, rgba(245, 134, 52, 0.14), transparent 70%),
+    linear-gradient(rgba(245, 134, 52, 0.07) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(90deg, rgba(245, 134, 52, 0.07) 1px, transparent 1px) 0 0 / 48px 48px,
+    #0a0a0a;
+}
+.pg-hero-ph::before { border-color: rgba(245, 134, 52, 0.55); }
+.pg-hero-ph__label, .pg-hero-ph__hint { color: #fff; }

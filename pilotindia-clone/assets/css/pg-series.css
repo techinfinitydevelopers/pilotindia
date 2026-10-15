@@ -1291,3 +1291,7 @@ body.pg-series { overflow-x: clip !important; }
 
 /* phones: the two gallery columns may shrink below their content width (long spec lines pushed the right column off the screen) */
 @media (max-width: 767px) { .pg-gallery__grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } .pg-series a.pg-tile { min-width: 0; } .pg-tile__meta, .pg-tile__line { min-width: 0; } }
+
+/* series banners: orange and white only - the eyebrow was grey and the introduction 74% white (2026-10-15) */
+.pg-series .pg-hero h3::before { color: var(--s-accent, #f58634) !important; }
+.pg-series .pg-hero .et_pb_text_inner, .pg-series .pg-hero p { color: #fff !important; }

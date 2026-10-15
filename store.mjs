@@ -18,6 +18,7 @@
 //   node tools/db-pull.mjs   copies the database edits into the working tree so they can be committed.
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 
 const orig = {
   existsSync: fs.existsSync, readFileSync: fs.readFileSync, writeFileSync: fs.writeFileSync,
@@ -47,12 +48,47 @@ export async function initStore(repoRoot) {
     body bytea,
     deleted boolean not null default false,
     updated_at timestamptz not null default now())`);
-  const { rows } = await pool.query('select path, body, deleted, updated_at from site_files');
+  await pool.query('alter table site_files add column if not exists base_sha text');
+  let { rows } = await pool.query('select path, body, deleted, updated_at, base_sha from site_files');
+  rows = await githubWins(rows);
   for (const r of rows) files.set(r.path, { buf: r.deleted ? null : r.body, mtime: new Date(r.updated_at).getTime() });
   rebuildDirs();
   wrapFs();
   console.log(`store: Postgres, ${rows.length} edited file(s) loaded`);
   return true;
+}
+
+// ---------------------------------------------------------------- GitHub wins when it changed
+// A saved (admin) copy normally wins over the file in git, which hid every later push for that page. Now each saved copy
+// remembers a fingerprint of the git file it was made from (base_sha). When the app starts and the git file differs from that
+// fingerprint, GitHub's newer version goes live and the admin copy is kept under admin-backups/git-won/<time>/<path>.
+// Copies made before this rule existed (no fingerprint) are retired the same way, once. Never touched: admin-made files that
+// have no git version, deletions, and the admin's own data (data/, tools/*.json, admin-backups/).
+const EXEMPT = /^(admin-backups|data)\/|^tools\/[^/]+\.json$/;
+const sha = buf => createHash('sha1').update(buf).digest('hex');
+function gitSha(r) {
+  const abs = path.join(REPO, r);
+  try { return orig.existsSync(abs) && orig.statSync(abs).isFile() ? sha(orig.readFileSync(abs)) : ''; } catch (e) { return ''; }
+}
+async function githubWins(rows) {
+  const keep = [], won = [], stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  for (const r of rows) {
+    if (r.deleted || EXEMPT.test(r.path)) { keep.push(r); continue; }
+    const g = gitSha(r.path);
+    if (!g) {                                 // no git version: a file made in the admin; remember it as such
+      if (r.base_sha == null) await pool.query("update site_files set base_sha = '' where path = $1", [r.path]);
+      keep.push(r); continue;
+    }
+    if (r.base_sha == null || (r.base_sha !== '' && r.base_sha !== g)) won.push(r); else keep.push(r);
+  }
+  for (const r of won) {
+    await pool.query(
+      "insert into site_files (path, body, deleted, updated_at, base_sha) values ($1, $2, false, now(), '') on conflict (path) do update set body = excluded.body, updated_at = now()",
+      ['admin-backups/git-won/' + stamp + '/' + r.path, r.body]);
+    await pool.query('delete from site_files where path = $1', [r.path]);
+  }
+  if (won.length) console.log('store: GitHub is newer than ' + won.length + ' admin-saved file(s); serving the GitHub version (admin copies kept in admin-backups/git-won/' + stamp + '/): ' + won.map(r => r.path).join(', '));
+  return keep;
 }
 
 // Resolves when every database write so far has landed; throws if any of them failed.
@@ -98,9 +134,9 @@ function put(r, buf) {
   files.set(r, { buf, mtime: Date.now() });
   if (buf) addDirs(r); else rebuildDirs();
   const q = pool.query(
-    `insert into site_files (path, body, deleted, updated_at) values ($1, $2, $3, now())
+    `insert into site_files (path, body, deleted, updated_at, base_sha) values ($1, $2, $3, now(), $4)
      on conflict (path) do update set body = excluded.body, deleted = excluded.deleted, updated_at = now()`,
-    [r, buf, !buf]);
+    [r, buf, !buf, gitSha(r)]);
   track(q);
 }
 

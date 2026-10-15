@@ -9,7 +9,7 @@ import path from 'node:path';
 const ROOT = path.join(process.cwd(), 'pilotindia-clone');
 const file = path.join(ROOT, 'pages', 'about-us.html');
 let html = fs.readFileSync(file, 'utf8');
-const V = 14;
+const V = 21;
 
 const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3z"/></svg>';
 const COUNTRIES = ['Africa', 'Australia', 'Bangladesh', 'Cyprus', 'Israel', 'New Zealand', 'Philippines', 'South Africa', 'Srilanka', 'Turkey', 'United Arab Emirates'];
@@ -93,12 +93,15 @@ ${RANGE.map((r, i) => `        <li data-reveal style="--d:${i * 70}ms"><a class=
         <li><img src="../assets/img/ce-icon.png" alt="CE" width="40" height="40" loading="lazy"><span>Certification</span></li>
       </ul>
 
-      <div class="pa-export" data-reveal>
-        <p class="pa-export__t"><b data-count="12">12</b> countries <span>across 5 continents</span></p>
-        <p class="pa-export__d">International quality, competitive pricing, efficient marketing &amp; effective sales has led to the demand of our products in the international markets of Africa, Australia, Bangladesh, Cyprus, Israel, New Zealand, Philippines, South Africa, Srilanka, Turkey, United Arab Emirates.</p>
+      <div class="pa-reach">
+        <div class="pa-export" data-reveal>
+          <p class="pa-export__t"><b data-count="12">12</b> countries <span>across 5 continents</span></p>
+          <p class="pa-export__d">International quality, competitive pricing, efficient marketing &amp; effective sales has led to the demand of our products in the international markets of Africa, Australia, Bangladesh, Cyprus, Israel, New Zealand, Philippines, South Africa, Srilanka, Turkey, United Arab Emirates.</p>
+        </div>
+        <div class="pa-globe" data-src="../assets/js/world-land-110m.json" role="img" aria-label="Globe centred on India with export routes to ${COUNTRIES.join(', ')}">
+        <canvas></canvas>
+        <div class="pa-globe__pills">${COUNTRIES.map(pill).join('')}</div>
       </div>
-      <div class="pa-marquee" aria-hidden="true">
-        <div class="pa-marquee__track">${COUNTRIES.map(pill).join('')}${COUNTRIES.map(pill).join('')}</div>
       </div>
 
     </div>
@@ -168,6 +171,9 @@ else html = html.replace('</head>', link + '\n</head>');
 const script = `<script src="../assets/js/pi-about.js?v=${V}" defer></script>`;
 if (html.includes('pi-about.js')) html = html.replace(/<script src="\.\.\/assets\/js\/pi-about\.js[^"]*" defer><\/script>/, script);
 else html = html.replace('</body>', script + '\n</body>');
+const gscript = `<script src="../assets/js/pi-globe.js?v=${V}" defer></script>`;
+if (html.includes('pi-globe.js')) html = html.replace(/<script src="\.\.\/assets\/js\/pi-globe\.js[^"]*" defer><\/script>/, gscript);
+else html = html.replace('</body>', gscript + '\n</body>');
 
 fs.writeFileSync(file, html);
 console.log('about-us rebuilt');

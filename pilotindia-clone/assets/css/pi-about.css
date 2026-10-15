@@ -215,3 +215,20 @@
 @media (min-width: 861px) {
   .pa-story__body { padding-top: 32px; }
 }
+
+/* export globe (assets/js/pi-globe.js); the pills are the no-JS fallback */
+.pa-globe { position: relative; width: 100%; margin: 20px 0 0; height: clamp(380px, 56vw, 680px); }
+.pa-globe canvas { display: block; width: 100%; height: 100%; }
+.pa-globe__pills { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.pa-globe--on .pa-globe__pills { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.pa-globe:not(.pa-globe--on) canvas { display: none; }
+.pa-globe:not(.pa-globe--on) { height: auto; }
+@media (max-width: 640px) { .pa-globe { height: 320px; } }
+
+/* reach: content left, globe right */
+.pa-reach { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(20px, 4vw, 64px); align-items: center; margin-top: clamp(24px, 3.4vw, 40px); padding: clamp(22px, 3vw, 32px) 0 clamp(8px, 2vw, 20px); border-top: 1px solid #262626; }
+.pa-reach .pa-export { display: block; margin: 0; padding: 0; border-top: 0; }
+.pa-reach .pa-export__d { margin-top: 18px; }
+.pa-reach .pa-globe { margin: 0; height: clamp(320px, 38vw, 520px); overflow: hidden; border-radius: 20px; }
+@media (max-width: 860px) { .pa-reach { grid-template-columns: 1fr; } .pa-reach .pa-globe { height: clamp(300px, 80vw, 420px); } }

@@ -684,7 +684,7 @@
   left: 0;
   bottom: 24px;
   display: block;
-  padding-left: 22px;
+  padding-right: 26px;
   max-height: calc(100% - 96px);
   writing-mode: vertical-rl;
   transform: rotate(180deg);

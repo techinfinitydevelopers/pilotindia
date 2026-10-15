@@ -36,7 +36,7 @@ const posts = slugs.map(slug => {
 const card = p => `<article class="pi-blogs__card" data-s="${p.sources.join(' ')}" data-q="${esc((p.title + ' ' + p.summary).toLowerCase())}">
   <a class="pi-blogs__link" href="../blog/${p.slug}.html">
     <span class="pi-blogs__pic">${p.image ? `<img src="${esc(p.image)}" alt="" loading="lazy" decoding="async">` : ''}</span>
-    <span class="pi-blogs__meta">${esc(p.date)}</span>
+    <span class="pi-blogs__meta">${esc(p.date)}<span class="pi-blogs__cat">${esc(LABEL[p.sources[0]] || '')}</span></span>
     <h2 class="pi-blogs__title">${esc(p.title)}</h2>
     <p class="pi-blogs__sum">${esc(p.summary)}</p>
   </a>
@@ -70,7 +70,7 @@ html = html.slice(0, at) + '<div class="entry-content">\n' + block + '\n</div>' 
 
 // the page shows the list at full width, without the Divi sidebar
 html = html.replace(/<body class="([^"]*)"/, (m, c) => /\bpi-blogs-page\b/.test(c) ? m : `<body class="${c} pi-blogs-page"`);
-if (!html.includes('pi-blogs.css')) html = html.replace('</head>', '<link rel="stylesheet" href="../assets/css/pi-blogs.css?v=2" />\n</head>');
+if (!html.includes('pi-blogs.css')) html = html.replace('</head>', '<link rel="stylesheet" href="../assets/css/pi-blogs.css?v=3" />\n</head>');
 if (!html.includes('pi-blogs.js')) { const b = html.lastIndexOf('</body>'); html = html.slice(0, b) + '<script src="../assets/js/pi-blogs.js?v=2" defer></script>\n' + html.slice(b); }
 fs.writeFileSync(file, html, 'utf8');
 

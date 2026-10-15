@@ -5,7 +5,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const VERSION = 6;
+const VERSION = 8;
 const DIR = path.resolve(import.meta.dirname, '..', 'pilotindia-clone', 'blog');
 const dry = process.argv.includes('--dry');
 const TAGS = `<link rel="stylesheet" href="../assets/css/pi-post.css?v=${VERSION}" />\n<script src="../assets/js/pi-post.js?v=${VERSION}" defer></script>\n`;

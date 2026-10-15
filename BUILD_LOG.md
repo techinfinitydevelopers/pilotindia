@@ -2359,3 +2359,26 @@ pi-home.css (v=13): hover lift removed from .pi-hero__slot and .pi-hero__card--b
 
 ## 2026-10-15 - Footer revamp (all pages)
 tools/home.mjs footer2 template + pi-footer2.css (v=3), rolled out with home.mjs + perf-hints + footer2.mjs. Statement in DM Sans Italic; one row: brand column (logo, address, social) + Products / Company / Resources; base line now "(c) 2026 Pilot India - Designed and Developed by Techinfinity. All rights reserved." + Privacy / Terms. User chose Pilot India over "Chemistrie" (asked). Outlined PILOT wordmark tried and removed at the user's request; spacing tightened (desktop footer ~760px tall, was ~1020). Phone: call row no longer overlaps its arrow.
+
+## 2026-10-15 - Pictures shown whole, site-wide audit
+Method: imgaudit.mjs - every page (282) plus every model page (59), desktop 1440 and phone 390; each visible img and CSS background: share of the picture hidden by object-fit/background cover, by an overflow:hidden parent, or stretched. (Local server needs RATE_SITE=100000 for this; the default 900 req/min blanks the pages.)
+Fixed: blog post covers (up to 53% cut; now whole, own proportions) and Recent-posts cards (contain); Blogs page cards; About facility photos (3 side by side, own shapes) + range cards; Contact facility photo; home facility photos, hero card pictures, blog feature picture; phones: home range cards (photo on top, text on ink), home hero photo whole, series banners (84% cut) whole across the hero top, model-gallery tiles, Service Guns gallery overflow; Applications carousel (large card contain, small squares contain without zoom); application icons contain.
+Left as designed (swipe/hover mechanics): fan-gallery tiles beyond the screen, home "Five ranges" expand-on-hover cards, home capability rows, full-width home hero background, off-screen swipe strip items.
+Versions: pi-home 16, pi-blogs 4, pi-about 16, pi-contact 17, pg-chain 8, pi-post (blog-post-theme v7). Result: desktop and phone re-audit show only the by-design items above. Not pushed.
+
+## 2026-10-15 - Products line switcher as a bottom pill; contact step numbers
+- pi-products.css v=3 + tools/products-page.mjs: the "Spray Guns 6 / Airless 3 / ..." chips became one black navbar-style pill fixed at the bottom centre (swipes sideways on phones, 12px margins); active line on a dark chip with an orange count; counts are fixed round chips with the number centred; tucks away once the call-to-action is reached; sections get scroll-margin for the jump.
+- pi-contact.css (v=18): step pills use equal 26px round number chips, centred, symmetric padding.
+
+## 2026-10-15 - Blog card pictures filled, WhatsApp message
+- Blogs page (179 cards, pi-blogs v=5), recent-post cards on posts (pi-post v8) and the home blog feature (pi-home v17 + pi-home.js v7): each picture shows whole inside its 16:10 frame; a blurred, enlarged copy of the same picture (--pic var) fills the rest, so no bars and no cropping. Checked live: 179 cards, 0 missing, 0 broken, 0 cropped.
+- The one card with no picture (Evolution of the Pilot Group ...-2-2) had its cover pointing at the original site; now uses the local copy and carries the same og:image tags as its sibling posts.
+- Contact page WhatsApp (tools/contact-us.mjs V=19): opens wa.me/919930347000 with the message "Hello Pilot India, I have a query about your products and would like some help. Could you please get in touch with me?"; after a topic is picked in the guided enquiry the message names it ("...a query about Exports ...").
+
+## 2026-10-15 - Catalogue card: searchable country, 1-minute brochure offer; contact country field
+- Country in the catalogue card (pi-lead.js/css v=8) and in the Contact form (pi-contact v=20): a text field with a dropdown - click to see every country, type to filter, arrows + Enter, any other country can simply be typed (kept as typed; dial code shows + for unlisted). Dropdown styles in pi-lead.css (sitewide); Contact form generator data-list.
+- Auto brochure: after 60 s on the site (time counts across pages in a visit, sessionStorage pi_lead_t0) the card opens for the main catalogue pilot-india-catalog-2025-e-catalog-new.pdf. Not shown to people who already unlocked (pi_dl_ok), not while typing in a field or on a hidden tab (retries every 15 s), once only then quiet for 3 days (localStorage pi_lead_auto_until).
+- Why "Download Catalogue" showed no card: after one successful submit the server sets pi_dl (30 days) and pi_dl_ok; later clicks in that browser download straight away by design. A fresh browser/private window shows the card on every catalogue link (tested on 5 page types).
+
+## 2026-10-15 - Country merged into the phone field
+Catalogue card (pi-lead.js v=8 / css v=9) and Contact form (pi-contact v=21): the separate Country field is gone. The phone has a "+91 v" button; it opens a searchable list of 203 countries with dialling codes (type a name or a code; arrows + Enter; Esc closes). The chosen country is still stored as the lead country (admin Leads unchanged) and the number is saved as "+971 50 123 4567"; a number typed with its own +code picks that country. window.piDial is exposed by pi-lead.js (loaded on every page) and used by the Contact form. The searchable-country combobox from earlier today was removed.

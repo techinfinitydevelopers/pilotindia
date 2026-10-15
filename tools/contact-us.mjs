@@ -11,10 +11,13 @@ import path from 'node:path';
 const ROOT = path.join(process.cwd(), 'pilotindia-clone');
 const file = path.join(ROOT, 'pages', 'contact-us.html');
 let html = fs.readFileSync(file, 'utf8');
-const V = 16;
+const V = 21;
 
 const PHONE = '+91 22 6604 7000', TEL = '+912266047000';
-const WA = 'https://wa.me/919930347000';
+const WA_NUM = '919930347000';
+// the chat opens with this message already typed (pi-contact.js swaps in the chosen topic)
+const WA_MSG = 'Hello Pilot India, I have a query about your products and would like some help. Could you please get in touch with me?';
+const WA = 'https://wa.me/' + WA_NUM + '?text=' + encodeURIComponent(WA_MSG);
 const ADDR = ['24, Sona Udyog, Parsi Panchayat Road,', 'Andheri East, Mumbai 400069', 'Maharashtra, India'];
 const MAP_Q = encodeURIComponent('Pilot India, 24 Sona Udyog, Parsi Panchayat Road, Andheri East, Mumbai 400069');
 const MAP_EMBED = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d235.70546864195526!2d72.85239236887227!3d19.126647175749557!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c82ac4c00001%3A0xaded1e41bebcffc4!2sPilot%20India%20Office%20Products!5e0!3m2!1sen!2sin!4v1784095635572!5m2!1sen!2sin';
@@ -65,7 +68,7 @@ const block = `<!-- pi-contact:start -->
     <ul class="pc-quick">
       <li data-reveal style="--d:60ms"><a class="pc-q" href="tel:${TEL}"><span class="pc-q__ic">${ICON.phone}</span><span class="pc-q__k">Call us</span><span class="pc-q__v">${PHONE}</span><span class="pc-q__go">${arrow}</span></a></li>
       <li data-reveal style="--d:120ms"><a class="pc-q" href="mailto:info@pilotindia.com"><span class="pc-q__ic">${ICON.mail}</span><span class="pc-q__k">Email us</span><span class="pc-q__v">info@pilotindia.com</span><span class="pc-q__go">${arrow}</span></a></li>
-      <li data-reveal style="--d:180ms"><a class="pc-q" href="${WA}" target="_blank" rel="noopener"><span class="pc-q__ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">${SOCIAL[2][2]}</svg></span><span class="pc-q__k">WhatsApp</span><span class="pc-q__v">Chat with us</span><span class="pc-q__go">${arrow}</span></a></li>
+      <li data-reveal style="--d:180ms"><a class="pc-q" data-wa href="${WA}" target="_blank" rel="noopener"><span class="pc-q__ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">${SOCIAL[2][2]}</svg></span><span class="pc-q__k">WhatsApp</span><span class="pc-q__v">Chat with us</span><span class="pc-q__go">${arrow}</span></a></li>
       <li data-reveal style="--d:240ms"><a class="pc-q" href="#pc-visit"><span class="pc-q__ic">${ICON.pin}</span><span class="pc-q__k">Visit us</span><span class="pc-q__v">Andheri East, Mumbai</span><span class="pc-q__go">${arrow}</span></a></li>
     </ul>
   </section>
@@ -130,7 +133,6 @@ ${TOPICS.map((t, i) => `                <label class="pc-chip"><input type="radi
               ${field('email', 'Email *', '<input id="pc-email" name="email" type="email" autocomplete="email" maxlength="120" required>')}
               ${field('phone', 'Phone *', '<input id="pc-phone" name="phone" type="tel" autocomplete="tel" maxlength="24" required>')}
             </div>
-            ${field('country', 'Country *', `<span class="pc-select"><select id="pc-country" name="country" autocomplete="country-name" required>${COUNTRIES.map(c => `<option${c === 'India' ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select>${ICON.chev}</span>`)}
             ${field('message', 'Message *', '<textarea id="pc-message" name="message" rows="4" maxlength="2000" required placeholder="Product or model, quantity, your city - anything that helps us answer quickly."></textarea><span class="pc-count" aria-hidden="true"><b>0</b> / 2000</span>')}
             <div class="pc-hp" aria-hidden="true"><label>Website <input name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
             <div class="pc-field pc-consent" data-f="consent"><label><input type="checkbox" name="consent"><span>I agree to the <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy Policy</a>. Pilot India uses these details only to answer this enquiry.</span></label><em class="pc-err"></em></div>

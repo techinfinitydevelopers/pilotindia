@@ -1798,3 +1798,31 @@
 /* hero cards: no lift on hover. The lift moved the box away from the pointer at its edge (around the round arrow), so it
    dropped back, got hovered again and bounced up and down. The arrow keeps its own hover (orange fill, arrow turns). */
 .pi-hero__slot:hover, .pi-hero__card--b:hover { transform: none; }
+
+/* ---- pictures shown whole (2026-10-15) ----
+   Facility photos, the two hero card pictures and the blog feature picture were cut to fill fixed boxes. Each box now
+   follows its picture's shape, or the picture fits inside it; nothing is cropped. (The product-range cards are an
+   expand-on-hover row, where a closed card only ever shows a slice of its photo by design.) */
+.pi-about__media .pi-about__shot:not(.pi-about__shot--below) img,
+.pi-about__media .pi-about__shot--below img { height: auto; aspect-ratio: auto; object-fit: contain; }
+.pi-hero__card-img { object-fit: contain !important; background: rgba(255, 255, 255, 0.04); }
+.pi-ins__img { aspect-ratio: 16 / 10; }
+.pi-ins__img img { object-fit: contain; }
+
+/* ---- phones and touch screens: pictures whole (2026-10-15) ----
+   Stacked range cards: the photo sits on top at its own shape, the text under it on ink (it used to be laid over a
+   photo cropped to a tall box). The hero photo shows whole across the top of the hero instead of being blown up to
+   fill a tall phone screen; the ink below carries the text. */
+@media (hover: none), (max-width: 900px) {
+  .pi-exp__card { display: flex; flex-direction: column; min-height: 0; background: #0b0b0d; }
+  .pi-exp__card .pi-exp__img { position: relative; inset: auto; z-index: 0; display: block; width: 100%; height: auto; aspect-ratio: 2560 / 1299; object-fit: contain; transform: none; }
+  .pi-exp__body { padding: 16px 22px 22px; }
+  .pi-exp__card::after { display: none; }
+}
+@media (max-width: 767px) {
+  .pi-hero .pi-hero__media { inset: 0 0 auto 0; height: auto; aspect-ratio: 2560 / 1707; object-fit: contain; }
+}
+
+/* home blog feature: same filled frame */
+.pi-ins__img { isolation: isolate; }
+.pi-ins__img::before { content: ""; position: absolute; inset: -24px; z-index: -1; background: var(--pic) center / cover no-repeat; filter: blur(22px) saturate(1.15); opacity: 0.9; }

@@ -81,7 +81,7 @@
         var a = document.createElement('a');
         a.className = 'bp-card' + (o.img ? '' : ' bp-card--text');
         a.href = o.href;
-        if (o.img) { var pic = document.createElement('span'); pic.className = 'bp-card__pic'; var im = document.createElement('img'); im.src = o.img; im.alt = ''; im.loading = 'lazy'; im.decoding = 'async'; pic.appendChild(im); a.appendChild(pic); }
+        if (o.img) { var pic = document.createElement('span'); pic.className = 'bp-card__pic'; pic.style.setProperty('--pic', 'url("' + o.img + '")'); var im = document.createElement('img'); im.src = o.img; im.alt = ''; im.loading = 'lazy'; im.decoding = 'async'; pic.appendChild(im); a.appendChild(pic); }
         var bd = document.createElement('span'); bd.className = 'bp-card__body';
         if (o.date) { var dt = document.createElement('span'); dt.className = 'bp-card__date'; dt.textContent = o.date; bd.appendChild(dt); }
         var h = document.createElement('span'); h.className = 'bp-card__t'; h.textContent = o.title; bd.appendChild(h);

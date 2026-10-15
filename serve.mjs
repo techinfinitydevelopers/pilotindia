@@ -56,7 +56,7 @@ const squeezed = new Map();     // path + mtime + encoding -> compressed bytes
 // The inline stub is a click catcher only (~0.6 KB): a click on a catalogue link made before pi-lead.js has loaded is held,
 // not followed to the PDF, and pi-lead.js opens the card for it as soon as it runs.
 const LEAD_STUB = "<script>(function(){var d=document;d.addEventListener('click',function(e){if(window.__piLead)return;var a=e.target.closest&&e.target.closest('a[href]');if(!a)return;var h=a.getAttribute('href')||'';if(!/\\.pdf(\\?|#|$)/i.test(h)||!/catalog/i.test((a.textContent||'')+' '+(a.getAttribute('aria-label')||'')+' '+h)||/(?:^|;\\s*)pi_dl_ok=1/.test(d.cookie))return;e.preventDefault();e.stopImmediatePropagation();window.__piLeadQ=a.href},true)})()</script>\n";
-const LEAD_TAGS = '<link rel="stylesheet" href="/assets/css/pi-lead.css?v=6" />\n' + LEAD_STUB + '<script src="/assets/js/pi-lead.js?v=6" async></script>\n';
+const LEAD_TAGS = '<link rel="stylesheet" href="/assets/css/pi-lead.css?v=9" />\n' + LEAD_STUB + '<script src="/assets/js/pi-lead.js?v=8" async></script>\n';
 // The two fonts the whole site uses (theme.css @font-face, font-display: swap). Without a preload the browser only finds them
 // after theme.css is parsed and text has laid out, so headlines paint in the fallback face and reflow when the real one arrives.
 const FONT_PRELOAD = '<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/pi-dm-sans-italic-latin.woff2" crossorigin>\n<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/pi-inter-latin.woff2" crossorigin>\n';

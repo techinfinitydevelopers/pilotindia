@@ -573,3 +573,23 @@ body.single-post .bp-more {
   .bp-more__grid { grid-template-columns: 1fr; }
   .bp-more__head { align-items: flex-start; flex-direction: column; }
 }
+
+/* ---- pictures are never cropped (2026-10-15) ----
+   Blog covers are banners with text in them, in several shapes (16:10, 16:9, square). The cover now shows whole, at its
+   own proportions; the "Recent posts" cards keep one shape (16:10, the usual banner) and fit the picture inside it. */
+body.single-post .et_post_meta_wrapper:first-child > img {
+  width: auto !important;
+  max-width: 100% !important;
+  height: auto !important;
+  max-height: min(78vh, 760px) !important;
+  aspect-ratio: auto !important;
+  object-fit: contain !important;
+  background: transparent;
+}
+.bp-card__pic { aspect-ratio: 16 / 10; background: #f3efe8; }
+.bp-card__pic img { object-fit: contain; }
+
+/* recent-post cards: same filled frame (picture whole, blurred copy behind) */
+.bp-card__pic { position: relative; isolation: isolate; }
+.bp-card__pic::before { content: ""; position: absolute; inset: -24px; z-index: -1; background: var(--pic) center / cover no-repeat; filter: blur(22px) saturate(1.15); opacity: 0.9; }
+.bp-card__pic img { position: relative; object-fit: contain; }

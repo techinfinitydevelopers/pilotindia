@@ -37,6 +37,16 @@
 
   // ---- enquiry form
   var form = document.getElementById('pc-form');
+  // phone: a country-code picker in front of the number (pi-lead.js provides window.piDial; it loads on every page)
+  var phoneIn = form && form.elements && form.elements.phone, dial = null;
+  function mountDial() {
+    if (dial || !phoneIn || !window.piDial) return;
+    var wrap = document.createElement('span'); wrap.className = 'pc-phonebox';
+    phoneIn.parentNode.insertBefore(wrap, phoneIn); wrap.appendChild(phoneIn);
+    dial = window.piDial.mount(wrap, phoneIn);
+    phoneIn.addEventListener('input', function () { dial.follow(); });
+  }
+  mountDial(); window.addEventListener('pi-dial-ready', mountDial);
 
   // ---- guided enquiry: 1. what it is about -> 2. the desk that answers it (email it directly) -> 3. the form.
   // Without this script every part is simply shown, with the topic chips inside the form.
@@ -62,6 +72,11 @@
         var r = form.querySelector('input[name="topic"][value="' + topic.replace(/"/g, '\\"') + '"]');
         if (r) r.checked = true;
       }
+      // WhatsApp opens with a message about the chosen topic
+      Array.prototype.forEach.call(document.querySelectorAll('[data-wa]'), function (a) {
+        var base = a.getAttribute('href').split('?')[0];
+        a.setAttribute('href', base + '?text=' + encodeURIComponent('Hello Pilot India, I have a query about ' + topic + ' and would like some help. Could you please get in touch with me?'));
+      });
       if (pickedBox) { pickedBox.hidden = false; pickedBox.querySelector('[data-picked]').textContent = topic; }
       flow.classList.add('is-picked');
       setStep(2);
@@ -80,6 +95,9 @@
   var msg = form.elements.message, count = form.querySelector('.pc-count b');
   msg.addEventListener('input', function () { count.textContent = msg.value.length; });
 
+  // the number is stored with its country code (unless the visitor typed their own +code)
+  function withCode(num) { return !num || /^\+/.test(num) || !dial ? num : dial.get().code + ' ' + num; }
+
   function mark(name, text) {
     var f = form.querySelector('[data-f="' + name + '"]');
     if (!f) return;
@@ -97,7 +115,6 @@
       name: v.name.length >= 2 ? '' : 'Please enter your name.',
       email: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.email) ? '' : 'Please enter a valid email address.',
       phone: /^[+\d][\d\s()+-]*$/.test(v.phone) && digits.length >= 7 && digits.length <= 15 ? '' : 'Please enter a valid phone number.',
-      country: v.country ? '' : 'Please choose your country.',
       message: v.message.length >= 10 ? '' : 'Please write a little more (at least 10 characters).',
       consent: v.consent ? '' : 'Please agree to the Privacy Policy to continue.',
     };
@@ -111,7 +128,7 @@
     var el = form.elements, topic = form.querySelector('input[name="topic"]:checked');
     var v = {
       topic: topic ? topic.value : '', name: el.name.value.trim(), company: el.company.value.trim(), email: el.email.value.trim(),
-      phone: el.phone.value.trim(), country: el.country.value, message: el.message.value.trim(), consent: el.consent.checked,
+      phone: withCode(el.phone.value.trim()), country: dial ? dial.get().name : 'Not specified', message: el.message.value.trim(), consent: el.consent.checked,
       website: el.website.value, page: location.pathname,
     };
     var errs = check(v), first = null;
@@ -143,7 +160,7 @@
   });
 
   root.querySelector('[data-again]').addEventListener('click', function () {
-    form.reset(); count.textContent = '0';
+    form.reset(); count.textContent = '0'; if (dial) dial.reset();
     done.hidden = true; form.hidden = false; form.elements.name.focus();
   });
 })();

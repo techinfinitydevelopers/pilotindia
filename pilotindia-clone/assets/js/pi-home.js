@@ -244,3 +244,13 @@
     row.addEventListener('focus', function () { show(row); });
   });
 })();
+
+
+// blog feature picture: the same picture, blurred, fills the frame behind the whole picture (nothing is cropped)
+(function () {
+  document.querySelectorAll('.pi-ins__img').forEach(function (box) {
+    function sync() { var im = box.querySelector('img.is-on') || box.querySelector('img'); if (im && im.getAttribute('src')) box.style.setProperty('--pic', 'url("' + im.getAttribute('src') + '")'); }
+    sync();
+    if (window.MutationObserver) new MutationObserver(sync).observe(box, { subtree: true, attributes: true, attributeFilter: ['class', 'src'] });
+  });
+})();

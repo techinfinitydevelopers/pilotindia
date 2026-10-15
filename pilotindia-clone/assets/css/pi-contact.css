@@ -264,3 +264,33 @@
   .pc-pur__m { display: none; }
   .pc-steps__i { padding: 6px 12px 6px 6px; font-size: 12px; }
 }
+/* the facility photo at its own shape (it was trimmed to fill a fixed box) */
+.pc-visit__shot { min-height: 0; height: auto !important; aspect-ratio: 1200 / 831; }
+
+/* step pills: numbers in equal round chips, centred, with matching padding on both ends (2026-10-15) */
+.pc-steps { gap: 10px; }
+.pc-steps__i { gap: 10px; padding: 6px 18px 6px 6px; line-height: 1; font-size: 13.5px; }
+.pc-steps__i b {
+  flex: none;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+@media (max-width: 520px) { .pc-steps__i { padding: 5px 14px 5px 5px; font-size: 12.5px; } .pc-steps__i b { width: 24px; height: 24px; } }
+
+
+/* phone: the country-code picker sits in front of the number, in one bordered box (2026-10-15) */
+.pc-phonebox { position: relative; display: flex; align-items: stretch; }
+.pc-phonebox .pi-dial__btn { border: 1px solid var(--pc-line); border-right: 0; border-radius: 10px 0 0 10px; min-height: 42px; }
+.pc-phonebox input { flex: 1 1 auto; min-width: 0; border-radius: 0 10px 10px 0 !important; }
+.pc-phonebox .pi-dial__pop { right: auto; width: min(100%, 360px); }
+.pc-field.is-bad .pc-phonebox .pi-dial__btn { border-color: var(--pc-err); }

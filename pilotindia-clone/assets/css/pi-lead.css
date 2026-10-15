@@ -131,3 +131,34 @@
   .pi-lead__form { padding: 18px 18px 22px; }
 }
 
+/* ---- phone country-code picker (2026-10-15): "+91 v" in front of the number; opens a searchable list of every country and
+   its dialling code. Used by the catalogue card and the Contact form (no separate Country field any more). ---- */
+.pi-dial { flex: none; align-self: stretch; display: flex; }
+.pi-dial__btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 76px; margin: 0; padding: 0 12px 0 16px;
+  border: 0; border-right: 1px solid #e4e4e9; border-radius: 11px 0 0 11px; background: #efeff3; color: #1f2024;
+  font: inherit; font-size: 15px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; cursor: pointer;
+  transition: background .2s ease;
+}
+.pi-dial__btn:hover, .pi-dial.is-open .pi-dial__btn { background: #e7e7ee; }
+.pi-dial__btn svg { width: 14px; height: 14px; flex: none; color: #6b6b73; transition: transform .2s ease; }
+.pi-dial.is-open .pi-dial__btn svg { transform: rotate(180deg); }
+.pi-dial__pop {
+  position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 40;
+  border: 1px solid rgba(17, 17, 20, .12); border-radius: 14px; background: #fff; overflow: hidden;
+  box-shadow: 0 24px 48px -20px rgba(17, 17, 20, .45);
+}
+.pi-dial__pop[hidden] { display: none; }
+.pi-dial__q {
+  display: block; width: 100%; box-sizing: border-box; height: 46px; margin: 0; padding: 0 16px;
+  border: 0 !important; border-bottom: 1px solid #ececf0 !important; border-radius: 0 !important; background: #fafafc !important; box-shadow: none !important; outline: 0;
+  font: inherit; font-size: 14.5px; color: #111114;
+}
+.pi-dial__list { max-height: 232px; margin: 0; padding: 6px; overflow-y: auto; list-style: none; }
+.pi-dial__list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0; padding: 9px 12px; border-radius: 9px; list-style: none; font-size: 14.5px; line-height: 1.3; color: #111114; cursor: pointer; }
+.pi-dial__list li small { flex: none; color: #8b8b93; font-size: 13px; font-variant-numeric: tabular-nums; }
+.pi-dial__list li.is-hot { background: #f3efe8; }
+.pi-dial__list li[aria-selected="true"] { font-weight: 700; }
+.pi-dial__list li.is-none { color: #8b8b93; cursor: default; }
+/* in the catalogue card the phone box lets the list drop out of its rounded border */
+.pi-lead__field[data-f="phone"] .pi-lead__box { overflow: visible; }

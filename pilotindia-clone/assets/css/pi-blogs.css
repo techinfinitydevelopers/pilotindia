@@ -56,3 +56,21 @@
 .pi-blogs__pill { padding: 8px 16px; border: 1px solid rgba(17, 17, 20, 0.14); border-radius: 999px; background: #fff; color: #111114; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
 .pi-blogs__pill:hover { border-color: #111114; }
 .pi-blogs__pill.is-on { border-color: #111114; background: #111114; color: #fff; }
+
+/* pictures shown whole (2026-10-15): the banners are 16:9 / 16:10 with text in them; fit, never crop */
+.pi-blogs__pic img { object-fit: contain; }
+
+/* ---- picture frames: filled, never cropped (2026-10-15) ----
+   Blog pictures come in many shapes (16:9, 3:2, square, banners 4:1). Each card keeps one frame (16:10); the whole picture
+   sits inside it, and a blurred, enlarged copy of the same picture fills whatever the shape leaves, so there are no bars. */
+.pi-blogs__pic { position: relative; isolation: isolate; background: #ece6dc; }
+.pi-blogs__pic::before {
+  content: "";
+  position: absolute;
+  inset: -24px;
+  z-index: -1;
+  background: var(--pic) center / cover no-repeat;
+  filter: blur(22px) saturate(1.15);
+  opacity: 0.9;
+}
+.pi-blogs__pic img { position: relative; object-fit: contain !important; }

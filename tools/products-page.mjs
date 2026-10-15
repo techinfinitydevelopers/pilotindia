@@ -160,7 +160,10 @@ ${groups.map((g, gi) => `      <section class="pp-line" id="${slug(g.line)}">
       lines.forEach(function (s, i) { if (s && s.getBoundingClientRect().top + window.scrollY <= y) cur = i; });
       pills.forEach(function (a, i) { a.classList.toggle('is-on', i === cur); });
     }
-    window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+    // the pill tucks away once the last product line has been passed (the call-to-action takes over)
+    var bar = document.querySelector('.pp-filter'), end = document.querySelector('.pp-cta');
+    function away() { if (bar && end) bar.classList.toggle('is-away', end.getBoundingClientRect().top < window.innerHeight * 0.85); }
+    window.addEventListener('scroll', function () { onScroll(); away(); }, { passive: true }); onScroll(); away();
   })();
   </script>
 </article>`;

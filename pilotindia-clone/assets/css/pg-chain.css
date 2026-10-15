@@ -279,3 +279,8 @@
 .pg-chain .pg-chain__pill[src*="hg-25"] { object-fit: contain !important; transform: none !important; padding: 8px; background: #fff; }
 /* the small preview tiles follow the main picture: where it is fitted (airless, office), they are too */
 .pg-chain:has(.pg-chain__media[data-fit="contain"]) .pg-chain__pill { object-fit: contain !important; transform: none !important; padding: 8px; background: #fff; }
+
+/* pictures shown whole (2026-10-15): the large card fits its photo inside the frame (dark letterbox) and the small
+   squares fit their picture too, instead of cropping and zooming past the edges */
+.pg-chain .pg-chain__media[data-fit="cover"] img { object-fit: contain; }
+.pg-chain .pg-chain__pill { object-fit: contain; transform: none; background: #fff; padding: 6px; box-sizing: border-box; }

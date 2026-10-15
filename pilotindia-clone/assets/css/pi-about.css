@@ -232,3 +232,14 @@
 .pa-reach .pa-export__d { margin-top: 18px; }
 .pa-reach .pa-globe { margin: 0; height: clamp(320px, 38vw, 520px); overflow: hidden; border-radius: 20px; }
 @media (max-width: 860px) { .pa-reach { grid-template-columns: 1fr; } .pa-reach .pa-globe { height: clamp(300px, 80vw, 420px); } }
+
+/* ---- facility photos and range cards shown whole (2026-10-15) ----
+   The tall left slot cut 40% off a landscape photo and the parallax zoom trimmed every photo's top and bottom.
+   Three photos side by side, each at its own proportions; the range card pictures fit inside their tile. */
+.pa-fac__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: none; align-items: start; }
+.pa-shot, .pa-shot--a { grid-row: auto; height: auto; }
+.pa-shot img { position: static; inset: auto; display: block; width: 100%; height: auto; object-fit: contain; translate: none !important; }
+@media (max-width: 767px) { .pa-fac__grid { grid-template-columns: 1fr; } .pa-shot, .pa-shot--a { height: auto; } }
+/* range card pictures: absolutely placed so the 82% box always resolves inside the square tile */
+.pa-card__img { position: relative; }
+.pa-card__img img { position: absolute; inset: 9%; width: 82%; height: 82%; max-width: none; max-height: none; object-fit: contain; }

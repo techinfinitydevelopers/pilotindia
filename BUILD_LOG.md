@@ -2356,3 +2356,6 @@ tools/contact-us.mjs (V=15) + pi-contact.js/css: section "Send an enquiry" is no
 
 ## 2026-10-14 - Home hero arrow no longer bounces
 pi-home.css (v=13): hover lift removed from .pi-hero__slot and .pi-hero__card--b (the lift moved the box out from under the pointer at its edge, so it bounced). Arrow keeps its orange-fill / turn hover.
+
+## 2026-10-15 - Footer revamp (all pages)
+tools/home.mjs footer2 template + pi-footer2.css (v=3), rolled out with home.mjs + perf-hints + footer2.mjs. Statement in DM Sans Italic; one row: brand column (logo, address, social) + Products / Company / Resources; base line now "(c) 2026 Pilot India - Designed and Developed by Techinfinity. All rights reserved." + Privacy / Terms. User chose Pilot India over "Chemistrie" (asked). Outlined PILOT wordmark tried and removed at the user's request; spacing tightened (desktop footer ~760px tall, was ~1020). Phone: call row no longer overlaps its arrow.

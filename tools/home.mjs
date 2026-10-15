@@ -329,6 +329,17 @@ const footer2 = `<footer class="pi-f2" id="pi-footer">
     </div>
 
     <div class="pi-f2__cols">
+      <div class="pi-f2__col pi-f2__brand">
+        <a class="pi-f2__logo" href="index.html" aria-label="Pilot India home"><img src="${A}pilot-logo-1-1.png" alt="Pilot India" width="178" height="42" loading="lazy" /></a>
+        <address class="pi-f2__addr">
+          24, Sona Udyog, Parsi Panchayat Road,<br />Andheri East, Mumbai 400069<br />Maharashtra, India
+        </address>
+        <div class="pi-f2__social">
+          <a href="https://www.facebook.com/pilotindiagroup" target="_blank" rel="noopener" aria-label="Pilot India on Facebook">${FB}</a>
+          <a href="https://www.instagram.com/pilotindiagroup/" target="_blank" rel="noopener" aria-label="Pilot India on Instagram">${IG}</a>
+        </div>
+      </div>
+
       <nav class="pi-f2__col" aria-label="Products">
         <h2 class="pi-f2__h">Products</h2>
         <ul class="pi-f2__list">
@@ -358,30 +369,15 @@ const footer2 = `<footer class="pi-f2" id="pi-footer">
           <li><a href="pages/terms-and-conditions.html">Terms and Conditions</a></li>
         </ul>
       </nav>
-
-      <div class="pi-f2__col">
-        <h2 class="pi-f2__h">Visit</h2>
-        <address class="pi-f2__addr">
-          24, Sona Udyog, Parsi Panchayat Road,<br />Andheri East, Mumbai 400069<br />Maharashtra, India
-        </address>
-      </div>
     </div>
 
+
     <div class="pi-f2__base">
-      <div class="pi-f2__mark">
-        <img src="${A}pilot-logo-1-1.png" alt="Pilot India" width="178" height="42" loading="lazy" />
-        <p class="pi-f2__copy">&copy; ${YEAR} Pilot India. All rights reserved.</p>
-      </div>
-      <div class="pi-f2__ends">
-        <ul class="pi-f2__legal">
-          <li><a href="pages/privacy-policy.html">Privacy</a></li>
-          <li><a href="pages/terms-and-conditions.html">Terms</a></li>
-        </ul>
-        <div class="pi-f2__social">
-          <a href="https://www.facebook.com/pilotindiagroup" target="_blank" rel="noopener" aria-label="Pilot India on Facebook">${FB}</a>
-          <a href="https://www.instagram.com/pilotindiagroup/" target="_blank" rel="noopener" aria-label="Pilot India on Instagram">${IG}</a>
-        </div>
-      </div>
+      <p class="pi-f2__copy">&copy; ${YEAR} Pilot India &ndash; Designed and Developed by Techinfinity. All rights reserved.</p>
+      <ul class="pi-f2__legal">
+        <li><a href="pages/privacy-policy.html">Privacy</a></li>
+        <li><a href="pages/terms-and-conditions.html">Terms</a></li>
+      </ul>
     </div>
 
   </div>

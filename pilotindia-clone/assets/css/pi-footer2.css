@@ -356,3 +356,99 @@
   .pi-f2 .pi-f2__list a:hover,
   .pi-f2 .pi-f2__social a:hover { transform: none; }
 }
+
+/* ==========================================================================
+   Footer revamp (2026-10-15)
+   - the statement in the site's headline face (DM Sans Italic)
+   - one row: brand column (logo, address, social) + Products / Company / Resources
+   - a large outlined PILOT wordmark across the bottom, then one line: credit + legal links
+   ========================================================================== */
+.pi-f2__say {
+  max-width: 15ch;
+  font-family: var(--pi-font-heading) !important;
+  font-style: italic;
+  font-weight: 600 !important;
+  font-size: clamp(34px, 4.4vw, 60px) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.025em !important;
+}
+.pi-f2__say b { font-weight: 600; }
+
+.pi-f2__cols {
+  grid-template-columns: minmax(0, 1.35fr) repeat(3, minmax(0, 1fr));
+  gap: clamp(28px, 4vw, 56px);
+  padding: clamp(34px, 4vw, 48px) 0 clamp(34px, 4vw, 48px);
+  border-top: 1px solid var(--f-line);
+}
+.pi-f2__col { border-top: 0; padding-top: 0; }
+.pi-f2__col::before { display: none; }
+.pi-f2__h { margin: 0 0 18px; font-size: 11px; color: var(--f-accent); letter-spacing: 0.22em; }
+.pi-f2__list li { margin: 0 0 11px; }
+.pi-f2 .pi-f2__list a { position: relative; padding-left: 0; transition: color 0.2s ease, padding 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.pi-f2 .pi-f2__list a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0;
+  height: 1.5px;
+  background: var(--f-accent);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pi-f2 .pi-f2__list a:hover,
+.pi-f2 .pi-f2__list a:focus-visible { transform: none; padding-left: 18px; color: var(--f-strong); }
+.pi-f2 .pi-f2__list a:hover::before,
+.pi-f2 .pi-f2__list a:focus-visible::before { width: 12px; }
+
+/* brand column */
+.pi-f2__brand { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
+.pi-f2__logo img { display: block; width: auto; height: 30px; }
+.pi-f2__brand .pi-f2__addr { max-width: 30ch; line-height: 1.75; }
+.pi-f2__brand .pi-f2__social { display: flex; gap: 10px; }
+
+/* the outlined wordmark: brand presence without another block of text */
+.pi-f2__giant {
+  margin: 0 0 -0.16em;
+  font-family: var(--pi-font-heading, system-ui, sans-serif);
+  font-style: italic;
+  font-weight: 800;
+  font-size: clamp(90px, 21vw, 330px);
+  line-height: 0.82;
+  letter-spacing: -0.045em;
+  text-align: center;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.13);
+  background: linear-gradient(180deg, rgba(245, 134, 52, 0.16), rgba(245, 134, 52, 0) 78%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  user-select: none;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* base: the credit line and the legal links */
+.pi-f2__base { position: relative; padding: 22px 0 28px; }
+.pi-f2__copy { font-size: 13px; color: #8b8b90; }
+.pi-f2__legal { display: flex; gap: 20px; margin: 0; padding: 0; list-style: none; }
+
+@media (max-width: 900px) {
+  .pi-f2__cols { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pi-f2__brand { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 14px 28px; }
+}
+@media (max-width: 560px) {
+  .pi-f2__cols { grid-template-columns: 1fr 1fr; gap: 28px 20px; }
+  .pi-f2__brand { flex-direction: column; align-items: flex-start; }
+  .pi-f2__giant { font-size: 25vw; }
+  .pi-f2__base { flex-direction: column; align-items: flex-start; gap: 12px; }
+}
+
+/* compact (2026-10-15): no wordmark, tighter spacing */
+.pi-f2__giant { display: none !important; }
+.pi-f2__prow { padding: clamp(36px, 4vw, 52px) 0 clamp(28px, 3vw, 36px); }
+.pi-f2__say { font-size: clamp(30px, 3.4vw, 46px) !important; }
+.pi-f2__cols { padding: clamp(26px, 3vw, 36px) 0; }
+.pi-f2__list li { margin: 0 0 8px; }
+.pi-f2__brand { gap: 14px; }
+.pi-f2__base { padding: 18px 0 22px; }
+@media (max-width: 420px) { .pi-f2__num { font-size: 19px !important; } .pi-f2 .pi-f2__call { grid-template-columns: 42px minmax(0, 1fr) 32px; gap: 10px; } .pi-f2__ico { width: 42px; height: 42px; } .pi-f2__go { width: 32px; height: 32px; } }

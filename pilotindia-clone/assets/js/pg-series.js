@@ -410,3 +410,37 @@
   }, { rootMargin: '-38% 0px -58% 0px', threshold: 0 });
   desk.forEach(function (s) { spy.observe(s); });
 })();
+
+// ---- series menu: a full-width bar at the top of the page, a floating pill once it sticks ----
+// The bar keeps its height in both states (only its look changes), so turning into a pill never
+// moves the page. The pill's width is measured from the menu so it can shrink smoothly.
+(function () {
+  var bar = document.querySelector('.pg-series .et_pb_section.pg-nav');
+  if (!bar) return;
+  var row = bar.querySelector('.et_pb_row');
+  var raf = 0, on = false;
+  function menuWidth() {
+    // the items' own widths (the bar spreads them out; the pill packs them 6px apart) + the pill's padding and border
+    var items = bar.querySelectorAll('.et-menu-nav > ul > li');
+    if (!items.length) return 0;
+    var w = 0;
+    for (var i = 0; i < items.length; i++) w += items[i].getBoundingClientRect().width;
+    return Math.ceil(w + 6 * (items.length - 1) + 18);
+  }
+  function update() {
+    raf = 0;
+    var stickTop = parseFloat(getComputedStyle(bar).top) || 0;
+    var stuck = window.scrollY > 4 && bar.getBoundingClientRect().top <= stickTop + 0.5;
+    if (stuck === on) return;
+    on = stuck;
+    if (on && row) row.style.setProperty('--pg-pill-w', Math.min(menuWidth(), window.innerWidth - 24) + 'px');
+    bar.classList.toggle('is-pill', on);
+  }
+  function schedule() { if (!raf) raf = requestAnimationFrame(update); }
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', function () {
+    if (on && row) row.style.setProperty('--pg-pill-w', Math.min(menuWidth(), window.innerWidth - 24) + 'px');
+    schedule();
+  }, { passive: true });
+  update();
+})();

@@ -1295,3 +1295,40 @@ body.pg-series { overflow-x: clip !important; }
 /* series banners: orange and white only - the eyebrow was grey and the introduction 74% white (2026-10-15) */
 .pg-series .pg-hero h3::before { color: var(--s-accent, #f58634) !important; }
 .pg-series .pg-hero .et_pb_text_inner, .pg-series .pg-hero p { color: #fff !important; }
+
+/* ---- series menu turns into a floating pill once it sticks (2026-10-16; class set by pg-series.js) ----
+   Same height in both states, so nothing below moves: only the background, the width and the shape change. */
+.pg-series .et_pb_section.pg-nav {
+  transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, backdrop-filter 0.35s ease;
+}
+.pg-series .pg-nav .et_pb_row {
+  border-radius: 999px;
+  transition: max-width 0.5s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s ease, box-shadow 0.45s ease, border-color 0.35s ease;
+  border: 1px solid transparent;
+}
+.pg-series .et_pb_section.pg-nav.is-pill {
+  background: transparent !important;
+  border-bottom-color: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  pointer-events: none;                 /* the empty strip either side of the pill lets clicks through */
+}
+.pg-series .pg-nav.is-pill .et_pb_row {
+  pointer-events: auto;
+  max-width: var(--pg-pill-w, 900px) !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  background: rgba(255, 255, 255, 0.94);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+  border-color: rgba(17, 17, 20, 0.08);
+  box-shadow: 0 14px 34px -18px rgba(17, 17, 20, 0.35), 0 2px 6px rgba(17, 17, 20, 0.06);
+}
+/* a page with a "Models" rail has two rows inside the pill: a rounded box rather than a capsule */
+.pg-series .pg-nav.is-pill .et_pb_row:has(.pg-rail) { border-radius: 26px; }
+.pg-series .pg-nav.is-pill .pg-rail { justify-content: flex-start; }
+@media (prefers-reduced-motion: reduce) {
+  .pg-series .et_pb_section.pg-nav, .pg-series .pg-nav .et_pb_row { transition: none; }
+}
+.pg-series .pg-nav.is-pill .et-menu-nav > ul { justify-content: center !important; gap: 6px !important; }
+.pg-series .pg-nav.is-pill .et-menu-nav > ul > li { margin: 0 !important; }

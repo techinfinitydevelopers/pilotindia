@@ -2462,3 +2462,9 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 ## 2026-10-16 — Retired the WordPress archive pages -> /blogs
 - slugs.mjs: category/*.html (35) and pages/author-*.html (36) are retired: any URL for them (clean, .html, old /pages/ path, -page-N/-page-two) 301s in one hop to /blogs, with ?topic= for categories (airless, office, spray-guns, welding, pilot-india; blog/uncategorized/author -> plain /blogs). Links to them in served HTML (the posts' "Posted in" tags) are rewritten to the same address; they are out of the sitemap (246 -> 211). Files stay in the repo.
 - pi-blogs.js (v=3): ?topic= opens /blogs with that filter on; clicking a filter updates the address (shareable).
+
+## 2026-10-16 — Home closing band: pointer arrow to "Download catalogue" + edge light
+- Reference: user screen recording (dashed arrow from the cursor to the CTA, tail draws into the head and fades when the mouse rests; light on the card border near the cursor).
+- pi-home.js (v=8): SVG overlay in .pi-close; quadratic arc from 30px ahead of the pointer to the padded button box, bend toward (button x, pointer y) so from above it leaves sideways and sweeps down (user screenshot); arrowhead from the end tangent; hidden near/on the button; rest after 420ms -> tail retracts + fade (520ms). Mouse only, off for reduced motion.
+- pi-home.css (v=18): .pi-close__arrow (orange dashed 6/7, 2px), .pi-close__edge (radial light at --mx/--my masked to a 1.5px ring, fades in on hover).
+- Found but NOT changed: assets/js/swiper-min.js is a saved HTML page (throws "Unexpected token <" after first interaction on 182 pages). Making it valid JS lets old Elementor code fetch chunks from pilotindia.com / pilotairless.com / pilotsprayguns.com (spam domain) - so it stays as is.

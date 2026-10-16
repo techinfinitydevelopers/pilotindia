@@ -254,3 +254,74 @@
     if (window.MutationObserver) new MutationObserver(sync).observe(box, { subtree: true, attributes: true, attributeFilter: ['class', 'src'] });
   });
 })();
+
+// ---- closing band: a dashed arrow from the pointer to "Download catalogue", and a light that runs along the card's
+// edge nearest the pointer (2026-10-16). The arrow follows the mouse; when the mouse rests its tail draws in to the
+// head and it fades. Mouse only (no touch), and nothing at all with reduced motion.
+(function () {
+  var band = document.querySelector('.pi-close');
+  var btn = band && band.querySelector('.pi-close__cta a, .pi-close a.pi-btn');
+  if (!band || !btn || !window.matchMedia || !matchMedia('(hover: hover) and (pointer: fine)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var NS = 'http://www.w3.org/2000/svg';
+  var svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('class', 'pi-close__arrow');
+  svg.setAttribute('aria-hidden', 'true');
+  var line = document.createElementNS(NS, 'path'), head = document.createElementNS(NS, 'path');
+  line.setAttribute('class', 'pi-close__arrow-line');
+  head.setAttribute('class', 'pi-close__arrow-head');
+  svg.appendChild(line); svg.appendChild(head);
+  var edge = document.createElement('span');
+  edge.className = 'pi-close__edge';
+  edge.setAttribute('aria-hidden', 'true');
+  band.appendChild(edge); band.appendChild(svg);
+
+  var GAP = 30, PAD = 12, MIN = 46;   // px: from the pointer to the tail, around the button, shortest arrow drawn
+  var curve = null, t0 = 0, alpha = 0, idle = null, raf = 0, retract = null;
+  function pt(a, b, t) { return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t }; }
+  function draw() {
+    raf = 0;
+    if (!curve || alpha <= 0.01) { svg.style.opacity = '0'; return; }
+    var p0 = curve[0], p1 = curve[1], p2 = curve[2];
+    // the part of the curve from t0 to 1 (the tail shortens toward the head)
+    var a = pt(pt(p0, p1, t0), pt(p1, p2, t0), t0), b = pt(p1, p2, t0);
+    line.setAttribute('d', 'M' + a.x.toFixed(1) + ' ' + a.y.toFixed(1) + 'Q' + b.x.toFixed(1) + ' ' + b.y.toFixed(1) + ' ' + p2.x.toFixed(1) + ' ' + p2.y.toFixed(1));
+    var dx = p2.x - p1.x, dy = p2.y - p1.y, l = Math.hypot(dx, dy) || 1, ux = dx / l, uy = dy / l, L = 11, s = Math.sin(0.5), c = Math.cos(0.5);
+    var w1 = { x: p2.x - L * (ux * c - uy * s), y: p2.y - L * (uy * c + ux * s) }, w2 = { x: p2.x - L * (ux * c + uy * s), y: p2.y - L * (uy * c - ux * s) };
+    head.setAttribute('d', 'M' + w1.x.toFixed(1) + ' ' + w1.y.toFixed(1) + 'L' + p2.x.toFixed(1) + ' ' + p2.y.toFixed(1) + 'L' + w2.x.toFixed(1) + ' ' + w2.y.toFixed(1));
+    svg.style.opacity = String(alpha);
+  }
+  function queue() { if (!raf) raf = requestAnimationFrame(draw); }
+  function aim(e) {
+    var r = band.getBoundingClientRect(), br = btn.getBoundingClientRect();
+    var cx = e.clientX - r.left, cy = e.clientY - r.top;
+    band.style.setProperty('--mx', cx + 'px'); band.style.setProperty('--my', cy + 'px');
+    var minx = br.left - r.left - PAD, maxx = br.right - r.left + PAD, miny = br.top - r.top - PAD, maxy = br.bottom - r.top + PAD;
+    var tx = (minx + maxx) / 2, ty = (miny + maxy) / 2, dx = tx - cx, dy = ty - cy, len = Math.hypot(dx, dy) || 1;
+    var ux = dx / len, uy = dy / len;
+    // where the line from the pointer to the button's centre meets the padded button box
+    var ax = ux ? Math.min((minx - cx) / ux, (maxx - cx) / ux) : -Infinity, ay = uy ? Math.min((miny - cy) / uy, (maxy - cy) / uy) : -Infinity;
+    var hit = Math.max(ax, ay);
+    if (!(hit - GAP > MIN)) { curve = null; alpha = 0; queue(); return; }   // too close, or on the button
+    var p0 = { x: cx + ux * GAP, y: cy + uy * GAP }, p2 = { x: cx + ux * hit, y: cy + uy * hit };
+    // a hand-drawn arc: the bend sits toward the corner (button x, pointer y), so from above the arrow leaves sideways
+    // and sweeps down into the button, from below it swings in and up, from the side it is nearly straight
+    var mx = (p0.x + p2.x) / 2, my = (p0.y + p2.y) / 2, k = 0.62;
+    var p1 = { x: mx + (p2.x - mx) * k, y: my + (p0.y - my) * k };
+    curve = [p0, p1, p2];
+    if (retract) { cancelAnimationFrame(retract); retract = null; }
+    t0 = 0; alpha = 1; queue();
+    clearTimeout(idle); idle = setTimeout(rest, 420);
+  }
+  // the pointer has stopped: the tail runs into the head, then the arrow fades
+  function rest() {
+    var start = performance.now(), D = 520;
+    (function step(now) {
+      var k = Math.min(1, (now - start) / D), e = k * k * (3 - 2 * k);
+      t0 = e * 0.92; alpha = k < 0.6 ? 1 : 1 - (k - 0.6) / 0.4; queue();
+      retract = k < 1 ? requestAnimationFrame(step) : null;
+    })(start);
+  }
+  band.addEventListener('pointermove', aim, { passive: true });
+  band.addEventListener('pointerenter', function () { band.classList.add('is-hot'); });
+  band.addEventListener('pointerleave', function () { band.classList.remove('is-hot'); clearTimeout(idle); rest(); });
+})();

@@ -471,3 +471,22 @@
     if (set && !img.getAttribute('srcset')) img.setAttribute('srcset', set);
   });
 })();
+
+// Some pages (the welding series) carry a product's video only in the phone copy of its card; the
+// desktop card gets the same video under it, so it is not missing on larger screens.
+(function () {
+  var key = function (sec) { var h = sec.querySelector('h1'); return h ? h.textContent.replace(/\s+/g, ' ').trim().toLowerCase() : ''; };
+  var mobs = Array.prototype.slice.call(document.querySelectorAll('.pg-series .pg-prod--mob'));
+  var desks = Array.prototype.slice.call(document.querySelectorAll('.pg-series .pg-prod--desk'));
+  desks.forEach(function (desk, i) {
+    if (desk.querySelector('.pg-video')) return;
+    var row = desk.querySelector('.et_pb_row');
+    if (!row) return;
+    var k = key(desk);
+    var twin = mobs.filter(function (m) { return k && key(m) === k; })[0] || (mobs.length === desks.length ? mobs[i] : null);
+    var src = twin && twin.querySelector('.pg-video');
+    if (!src) return;
+    var copy = src.cloneNode(true);
+    row.parentNode.insertBefore(copy, row.nextSibling);
+  });
+})();

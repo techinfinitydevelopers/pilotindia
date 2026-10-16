@@ -82,11 +82,26 @@
     R = Math.min(W * 0.42, H * 0.43); cx = W / 2; cy = H / 2;
   }
 
-  function label(text, x, y, side, alpha) {
+  function label(text, dotX, dotY, side, alpha, tagY, tagW) {
     ctx.font = '600 12px Inter, system-ui, sans-serif';
-    var w = ctx.measureText(text).width + 16, h = 22, lx = side === 'l' ? x - 10 - w : x + 10, ly = y - h / 2;
+    var w = tagW || (ctx.measureText(text).width + 16), h = 22;
+    var y = tagY !== undefined ? tagY : dotY;
+    var lx = side === 'l' ? dotX - 10 - w : dotX + 10, ly = y - h / 2;
+
+    // Leader line if tag is displaced vertically from its map dot
+    if (Math.abs(y - dotY) > 3) {
+      ctx.globalAlpha = alpha * 0.45;
+      ctx.strokeStyle = 'rgba(245,134,52,.6)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      var tagEdgeX = side === 'l' ? lx + w : lx;
+      ctx.moveTo(dotX + (side === 'l' ? -5 : 5), dotY);
+      ctx.lineTo(tagEdgeX, y);
+      ctx.stroke();
+    }
+
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = 'rgba(14,14,14,.82)';
+    ctx.fillStyle = 'rgba(14,14,14,.85)';
     ctx.beginPath(); (ctx.roundRect ? ctx.roundRect(lx, ly, w, h, 11) : ctx.rect(lx, ly, w, h)); ctx.fill();
     ctx.strokeStyle = 'rgba(255,255,255,.14)'; ctx.lineWidth = 1; ctx.stroke();
     ctx.fillStyle = '#fff'; ctx.textBaseline = 'middle'; ctx.fillText(text, lx + 8, y + 0.5);
@@ -172,9 +187,63 @@
     ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
     labels.push(['India', ip[0], ip[1] - 22, 'c', 1]);
 
+    var regularLabels = [];
     labels.forEach(function (l) {
-      if (l[3] === 'c') { ctx.font = '700 13px Inter, system-ui, sans-serif'; var w = ctx.measureText(l[0]).width + 20; ctx.fillStyle = acc; ctx.beginPath(); (ctx.roundRect ? ctx.roundRect(l[1] - w / 2, l[2] - 12, w, 24, 12) : ctx.rect(l[1] - w / 2, l[2] - 12, w, 24)); ctx.fill(); ctx.fillStyle = '#111'; ctx.textBaseline = 'middle'; ctx.fillText(l[0], l[1] - w / 2 + 10, l[2] + 0.5); }
-      else label(l[0], l[1], l[2], l[3], l[4]);
+      if (l[3] === 'c') {
+        ctx.font = '700 13px Inter, system-ui, sans-serif';
+        var w = ctx.measureText(l[0]).width + 20;
+        ctx.fillStyle = acc;
+        ctx.beginPath();
+        (ctx.roundRect ? ctx.roundRect(l[1] - w / 2, l[2] - 12, w, 24, 12) : ctx.rect(l[1] - w / 2, l[2] - 12, w, 24));
+        ctx.fill();
+        ctx.fillStyle = '#111';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(l[0], l[1] - w / 2 + 10, l[2] + 0.5);
+      } else {
+        ctx.font = '600 12px Inter, system-ui, sans-serif';
+        var w = ctx.measureText(l[0]).width + 16;
+        var lx = l[3] === 'l' ? l[1] - 10 - w : l[1] + 10;
+        regularLabels.push({
+          text: l[0],
+          dotX: l[1],
+          dotY: l[2],
+          side: l[3],
+          alpha: l[4],
+          w: w,
+          h: 22,
+          lx: lx,
+          rx: lx + w,
+          y: l[2]
+        });
+      }
+    });
+
+    // Space out overlapping tags vertically so they never collide
+    var minGap = 8;
+    var minDist = 22 + minGap;
+    for (var iter = 0; iter < 18; iter++) {
+      for (var i = 0; i < regularLabels.length; i++) {
+        for (var j = i + 1; j < regularLabels.length; j++) {
+          var a = regularLabels[i], b = regularLabels[j];
+          if (a.lx < b.rx + 6 && b.lx < a.rx + 6) {
+            var dy = b.y - a.y;
+            if (Math.abs(dy) < minDist) {
+              if (Math.abs(dy) < 0.1) dy = b.dotY >= a.dotY ? 0.1 : -0.1;
+              var sign = dy >= 0 ? 1 : -1;
+              var push = (minDist - Math.abs(dy)) * 0.55;
+              a.y -= sign * push;
+              b.y += sign * push;
+            }
+          }
+        }
+      }
+      for (var k = 0; k < regularLabels.length; k++) {
+        regularLabels[k].y += (regularLabels[k].dotY - regularLabels[k].y) * 0.05;
+      }
+    }
+
+    regularLabels.forEach(function (item) {
+      label(item.text, item.dotX, item.dotY, item.side, item.alpha, item.y, item.w);
     });
 
     if (running && !reduce) raf = requestAnimationFrame(frame);

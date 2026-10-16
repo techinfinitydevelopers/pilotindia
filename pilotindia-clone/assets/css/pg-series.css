@@ -1603,3 +1603,7 @@ body.pg-series { overflow-x: clip !important; }
   .pg-series .pg-buy__cta { gap: 10px; }
   .pg-series .pg-prod a.pg-buy__btn { flex: 1 1 0; min-width: 0; padding: 0 18px !important; height: 48px; }
 }
+/* Buy Now in the site's orange (was the reference's red) */
+.pg-series .pg-prod a.pg-buy__btn--buy { background: linear-gradient(135deg, var(--s-accent, #f58634) 0%, #e8731d 100%); box-shadow: 0 10px 26px -12px rgba(245, 134, 52, 0.75); }
+.pg-series .pg-prod a.pg-buy__btn--buy:hover { background: linear-gradient(135deg, #f7914a 0%, #dc6812 100%); box-shadow: 0 16px 34px -12px rgba(245, 134, 52, 0.8); }
+.pg-series .pg-prod a.pg-buy__btn--enq:hover { background: #000; }

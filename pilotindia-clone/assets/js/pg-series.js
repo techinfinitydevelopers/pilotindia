@@ -553,8 +553,9 @@
   });
 })();
 
-// ---- "Buy Now" products: Enquire Now + Buy Now pills and an "Available on" store line (2026-10-16).
-// The original Divi button stays in the page (the admin edits its link) and is hidden; the new block uses its href.
+// ---- every product: an "Enquire Now" pill; products with an Amazon link also get "Buy Now" and an
+// "Available on: amazon" line (2026-10-16). The original Divi "Buy Now" button stays in the page (the admin edits
+// its link) and is hidden; the new block uses its href.
 (function () {
   var PLUS = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
   var AMAZON = '<svg class="pg-buy__logo" viewBox="0 0 64 21" role="img" aria-label="Amazon"><text x="0.5" y="13" textLength="62" lengthAdjust="spacingAndGlyphs" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="16" fill="#111">amazon</text><path d="M7 15.6c11 5 25 5.2 38.5 0" fill="none" stroke="#f90" stroke-width="2.2" stroke-linecap="round"/><path d="M41.6 13.6l4.4 1.9-2.6 3.9" fill="none" stroke="#f90" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -563,24 +564,32 @@
   var hay = (location.pathname + ' ' + Array.prototype.map.call(document.querySelectorAll('.pg-nav a'), function (a) { return a.getAttribute('href'); }).join(' ')).toLowerCase();
   var topic = /shredder|currency|office|binding|laminat/.test(hay) ? 'Office Products' : /airless/.test(hay) ? 'Airless Spray Systems' :
     /weld|gas-|torch|regulator/.test(hay) ? 'Welding Equipments' : /power-tool/.test(hay) ? 'Power Tools' : 'Spray Guns';
-  Array.prototype.forEach.call(document.querySelectorAll('.pg-series .pg-prod a.et_pb_button'), function (a) {
-    if (!/^\s*buy now\s*$/i.test(a.textContent)) return;
-    var href = a.getAttribute('href');
-    if (!href || href === '#') return;
-    // a section can hold two models in two rows (TYPE 68 N + TYPE 68 S): the name comes from the button's own row
-    var card = a.closest('.et_pb_row') || a.closest('.pg-prod'), h = card && (card.querySelector('h1, h2') || a.closest('.pg-prod').querySelector('h1, h2'));
-    var name = h ? h.textContent.replace(/\s+/g, ' ').trim() : '';
-    var host = ''; try { host = new URL(href, location.href).hostname.replace(/^www\./, ''); } catch (e) {}
-    var store = /(^|\.)amazon\./.test(host) ? AMAZON : '<b class="pg-buy__store">' + esc(host.split('.')[0] || 'online') + '</b>';
+  function isAmazon(href) { try { return /(^|\.)amazon\.[a-z.]+$/i.test(new URL(href, location.href).hostname); } catch (e) { return false; } }
+  // one model per row: a section can hold two models in two rows (TYPE 68 N + TYPE 68 S), and some pages carry rows
+  // nested inside rows (power tools), so a row only counts what is its own, not what sits in a row inside it
+  var seen = [];
+  function own(row, sel) { return Array.prototype.filter.call(row.querySelectorAll(sel), function (e) { return e.closest('.et_pb_row') === row; }); }
+  Array.prototype.forEach.call(document.querySelectorAll('.pg-series .pg-prod h1'), function (h) {
+    var row = h.closest('.et_pb_row');
+    if (!row || seen.indexOf(row) >= 0) return;
+    seen.push(row);
+    var name = h.textContent.replace(/\s+/g, ' ').trim();
+    var btn = own(row, 'a.et_pb_button').filter(function (a) { return /^\s*buy now\s*$/i.test(a.textContent); })[0];
+    var href = btn && btn.getAttribute('href');
+    var buy = !!href && isAmazon(href);
     var enq = '/contact-us?topic=' + encodeURIComponent(topic) + (name ? '&product=' + encodeURIComponent(name) : '');
     var box = document.createElement('div');
     box.className = 'pg-buy';
     box.innerHTML = '<div class="pg-buy__cta">' +
       '<a class="pg-buy__btn pg-buy__btn--enq" href="' + esc(enq) + '">Enquire Now ' + PLUS + '</a>' +
-      '<a class="pg-buy__btn pg-buy__btn--buy" href="' + esc(href) + '" target="_blank" rel="noopener nofollow sponsored">Buy Now <span class="pg-buy__arr" aria-hidden="true">&#8599;</span></a>' +
-      '</div><div class="pg-buy__on">Available on: <a href="' + esc(href) + '" target="_blank" rel="noopener nofollow sponsored">' + store + '</a></div>';
-    var wrap = a.closest('.et_pb_button_module_wrapper') || a;
-    wrap.classList.add('pg-buy-old');
-    wrap.parentNode.insertBefore(box, wrap.nextSibling);
+      (buy ? '<a class="pg-buy__btn pg-buy__btn--buy" href="' + esc(href) + '" target="_blank" rel="noopener nofollow sponsored">Buy Now <span class="pg-buy__arr" aria-hidden="true">&#8599;</span></a>' : '') +
+      '</div>' + (buy ? '<div class="pg-buy__on">Available on: <a href="' + esc(href) + '" target="_blank" rel="noopener nofollow sponsored">' + AMAZON + '</a></div>' : '');
+    // where it goes: in place of the old button, else under the catalogue button, else under the technical data
+    var at = btn && (btn.closest('.et_pb_button_module_wrapper') || btn);
+    if (at) at.classList.add('pg-buy-old');
+    if (!at) { var cat = own(row, 'a.pg-cat')[0]; at = cat && (cat.closest('table') || cat.closest('p') || cat); }
+    if (!at) { var tables = own(row, 'table').filter(function (t) { return !t.closest('.pg-areas') && !t.querySelector('img'); }); at = tables[tables.length - 1]; }
+    if (at) at.parentNode.insertBefore(box, at.nextSibling);
+    else (own(row, '.et_pb_text_inner').pop() || row).appendChild(box);
   });
 })();

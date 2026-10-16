@@ -2438,3 +2438,8 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 - pg-series.js: every product with a Buy Now link gets `.pg-buy` (Enquire Now + Buy Now + store line); the Divi button is hidden (`.pg-buy-old`), its href is reused, so admin buy-link edits still apply. Amazon logo is an inline hand-drawn SVG.
 - Enquire Now -> /contact-us?topic=<line>&product=<model>; pi-contact.js (v=22) picks the topic, pre-fills the message, scrolls to the form.
 - Count correction: 25 products have Buy Now (TYPE 68 S lives as a 2nd row inside the TYPE 68 N section) - air-brush 7, legacy-series 9, paper-shredders 9.
+
+## 2026-10-16 — Enquire Now on every product; Buy Now orange, Amazon-only
+- pg-series.js: one `.pg-buy` per model row (rows found from each h1, only the row's own elements counted: power-tools has rows nested in rows). Enquire Now on all 68 desktop / 65 phone product rows; Buy Now + "Available on: amazon" only when the Divi Buy Now link is an amazon.* URL (25). Non-Amazon Buy Now buttons stay hidden.
+- Placement: in place of the old Buy Now button, else under the Download Catalogue pill, else under the technical-data table.
+- Buy Now colour: site orange gradient (#f58634 -> #e8731d) instead of the reference red.

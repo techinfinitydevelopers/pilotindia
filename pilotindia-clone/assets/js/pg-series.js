@@ -444,3 +444,30 @@
   }, { passive: true });
   update();
 })();
+
+// ---- product videos sit under the card, at the card's full width (2026-10-16) ----
+// The YouTube module (or Legacy's video slider) used to sit inside the card's first column; it is
+// moved out of the card into its own block right after it, so the card ends above the video.
+// ---- and the "areas of application" icons load at once instead of waiting for the lazy loader,
+// which only starts after the visitor's first interaction (the icons showed as empty squares).
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('.pg-series .pg-prod'), function (sec) {
+    var row = sec.querySelector('.et_pb_row');
+    if (!row || sec.querySelector('.pg-video')) return;
+    var vids = row.querySelectorAll('.et_pb_video, .et_pb_video_slider');
+    if (!vids.length) return;
+    var box = document.createElement('div');
+    box.className = 'pg-video';
+    Array.prototype.forEach.call(vids, function (v) { box.appendChild(v); });
+    row.parentNode.insertBefore(box, row.nextSibling);
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.pg-series .pg-areas img'), function (img) {
+    var src = img.getAttribute('bv-data-src') || img.getAttribute('data-src');
+    var set = img.getAttribute('bv-data-srcset') || img.getAttribute('data-srcset');
+    img.removeAttribute('loading');
+    img.decoding = 'async';
+    if (src && (!img.getAttribute('src') || /^data:/.test(img.getAttribute('src')))) img.setAttribute('src', src);
+    if (set && !img.getAttribute('srcset')) img.setAttribute('srcset', set);
+  });
+})();

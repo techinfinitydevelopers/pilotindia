@@ -1332,3 +1332,23 @@ body.pg-series { overflow-x: clip !important; }
 }
 .pg-series .pg-nav.is-pill .et-menu-nav > ul { justify-content: center !important; gap: 6px !important; }
 .pg-series .pg-nav.is-pill .et-menu-nav > ul > li { margin: 0 !important; }
+
+/* ---- the product video: its own block under the card, card width, card corners, 16:9 (2026-10-16) ---- */
+.pg-series .pg-video {
+  position: relative;
+  width: min(1280px, 92%);
+  margin: 16px auto 0;
+  border: 1px solid var(--s-line);
+  border-radius: 32px;
+  overflow: hidden;
+  background: #0a0a0a;
+  box-shadow: 0 30px 60px -42px rgba(25, 18, 8, 0.28);
+  isolation: isolate;
+}
+.pg-series .pg-prod--mob .pg-video { width: calc(100% - 2 * var(--pg-gut, 24px)); border-radius: 26px; }
+.pg-series .pg-video .et_pb_video,
+.pg-series .pg-video .et_pb_video_slider { margin: 0 !important; border-radius: 0 !important; box-shadow: none !important; background: #0a0a0a; }
+.pg-series .pg-video .et_pb_video_box,
+.pg-series .pg-video .et_pb_video_slider .et_pb_slide_video { aspect-ratio: 16 / 9; }
+/* the card's column no longer reserves space for the video */
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1):not(:has(.et_pb_video, .et_pb_video_slider)) .et_pb_text { flex: 1 1 auto; }

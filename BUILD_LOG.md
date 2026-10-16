@@ -2398,3 +2398,8 @@ Problem: admin-saved copies (Postgres site_files) always won over git, so pushes
 
 ## 2026-10-16 - About: countries heading
 pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents" is a larger heading (clamp 38-72px) and the paragraph starts 28-44px lower (16px text). Not pushed.
+
+## Product video under the card at card width; application icons load at once (2026-10-16)
+- `pg-series.js`: on every product card, the YouTube module (or Legacy's video slider) is moved out of the card's first column into `.pg-video`, inserted right after the card, so the card ends above the video. The "areas of application" images get their real src/srcset immediately (the Airlift lazy loader only starts after the first interaction, so the icons showed as empty squares) and lose loading="lazy".
+- `pg-series.css`: `.pg-video` = card width (`min(1280px, 92%)`; phone copy `100% - 2*gutter`), card corners (32px / 26px), card border + shadow, 16:9 frame (no letterbox bars) -> 1280x721 at 1440 (was ~302x170 inside the card), 16px under the card.
+- Checked: Type P-80, AB-15 PRO, PCG-01 at 1440 - video width == card width, aligned, radius 32px, no video left inside the card; areas icons 4/4, 6/6, 4/4 loaded ~3s after load with no interaction; HVLP 03 (no video) unchanged; phone 359px video == card, no overflow.

@@ -23,14 +23,24 @@
     none.hidden = match.length > 0;
     count.textContent = (query || site) ? match.length + ' of ' + cards.length + ' articles' : cards.length + ' articles';
   }
+  // ?topic=office opens the page with that filter on (the retired WordPress category pages redirect here); the
+  // address follows the filter, so a filtered list can be shared
+  var TOPIC = { 'pilot-india': 'pilotindia.com', 'spray-guns': 'pilotsprayguns.com', airless: 'pilotairless.com', welding: 'pilotwelding.com', office: 'pilotofficeproducts.com' };
+  function topicOf(s) { for (var k in TOPIC) if (TOPIC[k] === s) return k; return ''; }
+  function pick(b, push) {
+    site = b.getAttribute('data-s'); shown = PAGE;
+    pills.forEach(function (x) { x.classList.toggle('is-on', x === b); x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+    if (push && history.replaceState) {
+      var t = topicOf(site), u = new URL(location.href);
+      if (t) u.searchParams.set('topic', t); else u.searchParams.delete('topic');
+      history.replaceState(null, '', u.pathname + u.search + u.hash);
+    }
+    render();
+  }
   input.addEventListener('input', function () { query = input.value.trim().toLowerCase(); shown = PAGE; render(); });
-  pills.forEach(function (b) {
-    b.addEventListener('click', function () {
-      site = b.getAttribute('data-s'); shown = PAGE;
-      pills.forEach(function (x) { x.classList.toggle('is-on', x === b); });
-      render();
-    });
-  });
+  pills.forEach(function (b) { b.addEventListener('click', function () { pick(b, true); }); });
   more.addEventListener('click', function () { shown += PAGE; render(); });
-  render();
+  var want = TOPIC[(new URLSearchParams(location.search).get('topic') || '').toLowerCase()];
+  var start = want && pills.filter(function (b) { return b.getAttribute('data-s') === want; })[0];
+  if (start) pick(start, false); else render();
 })();

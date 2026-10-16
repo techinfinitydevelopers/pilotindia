@@ -71,7 +71,7 @@ html = html.slice(0, at) + '<div class="entry-content">\n' + block + '\n</div>' 
 // the page shows the list at full width, without the Divi sidebar
 html = html.replace(/<body class="([^"]*)"/, (m, c) => /\bpi-blogs-page\b/.test(c) ? m : `<body class="${c} pi-blogs-page"`);
 if (!html.includes('pi-blogs.css')) html = html.replace('</head>', '<link rel="stylesheet" href="../assets/css/pi-blogs.css?v=3" />\n</head>');
-if (!html.includes('pi-blogs.js')) { const b = html.lastIndexOf('</body>'); html = html.slice(0, b) + '<script src="../assets/js/pi-blogs.js?v=2" defer></script>\n' + html.slice(b); }
+if (!html.includes('pi-blogs.js')) { const b = html.lastIndexOf('</body>'); html = html.slice(0, b) + '<script src="../assets/js/pi-blogs.js?v=3" defer></script>\n' + html.slice(b); }
 fs.writeFileSync(file, html, 'utf8');
 
 // ---- /blog/ -> the Blogs page ----

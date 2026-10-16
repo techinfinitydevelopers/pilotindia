@@ -122,6 +122,19 @@ export function invalidateSlugs() { idx = null; }
 export const slugVersion = () => index().version;
 export const cleanOf = rel => index().byFile.get(rel);
 
+// ---------------------------------------------------------------- retired WordPress archives
+// The mirror kept WordPress's automatic archive pages: category/<name>[-page-N].html (35) and pages/author-*.html
+// (36). /blogs replaces them (search + topic filter), so they answer with a 301 to /blogs with the matching topic,
+// links to them are rewritten to that address, and they are left out of the sitemap. The files stay in the repo.
+const TOPIC = { 'airless-spray-systems': 'airless', 'pilot-office-products': 'office', 'pilot-spray-guns': 'spray-guns', 'pilot-welding-equipment': 'welding', 'pilot-group': 'pilot-india' };
+const isRetired = rel => /^category\/[^/]+\.html$/.test(rel) || /^pages\/author-[^/]+\.html$/.test(rel);
+function retiredTarget(rel) {
+  const ix = index();
+  const blogs = '/' + (ix.byFile.get('pages/blogs.html') || 'blogs');
+  const cat = (rel.match(/^category\/(.+?)(?:-page-\d+)?\.html$/) || [])[1];
+  return blogs + (cat && TOPIC[cat] ? '?topic=' + TOPIC[cat] : '');
+}
+
 // ---------------------------------------------------------------- product model pages
 // A series page holds one card per model (id="model-<model>"). Does that page have this model?
 function modelExists(rel, model) {
@@ -136,6 +149,7 @@ export function resolveRequest(pathname, search) {
   const q = search || '';
   let ix = index();
   const go = rel => {
+    if (isRetired(rel)) return { redirect: retiredTarget(rel) };
     const mm = q.match(/^\?model=model-([a-z0-9]+(?:-[a-z0-9]+)*)$/), clean = ix.byFile.get(rel);
     if (mm && !clean.endsWith('/') && modelExists(rel, mm[1])) return { redirect: '/' + clean + '/' + mm[1] };   // old model link: one hop
     return { redirect: '/' + clean + q };
@@ -144,7 +158,7 @@ export function resolveRequest(pathname, search) {
   // an old model address, "/evolution-series?model=model-hvlp-03", becomes "/evolution-series/hvlp-03"
   const oldModel = q.match(/^\?model=model-([a-z0-9]+(?:-[a-z0-9]+)*)$/);
   if (oldModel && ix.byClean.has(key) && modelExists(ix.byClean.get(key), oldModel[1])) return { redirect: '/' + key.replace(/\/$/, '') + '/' + oldModel[1] };
-  if (ix.byClean.has(key)) return { file: ix.byClean.get(key) };
+  if (ix.byClean.has(key)) return isRetired(ix.byClean.get(key)) ? { redirect: retiredTarget(ix.byClean.get(key)) } : { file: ix.byClean.get(key) };
   // a model page: "/<series>/<model>" is the series page, which then shows only that model
   const cut = key.replace(/\/$/, '').lastIndexOf('/');
   if (cut > 0) {
@@ -184,7 +198,7 @@ export function rewriteHtml(html, rel) {
       if (/^\/[^/]/.test(raw)) {
         const m = raw.match(/^\/([^?#]*)([\s\S]*)$/);
         const f = m[1] === '' ? null : m[1].endsWith('/') ? m[1] + 'index.html' : m[1];
-        if (f && ix.byFile.has(f)) return '/' + ix.byFile.get(f) + m[2];
+        if (f && ix.byFile.has(f)) return isRetired(f) ? retiredTarget(f) : '/' + ix.byFile.get(f) + m[2];
       }
       return null;
     }
@@ -196,6 +210,7 @@ export function rewriteHtml(html, rel) {
     if (t === '.') t = '';
     const page = t === '' ? 'index.html' : (p.endsWith('/') || t.endsWith('/')) ? t.replace(/\/?$/, '/') + 'index.html' : t;
     if (ix.byFile.has(page)) {
+      if (isRetired(page)) return retiredTarget(page);
       // a link to one model of a series ("evolution-series.html?model=model-hvlp-03") becomes /evolution-series/hvlp-03
       const mm = m[2].match(/^\?model=model-([a-z0-9]+(?:-[a-z0-9]+)*)$/);
       if (mm && !ix.byFile.get(page).endsWith('/')) return '/' + ix.byFile.get(page) + '/' + mm[1];
@@ -258,7 +273,7 @@ export function setSlug(rel, slug, reset) {
 export const cleanUrlOf = rel => { const c = index().byFile.get(rel); return c == null ? null : "/" + c; };
 export function sitemapXml(origin) {
   const ix = index();
-  const urls = [...ix.byFile].filter(([rel]) => !/^pages\/author-|\/hello\.html$/.test(rel)).map(([, c]) => origin + '/' + c);
+  const urls = [...ix.byFile].filter(([rel]) => !isRetired(rel) && !/\/hello\.html$/.test(rel)).map(([, c]) => origin + '/' + c);
   return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
     urls.map(u => '  <url><loc>' + u.replace(/&/g, '&amp;') + '</loc></url>').join('\n') + '\n</urlset>\n';
 }

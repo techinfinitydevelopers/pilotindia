@@ -2395,3 +2395,6 @@ Problem: admin-saved copies (Postgres site_files) always won over git, so pushes
 - `pg-series.js`: a scroll/rAF watcher adds `.is-pill` to the series menu (`.pg-nav`) once it sticks under the site navbar and removes it at the top; it sets `--pg-pill-w` = sum of the menu items' widths + 6px gaps + padding (the bar spreads the items, so first-to-last distance was the full bar width).
 - `pg-series.css`: in pill mode the full-width white strip goes transparent (and click-through), the row becomes a centred white capsule (blur, hairline border, soft shadow) whose max-width animates to `--pg-pill-w`; items packed centre. Same height in both states (51px), so the page never shifts. Pages with the Models rail get a rounded box. Reduced motion: no transitions.
 - Checked at 1100/1440/1920 on legacy, gas regulators, paper shredders, air brush: pill centred, one row, every item inside, content below moved 0px; back to the full bar at the top. On phones and in the single-model view the bar is hidden as before.
+
+## 2026-10-16 - About: countries heading
+pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents" is a larger heading (clamp 38-72px) and the paragraph starts 28-44px lower (16px text). Not pushed.

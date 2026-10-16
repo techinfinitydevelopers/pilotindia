@@ -243,3 +243,8 @@
 /* range card pictures: absolutely placed so the 82% box always resolves inside the square tile */
 .pa-card__img { position: relative; }
 .pa-card__img img { position: absolute; inset: 9%; width: 82%; height: 82%; max-width: none; max-height: none; object-fit: contain; }
+
+/* countries block: a real heading, and room before the text (2026-10-16) */
+.pa-reach .pa-export__t { font-size: clamp(38px, 5vw, 72px); line-height: 1.04; letter-spacing: -.025em; }
+.pa-reach .pa-export__t span { margin-top: 8px; font-size: .52em; }
+.pa-reach .pa-export__d { margin-top: clamp(28px, 3.2vw, 44px); font-size: 16px; line-height: 1.75; }

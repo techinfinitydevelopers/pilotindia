@@ -9,7 +9,7 @@ import path from 'node:path';
 const ROOT = path.join(process.cwd(), 'pilotindia-clone');
 const file = path.join(ROOT, 'pages', 'about-us.html');
 let html = fs.readFileSync(file, 'utf8');
-const V = 23;
+const V = 24;
 
 const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3z"/></svg>';
 const COUNTRIES = ['Africa', 'Australia', 'Bangladesh', 'Cyprus', 'Israel', 'New Zealand', 'Philippines', 'South Africa', 'Srilanka', 'Turkey', 'United Arab Emirates'];

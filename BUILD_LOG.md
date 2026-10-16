@@ -2410,3 +2410,7 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 - Admin product drawer: "Video" (YouTube link; youtube.com/watch, youtu.be, embed, shorts accepted; empty = remove) and "Areas of application" (rows of image picker/upload + label, add/remove). Server (`admin/server.mjs`): model reads the video from the desktop copy or else the phone copy, areas likewise; save updates both copies - changes iframe src, inserts a video module where a copy has none (desktop: first column; phone: last column), removes modules when cleared; rewrites the areas tbody (2 per row, real src, no lazy placeholder), creates the block where missing (desktop: third column, which the page script moves under the features) or removes it when emptied. Non-YouTube links refused.
 - Tested on throwaway copies of legacy-series / gas-cutting-torches: read, save (both copies), remove, add to a copy without a video, div balance kept, page renders the new areas with images loaded; copies + backups removed.
 - `tools/products-page.mjs`: stylesheet version synced to the page's v=3 (a rebuild had written v=2 back).
+
+## 2026-10-16 — About Us: less space under the 12-countries section
+- `.pa-vm` top padding clamp(56px,8vw,104px) → clamp(24px,3vw,40px): gap under the dark Reach section now 40px desktop / 24px phone.
+- pi-about.css cache version 23 → 24 (tools/about-us.mjs + pages/about-us.html).

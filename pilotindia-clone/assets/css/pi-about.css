@@ -118,7 +118,7 @@
 .pa-pill { flex: none; padding: 10px 20px; border-radius: 999px; border: 1px solid #2c2c2c; background: #151515; font-size: 14px; color: rgba(255,255,255,.85); white-space: nowrap; }
 
 /* ---------- vision / mission ---------- */
-.pa-vm { padding: clamp(56px, 8vw, 104px) 0 clamp(40px, 6vw, 72px); }
+.pa-vm { padding: clamp(24px, 3vw, 40px) 0 clamp(40px, 6vw, 72px); }
 .pa-vm__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .pa-vm__card { position: relative; overflow: hidden; min-height: 300px; padding: clamp(26px, 3vw, 44px); border-radius: var(--pa-r); background: #fff; border: 1px solid var(--pa-line); display: flex; flex-direction: column; justify-content: flex-end; }
 .pa-vm__card--dark { background: var(--pa-ink); border-color: var(--pa-ink); color: #fff; }

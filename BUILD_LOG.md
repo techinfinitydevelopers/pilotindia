@@ -2414,3 +2414,7 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 ## 2026-10-16 — About Us: less space under the 12-countries section
 - `.pa-vm` top padding clamp(56px,8vw,104px) → clamp(24px,3vw,40px): gap under the dark Reach section now 40px desktop / 24px phone.
 - pi-about.css cache version 23 → 24 (tools/about-us.mjs + pages/about-us.html).
+
+## 2026-10-16 — About Reach alignment, tighter dark bottom; shorter video preview
+- About `.pa-net`: lead paragraph top-aligned with the heading (grid align start, theme margin reset overridden); facts cards get their top gap back; bottom padding 56→28px, reach bottom 0, globe 520→470px. pi-about.css v=25.
+- Series `.pg-video--poster` 32/9 → 40/9 (1280×288 desktop, 150px min on phone).

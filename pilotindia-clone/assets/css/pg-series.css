@@ -1354,7 +1354,7 @@ body.pg-series { overflow-x: clip !important; }
 .pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1):not(:has(.et_pb_video, .et_pb_video_slider)) .et_pb_text { flex: 1 1 auto; }
 
 /* ---- video preview at half the player's height; full 16:9 player once clicked (2026-10-16) ---- */
-.pg-series .pg-video--poster { aspect-ratio: 32 / 9; min-height: 190px; }
+.pg-series .pg-video--poster { aspect-ratio: 40 / 9; min-height: 150px; }
 .pg-series .pg-video__play {
   position: absolute;
   inset: 0;

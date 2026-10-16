@@ -257,13 +257,56 @@ export function instrument(html) {
 
 function versionOf(text) { return createHash('sha1').update(text).digest('hex').slice(0, 16); }
 
+// ---- Open Graph tags (the SEO tab's "Social sharing" card)
+const OG_FIELDS = [
+  ['og:title', 'Share title', 'text', 'The title on the card when the page is shared on WhatsApp, LinkedIn, Facebook, X.'],
+  ['og:description', 'Share description', 'textarea', 'One or two sentences under the share title.'],
+  ['og:image', 'Share image', 'image', 'The picture on the share card. 1200 × 630 works best everywhere.'],
+  ['og:image:alt', 'Share image description', 'text', 'What the share image shows, for screen readers.'],
+  ['og:type', 'Type', 'text', 'website for normal pages, article for blog posts, product for a product.'],
+  ['og:site_name', 'Site name', 'text', 'The site name shown on the share card.'],
+  ['og:locale', 'Locale', 'text', 'Language and region, e.g. en_US or en_IN.'],
+];
+const OG_KEYS = new Set(OG_FIELDS.map(f => f[0]));
+// og:image also drives og:image:secure_url and twitter:image; its stored size goes stale when the picture changes
+const OG_TWINS = { 'og:image': ['og:image:secure_url', 'twitter:image'] };
+function ogEdit(src, doc, pageAbs, key, value, attrSets, reps) {
+  if (!OG_KEYS.has(key)) throw new Error('unknown share tag ' + key);
+  let v = String(value || '').replace(/\s+/g, ' ').trim();
+  if (OG_FIELDS.find(f => f[0] === key)[2] === 'image' && v) {
+    if (/^(javascript|data):/i.test(v)) throw new Error('the share image must be an image on the site or an https:// address');
+    v = refFrom(pageAbs, v);
+  }
+  const metas = findAll(doc, e => e.tagName === 'meta');
+  const tagOf = k => metas.find(m => attr(m, 'property') === k || attr(m, 'name') === k) || null;
+  const keys = [key].concat(OG_TWINS[key] || []);
+  if (key === 'og:image') for (const k of ['og:image:width', 'og:image:height']) { const m = tagOf(k); if (m) { const r = outerRange(m); reps.push([r[0], r[1], '']); } }
+  const add = [];
+  for (const k of keys) {
+    const m = tagOf(k);
+    if (m && !v) { const r = outerRange(m); reps.push([r[0], r[1], '']); }
+    else if (m) attrSets.set(m, Object.assign(attrSets.get(m) || {}, { content: v }));
+    else if (v) add.push(`<meta ${k.startsWith('twitter:') ? 'name' : 'property'}="${k}" content="${escAttr(v)}" />`);
+  }
+  if (add.length) {
+    // next to the page's other share tags, else at the end of <head>
+    const last = metas.filter(m => /^og:/.test(attr(m, 'property') || '')).pop();
+    const head = find(doc, e => e.tagName === 'head');
+    const at = last ? last.sourceCodeLocation.endOffset : head && head.sourceCodeLocation.endTag ? head.sourceCodeLocation.endTag.startOffset : null;
+    if (at == null) throw new Error('this page has no <head> to add share tags to');
+    reps.push([at, at, '\n' + add.join('\n')]);
+  }
+}
+
 function applyVisualEdits(pageAbs, edits, version) {
   const src = fs.readFileSync(pageAbs, 'utf8');
   if (version && version !== versionOf(src)) throw new Error('this page was changed since the editor opened it - reload the editor and redo the edit');
-  const els = elementsOf(parseDoc(src));
+  const doc = parseDoc(src);
+  const els = elementsOf(doc);
   const attrSets = new Map();
   const reps = [];
   for (const e of edits) {
+    if (e.op === 'meta') { ogEdit(src, doc, pageAbs, e.name, e.value, attrSets, reps); continue; }
     const el = els[+e.id];
     if (!el) throw new Error('element ' + e.id + ' not found - the page changed; reload the editor');
     if (e.op === 'html' || e.op === 'text') {
@@ -477,13 +520,19 @@ function pageModel(abs) {
   const meta = (k, v) => metas.find(m => attr(m, k) === v) || null;
   const seo = [];
   if (titleEl) seo.push({ id: idOf.get(titleEl), op: 'text', label: 'Page title', value: cleanText(titleEl), hint: 'The title in the browser tab and in search results.' });
-  for (const [k, v, label, hint] of [['name', 'description', 'Meta description', 'The short text under the title in search results (about 150 characters).'], ['property', 'og:title', 'Share title', 'The title shown when the page is shared.'], ['property', 'og:description', 'Share description', ''], ['name', 'twitter:title', 'Twitter title', ''], ['name', 'twitter:description', 'Twitter description', '']]) {
+  for (const [k, v, label, hint] of [['name', 'description', 'Meta description', 'The short text under the title in search results (about 150 characters).'], ['name', 'twitter:title', 'Twitter title', ''], ['name', 'twitter:description', 'Twitter description', '']]) {
     const m = meta(k, v);
     if (m) seo.push({ id: idOf.get(m), op: 'attr', name: 'content', label, value: decode(attr(m, 'content') || ''), hint });
   }
   const canon = find(doc, e => e.tagName === 'link' && attr(e, 'rel') === 'canonical');
   if (canon) seo.push({ id: idOf.get(canon), op: 'canon', label: 'Canonical URL (optional)', value: /^https?:\/\//i.test(attr(canon, 'href') || '') ? decode(attr(canon, 'href')) : '', hint: 'The one address search engines treat as this page, so copies of it (?tracking, /index.html, http/https, www) do not compete. Leave empty and the site publishes this page\'s own full address automatically. Fill it in only to point to another page when this one is a duplicate (https://...).', placeholder: 'Automatic: this page\'s own address' });
-  return { path: relOf(abs), title: titleOf(src), version: versionOf(src), generated: relOf(abs) === 'index.html', sections, seo };
+  // Open Graph: every page gets the full set, a tag the page lacks is added when it is filled in
+  const og = OG_FIELDS.map(([key, label, kind, hint]) => {
+    const m = meta('property', key);
+    const v = m ? decode(attr(m, 'content') || '') : '';
+    return { op: 'meta', name: key, label, kind, hint, value: kind === 'image' ? rootRelFrom(abs, v) : v };
+  });
+  return { path: relOf(abs), title: titleOf(src), version: versionOf(src), generated: relOf(abs) === 'index.html', sections, seo, og };
 }
 
 // reorder / duplicate / remove a section

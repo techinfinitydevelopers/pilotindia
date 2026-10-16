@@ -535,3 +535,20 @@
     hi.src = 'https://i.ytimg.com/vi/' + id + '/maxresdefault.jpg';
   });
 })();
+
+// ---- "Download Catalogue": one pill button per product, in place of the PDF icon + plain link (2026-10-16).
+// The link itself stays (href, lead-form gate in pi-lead.js); only its look changes.
+(function () {
+  var ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  Array.prototype.forEach.call(document.querySelectorAll('.pg-series a[href]'), function (a) {
+    if (a.classList.contains('pg-cat') || !/^\s*download catalog(ue)?\s*$/i.test(a.textContent)) return;
+    // the old PDF icon just before the link
+    var prev = a.previousSibling;
+    while (prev && prev.nodeType === 3 && !prev.textContent.replace(/[\s\u00a0]/g, '')) prev = prev.previousSibling;
+    if (prev && prev.nodeType === 1 && prev.classList.contains('pi-pdf-icon')) prev.classList.add('pg-cat-old');
+    if (a.parentNode) a.parentNode.classList.add('pg-cat-wrap');
+    a.removeAttribute('style');
+    a.classList.add('pg-cat');
+    a.innerHTML = '<span class="pg-cat__ic">' + ARROW + '</span><span class="pg-cat__t">Download Catalogue</span><span class="pg-cat__tag">PDF</span>';
+  });
+})();

@@ -551,6 +551,35 @@
         });
         if (!model.seo.length) card.appendChild(h('<div class="empty">This page has no SEO tags.</div>'));
         formEl.appendChild(card);
+        // Open Graph: the card WhatsApp, LinkedIn, Facebook and X show for a shared link
+        if (model.og && model.og.length) {
+          var og = {};
+          model.og.forEach(function (x) { og[x.name] = x.value; });
+          var ogCard = h('<div class="pe__card"><div class="pe__chead"><div><h2>Open Graph &middot; social sharing</h2><p>The preview card shown when this page is shared. Empty tags are added to the page when you fill them in; clearing one removes it.</p></div></div>' +
+            '<div class="og-prev"><div class="og-prev__img"></div><div class="og-prev__body"><small class="og-prev__site"></small><b class="og-prev__t"></b><span class="og-prev__d"></span></div></div></div>');
+          var paintPrev = function () {
+            $('.og-prev__img', ogCard).innerHTML = og['og:image'] ? '<img src="' + esc(/^https?:/i.test(og['og:image']) ? og['og:image'] : '/' + og['og:image'].replace(/^\/+/, '')) + '" alt="" />' : '<span>No share image</span>';
+            $('.og-prev__site', ogCard).textContent = (og['og:site_name'] || location.host).toUpperCase();
+            $('.og-prev__t', ogCard).textContent = og['og:title'] || '(no share title)';
+            $('.og-prev__d', ogCard).textContent = og['og:description'] || '';
+          };
+          model.og.forEach(function (x) {
+            var on = function (v) { og[x.name] = v; queue('og', 'meta', v, x.name); paintPrev(); };
+            var f;
+            if (x.kind === 'image') f = imageField(x.label, x.value, on);
+            else {
+              f = h('<label class="field"><span></span>' + (x.kind === 'textarea' ? '<textarea rows="3"></textarea>' : '<input type="text" />') + '</label>');
+              $('span', f).textContent = x.label;
+              var inp2 = $('input, textarea', f);
+              inp2.value = x.value;
+              inp2.addEventListener('input', function () { on(inp2.value); });
+            }
+            if (x.hint) f.appendChild(h('<small class="pe__hint"></small>')).textContent = x.hint;
+            ogCard.appendChild(f);
+          });
+          paintPrev();
+          formEl.appendChild(ogCard);
+        }
         return;
       }
       var s = model.sections[sel];

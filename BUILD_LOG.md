@@ -2423,3 +2423,12 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 - `.pg-video--poster` 40/9 → 36/9 (1280×320 desktop, 190px phone).
 - pg-series.js: preview shows Pilot avatar + video title (iframe title minus " | Pilot"; generic "YouTube video player" titles use the card h1) + "Pilot India", top gradient, and a "Watch on YouTube" link (new tab). Click still opens the 16:9 player in place.
 - Checked on legacy-series, gas-regulators, air-brush, electric-spray-guns at 1440 and 390.
+
+## 2026-10-16 — Admin Open Graph editor; catalogue-only product button; Buy Now count
+- admin/server.mjs: page model has `og` (og:title, og:description, og:image, og:image:alt, og:type, og:site_name, og:locale) for every page; edit op `meta` updates, adds (next to the other og tags / end of head) or removes (empty) a tag; og:image also sets og:image:secure_url + twitter:image and drops stale og:image:width/height. Share title/description moved from the SEO card to the new card.
+- admin.js/.css: SEO tab gets an "Open Graph - social sharing" card with live share preview + image picker.
+- serve.mjs: og:image / og:image:secure_url / twitter:image served as absolute URLs (were relative, so crawlers could not load them).
+- tools/remove-manuals.mjs: removed all 75 "Download Manual" links (+PDF icons) from 9 series pages.
+- pg-series.js/.css: "Download Catalogue" is now a black pill (orange download icon, PDF tag; hover orange). Lead-gate still opens.
+- Buy Now: 24 of 64 products have an Amazon link (air-brush 7, legacy-series 8, paper-shredders 9). Note: type-59-n and type-59-s share one link.
+- Share-image audit: 14 pages use the PDF icon as og:image, 17 have none - fix in admin SEO tab.

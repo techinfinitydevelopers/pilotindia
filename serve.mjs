@@ -76,7 +76,12 @@ function notFoundPage() {
 
 // The canonical tag (and og:url) must be a full address to count for search engines. The pages store a relative one, so when it is
 // relative it is served as origin + the page's clean URL. An absolute value (set per page in the admin's SEO tab) is left as it is.
-function withAbsoluteUrls(html, origin, clean) {
+function withAbsoluteUrls(html, origin, clean, rel) {
+  // share images (og:image, twitter:image) are only fetched by crawlers from a full address; the pages store them relative to the file
+  if (rel) html = html.replace(/(<meta\b[^>]*\b(?:property|name)="(?:og:image|og:image:secure_url|twitter:image)"[^>]*\bcontent=")([^"]*)"/gi, (m, a, v) => {
+    if (!v || /^(https?:|data:)/i.test(v)) return m;
+    try { return a + new URL(v.replace(/&amp;/g, '&'), origin + '/' + rel).href.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '"'; } catch { return m; }
+  });
   if (!clean) return html;
   const full = origin + clean;
   html = html.replace(/(<link\b[^>]*\brel=["']canonical["'][^>]*\bhref=")([^"]*)"/i, (m, a, v) => /^https?:\/\//i.test(v) ? m : a + full + '"');
@@ -104,7 +109,7 @@ function serveFile(req, res, fp, extra = {}) {
   const origin = process.env.SITE_URL ? process.env.SITE_URL.replace(/\/+$/, '') : (req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http') + '://' + req.headers.host;
   if (ext === '.html') {
     const rel = path.relative(ROOT, fp).split(path.sep).join('/');
-    body = Buffer.from(withAbsoluteUrls(rewriteHtml(withLeadGate(body).toString('utf8'), rel), origin, cleanUrlOf(rel)), 'utf8');
+    body = Buffer.from(withAbsoluteUrls(rewriteHtml(withLeadGate(body).toString('utf8'), rel), origin, cleanUrlOf(rel), rel), 'utf8');
   }
   if (COMPRESSIBLE.has(ext) && body.length > 1024) {
     const accept = String(req.headers['accept-encoding'] || '');

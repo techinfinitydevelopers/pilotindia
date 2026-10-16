@@ -451,14 +451,32 @@
 // ---- and the "areas of application" icons load at once instead of waiting for the lazy loader,
 // which only starts after the visitor's first interaction (the icons showed as empty squares).
 (function () {
-  Array.prototype.forEach.call(document.querySelectorAll('.pg-series .pg-prod'), function (sec) {
-    var row = sec.querySelector('.et_pb_row');
-    if (!row || sec.querySelector('.pg-video')) return;
-    var vids = row.querySelectorAll('.et_pb_video, .et_pb_video_slider');
+  // Every model row (a section can hold two: TYPE 68 N + TYPE 68 S). Besides Divi's video modules, some pages (paper
+  // shredders, gas torches/regulators, currency counters) embed the YouTube iframe straight into a text block; left in
+  // the card it showed at ~344x315, a 16:9 video letterboxed in black (2026-10-16).
+  var YT = /youtube(-nocookie)?\.com\/embed\//;
+  var rows = [];
+  Array.prototype.forEach.call(document.querySelectorAll('.pg-series .pg-prod h1'), function (h) {
+    var r = h.closest('.et_pb_row');
+    if (r && r.closest('.pg-prod') && rows.indexOf(r) < 0) rows.push(r);
+  });
+  rows.forEach(function (row) {
+    if (row.nextElementSibling && row.nextElementSibling.classList.contains('pg-video')) return;
+    var own = function (e) { return e.closest('.et_pb_row') === row; };
+    var vids = Array.prototype.filter.call(row.querySelectorAll('.et_pb_video, .et_pb_video_slider'), own)
+      .filter(function (v, i, all) { return !all.some(function (o) { return o !== v && o.contains(v); }); });
+    Array.prototype.forEach.call(row.querySelectorAll('iframe'), function (f) {
+      if (!own(f) || !YT.test(f.getAttribute('src') || f.getAttribute('data-src') || '') || f.closest('.et_pb_video, .et_pb_video_slider')) return;
+      // take the wrapper that holds nothing but this iframe (a <p> or a styled <div>), not the text around it
+      var w = f;
+      while (w.parentElement && !w.parentElement.matches('.et_pb_text_inner, .et_pb_column, .et_pb_row') &&
+        w.parentElement.textContent.trim() === '' && w.parentElement.querySelectorAll('iframe, img').length === 1) w = w.parentElement;
+      vids.push(w);
+    });
     if (!vids.length) return;
     var box = document.createElement('div');
     box.className = 'pg-video';
-    Array.prototype.forEach.call(vids, function (v) { box.appendChild(v); });
+    vids.forEach(function (v) { box.appendChild(v); });
     row.parentNode.insertBefore(box, row.nextSibling);
   });
 

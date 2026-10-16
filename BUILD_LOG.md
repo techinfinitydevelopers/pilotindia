@@ -2453,3 +2453,8 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 - Fixed: series-landing hero tray fillet pushed /airless /office /welding 28px wide on tablets -> .pi-sg-hero overflow-x:clip (pg-hero-coll.css).
 - Fixed: blog Contents list skipped empty h2 (empty link). Bigger invisible tap areas (pointer:coarse) for nav logo, blog crumb/All articles, products View series, home All articles.
 - Result: re-audit 0 overflow / 0 broken / 0 dead / 0 clipped at all 4 widths.
+
+## 2026-10-16 — Fix: letterboxed YouTube players left inside product cards
+- Cause: the 2026-10-16 "video under the card" step (pg-series.js) only moved Divi video modules (.et_pb_video / .et_pb_video_slider) and only from the first row of each section. 25 videos are raw <iframe>s inside text blocks (paper-shredders 17, gas-welding-brazing-torches 3, gas-regulators 2, currency-counters 2, gas-cutting-torches 1), and TYPE 68 S is a 2nd row: they stayed in the card at ~344x315, a 16:9 video letterboxed in black.
+- Fix: every model row (from its h1), Divi modules plus raw YouTube iframes (with their empty wrapper) move into .pg-video under the row; the preview/title bar then applies. Checked all 64 product pages at 390 and 1440: 44 previews, 0 stray players.
+- Also: the generic old-WP rule .et_pb_slider .et_pb_slide_0/_6 {background-image} pointed at a fake image until the audit re-pointed it to the real photo; set to none (as visitors saw before) and dropped the home page's 4 unused preloads of it.

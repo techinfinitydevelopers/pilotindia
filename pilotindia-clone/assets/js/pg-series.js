@@ -490,3 +490,33 @@
     row.parentNode.insertBefore(copy, row.nextSibling);
   });
 })();
+
+// ---- product video: a half-height preview (the video's own thumbnail, full card width) that opens
+// the full-size player in place when clicked (2026-10-16). Also means YouTube loads only on demand.
+(function () {
+  function idOf(src) { var m = String(src || '').match(/(?:embed\/|youtu\.be\/|[?&]v=)([A-Za-z0-9_-]{11})/); return m && m[1]; }
+  Array.prototype.forEach.call(document.querySelectorAll('.pg-series .pg-video'), function (box) {
+    var f = box.querySelector('iframe');
+    var id = f && idOf(f.getAttribute('src') || f.getAttribute('data-src'));
+    if (!id) return;
+    var title = (f.getAttribute('title') || 'Product video').replace(/"/g, '&quot;');
+    box.innerHTML = '';
+    box.classList.add('pg-video--poster');
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'pg-video__play';
+    btn.setAttribute('aria-label', 'Play video: ' + title);
+    btn.style.backgroundImage = 'url(https://i.ytimg.com/vi/' + id + '/hqdefault.jpg)';
+    btn.innerHTML = '<span class="pg-video__icon" aria-hidden="true"><svg viewBox="0 0 68 48"><path d="M66.5 7.7a8.5 8.5 0 0 0-6-6C55.2.3 34 .3 34 .3S12.8.3 7.5 1.7a8.5 8.5 0 0 0-6 6C.1 13 .1 24 .1 24s0 11 1.4 16.3a8.5 8.5 0 0 0 6 6C12.8 47.7 34 47.7 34 47.7s21.2 0 26.5-1.4a8.5 8.5 0 0 0 6-6C67.9 35 67.9 24 67.9 24s0-11-1.4-16.3z" fill="#f00"/><path d="M45 24 27 14v20z" fill="#fff"/></svg></span><span class="pg-video__label">Watch the video</span>';
+    btn.addEventListener('click', function () {
+      box.classList.remove('pg-video--poster');
+      box.classList.add('is-playing');
+      box.innerHTML = '<div class="pg-video__frame"><iframe src="https://www.youtube.com/embed/' + id + '?autoplay=1&rel=0" title="' + title + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>';
+    });
+    box.appendChild(btn);
+    // the sharp thumbnail where YouTube has one (a missing one comes back as a 120px placeholder)
+    var hi = new Image();
+    hi.onload = function () { if (hi.naturalWidth > 200) btn.style.backgroundImage = 'url(' + hi.src + ')'; };
+    hi.src = 'https://i.ytimg.com/vi/' + id + '/maxresdefault.jpg';
+  });
+})();

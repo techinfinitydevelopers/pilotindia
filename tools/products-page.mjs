@@ -186,7 +186,7 @@ ${groups.map((g, gi) => `      <section class="pp-line" id="${slug(g.line)}">
     .replace(/<script src="\.\.\/assets\/js\/pi-contact\.js[^"]*" defer><\/script>\r?\n?/, '')
     .replace('<body class="pi-products-page pi-contact-page ', '<body class="pi-products-page ')
     .replace(/<!-- pi-contact:(start|end) -->\r?\n?/g, '');
-  if (!html.includes('pi-products.css')) html = html.replace('</head>', '<link rel="stylesheet" href="../assets/css/pi-products.css?v=2" />\n</head>');
+  if (!html.includes('pi-products.css')) html = html.replace('</head>', '<link rel="stylesheet" href="../assets/css/pi-products.css?v=3" />\n</head>');
   fs.writeFileSync(path.join(root, 'pages', 'products.html'), html);
   return { lines: groups.length, series: nSeries, models: nModels };
 }

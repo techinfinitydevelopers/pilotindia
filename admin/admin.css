@@ -542,3 +542,8 @@ a.stat:hover::after { transform: scaleX(1); }
 .vt-live small { margin-left: 4px; color: var(--mute); font-weight: 500; }
 @keyframes vt-pulse { 0% { box-shadow: 0 0 0 0 rgba(21, 128, 61, .5); } 70% { box-shadow: 0 0 0 8px rgba(21, 128, 61, 0); } 100% { box-shadow: 0 0 0 0 rgba(21, 128, 61, 0); } }
 @media (prefers-reduced-motion: reduce) { .vt-live i { animation: none; } }
+
+/* product drawer: areas of application rows (image + label) */
+.area-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: end; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.area-row .field { margin: 0; }
+.area-row .imgpick__thumb { width: 44px; height: 44px; }

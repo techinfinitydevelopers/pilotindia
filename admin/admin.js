@@ -879,6 +879,32 @@
       s3.appendChild(specs.el);
     } else s3.appendChild(h('<p class="hint" style="color:var(--mute);margin:0">No spec table on this product.</p>'));
     body.appendChild(s3);
+    // YouTube video: shown under the product card on the site
+    var sV = h('<section><h3>Video</h3></section>');
+    var video = h('<label class="field"><span>YouTube link</span><input type="url" placeholder="https://www.youtube.com/watch?v=..." /></label>');
+    $('input', video).value = p.video || '';
+    sV.appendChild(video);
+    sV.appendChild(h('<p class="hint" style="color:var(--mute);margin:6px 0 0">Paste a youtube.com or youtu.be link. Leave it empty to remove the video from this product.</p>'));
+    body.appendChild(sV);
+
+    // areas of application: an icon and a label each
+    var sA = h('<section><h3>Areas of application</h3></section>');
+    var areaList = h('<div class="repeat"></div>');
+    function areaRow(a) {
+      var row = h('<div class="area-row"><div class="area-row__pic"></div><input class="input" type="text" placeholder="Label, e.g. Automobiles" /><button type="button" class="icon-btn" title="Remove">' + I.x + '</button></div>');
+      var img = a.image || '';
+      var pic = imageField('Image', img, function (v) { img = v; dirty = true; });
+      $('.area-row__pic', row).appendChild(pic);
+      $('input', row).value = a.label || '';
+      $('button', row).onclick = function () { row.remove(); dirty = true; };
+      row.value = function () { return { image: img, label: $('input', row).value }; };
+      return row;
+    }
+    (p.areas || []).forEach(function (a) { areaList.appendChild(areaRow(a)); });
+    var addArea = h('<button type="button" class="btn btn--sm">' + I.plus + 'Add area</button>');
+    addArea.onclick = function () { areaList.appendChild(areaRow({})); dirty = true; };
+    sA.appendChild(areaList); sA.appendChild(addArea);
+    body.appendChild(sA);
 
     var dls = [];
     if (p.downloads.length) {
@@ -907,6 +933,8 @@
       if (feats) out.features = $$('input', feats.list).map(function (i) { return i.value; });
       if (specs) out.specs = $$('.repeat__row', specs.list).map(function (r) { return $$('input', r).map(function (i) { return i.value; }); });
       if (dls.length) out.downloads = dls.map(function (ins) { return { label: ins[0].value, href: ins[1].value.trim() }; });
+      out.video = $('input', video).value.trim();
+      out.areas = $$('.area-row', areaList).map(function (r) { return r.value(); });
       if (!out.name.trim()) return toast('The product needs a name', 'err');
       busy(btn, true);
       api('/product', out).then(function (r) {

@@ -699,6 +699,94 @@ function productImage(pageAbs, html, sec, desk) {
 }
 function findParent(el, tag) { let p = el.parentNode; while (p) { if (p.tagName === tag) return p; p = p.parentNode; } return null; }
 
+// ---- product video (YouTube) and "areas of application", edited in the product drawer
+const YT_ID = /(?:youtube(?:-nocookie)?\.com\/(?:embed\/|watch\?(?:[^#]*&)?v=|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/;
+function youtubeId(v) {
+  const s = String(v || '').trim();
+  if (/^[A-Za-z0-9_-]{11}$/.test(s)) return s;
+  const m = s.match(YT_ID);
+  return m ? m[1] : null;
+}
+const isInside = (outer, el) => { for (let p = el.parentNode; p; p = p.parentNode) if (p === outer) return true; return false; };
+function videoFrames(sec) { return findAll(sec, e => e.tagName === 'iframe' && YT_ID.test(attr(e, 'src') || attr(e, 'data-src') || '')); }
+// the outermost video modules (Legacy's slider holds video modules of its own)
+function videoModules(sec) {
+  const all = findAll(sec, e => e.tagName === 'div' && (hasClass(e, 'et_pb_video') || hasClass(e, 'et_pb_video_slider')));
+  return all.filter(m => !all.some(o => o !== m && isInside(o, m)));
+}
+function videoUrlOf(sec) {
+  const f = sec && videoFrames(sec)[0];
+  const id = f && youtubeId(attr(f, 'src') || attr(f, 'data-src'));
+  return id ? 'https://www.youtube.com/watch?v=' + id : '';
+}
+const embedOf = id => 'https://www.youtube.com/embed/' + id + '?feature=oembed';
+const videoMarkup = id => '\n<div class="et_pb_module et_pb_video pg-video-added"><div class="et_pb_video_box"><iframe src="' + embedOf(id) +
+  '" title="YouTube video" width="1080" height="608" frameborder="0" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div></div>\n';
+
+function areasBlock(sec) {
+  const p = sec && find(sec, e => e.tagName === 'p' && /^\s*areas of application/i.test(cleanText(e)));
+  return p ? { block: p.parentNode, label: p } : null;
+}
+function areasOf(pageAbs, sec) {
+  const a = areasBlock(sec);
+  if (!a) return null;
+  const t = find(a.block, e => e.tagName === 'table');
+  if (!t) return [];
+  return findAll(t, e => e.tagName === 'td' && !!find(e, x => x.tagName === 'img')).map(td => {
+    const img = find(td, x => x.tagName === 'img');
+    const ref = attr(img, 'bv-data-src') || attr(img, 'data-src') || attr(img, 'src') || '';
+    return { image: /^data:/.test(ref) ? '' : rootRelFrom(pageAbs, ref), label: cleanText(td) };
+  });
+}
+function areasBody(pageAbs, items) {
+  const cells = items.map(it => '<td style="border-top: none;"><img src="' + escText(refFrom(pageAbs, it.image)).replace(/"/g, '&quot;') + '" alt="' + escText(it.label).replace(/"/g, '&quot;') +
+    '" style="border-top: none; width: 75px; height: 75px;" decoding="async" /><br />' + escText(it.label) + '</td>');
+  const rows = [];
+  for (let i = 0; i < cells.length; i += 2) rows.push('<tr>\n' + cells.slice(i, i + 2).join('\n') + '\n</tr>');
+  return '\n<tbody>\n' + rows.join('\n') + '\n</tbody>\n';
+}
+const sectionColumns = sec => findAll(sec, e => hasClass(e, 'et_pb_column') && e.parentNode && hasClass(e.parentNode, 'et_pb_row'));
+// edits for one copy (desktop or phone) of a product: video and areas
+function mediaEdits(pageAbs, sec, isDesk, p, reps, setAttr) {
+  const cols = sectionColumns(sec);
+  if (typeof p.video === 'string') {
+    const id = youtubeId(p.video);
+    if (p.video.trim() && !id) throw new Error('that is not a YouTube link (use a youtube.com/watch?v=... or youtu.be/... link)');
+    const frames = videoFrames(sec);
+    if (id) {
+      if (frames.length) frames.forEach(f => setAttr(f, attr(f, 'data-src') ? { src: embedOf(id), 'data-src': embedOf(id) } : { src: embedOf(id) }));
+      else {
+        const col = isDesk ? cols[0] : cols[cols.length - 1];
+        const at = col && col.sourceCodeLocation && col.sourceCodeLocation.endTag ? col.sourceCodeLocation.endTag.startOffset : null;
+        if (at != null) reps.push([at, at, videoMarkup(id)]);
+      }
+    } else if (!p.video.trim()) {
+      for (const m of videoModules(sec)) { const r = outerRange(m); reps.push([r[0], r[1], '']); }
+    }
+  }
+  if (Array.isArray(p.areas)) {
+    const items = p.areas.map(a => ({ image: String(a.image || '').trim(), label: String(a.label || '').replace(/\s+/g, ' ').trim() })).filter(a => a.image || a.label);
+    const a = areasBlock(sec);
+    const cur = areasOf(pageAbs, sec);
+    if (JSON.stringify(cur || []) !== JSON.stringify(items)) {
+      if (a && !items.length) { const r = outerRange(a.block); reps.push([r[0], r[1], '']); }
+      else if (a) {
+        const t = find(a.block, e => e.tagName === 'table');
+        const tbody = t && find(t, e => e.tagName === 'tbody');
+        const target = tbody || t;
+        if (target) { const r = tbody ? outerRange(tbody) : innerRange(t); reps.push([r[0], r[1], tbody ? areasBody(pageAbs, items).trim() : areasBody(pageAbs, items)]); }
+        else { const at = a.label.sourceCodeLocation.endOffset; reps.push([at, at, '\n<table style="border: none;">' + areasBody(pageAbs, items) + '</table>']); }
+      } else if (items.length) {
+        // no block yet: where the other pages keep it (desktop: the third column, which the page script moves under the features)
+        const col = isDesk ? (cols[2] || cols[cols.length - 1]) : cols[cols.length - 1];
+        const inner = col && (find(col, e => hasClass(e, 'et_pb_text_inner')) || col);
+        const at = inner && inner.sourceCodeLocation && inner.sourceCodeLocation.endTag ? inner.sourceCodeLocation.endTag.startOffset : null;
+        if (at != null) reps.push([at, at, '\n<div style="margin: 0px 20px;">\n<p>AREAS OF APPLICATION</p>\n<table style="border: none;">' + areasBody(pageAbs, items) + '</table>\n</div>\n']);
+      }
+    }
+  }
+}
+
 function productModel(pageAbs, html, doc, desk, mobs, allDesk) {
   const h1 = find(desk, e => e.tagName === 'h1');
   const sub = h1 && nextElement(h1);
@@ -721,6 +809,8 @@ function productModel(pageAbs, html, doc, desk, mobs, allDesk) {
     downloads,
     buy: buy ? attr(buy, 'href') : null,
     hasTwin: !!twinOf(desk, mobs, allDesk),
+    video: videoUrlOf(desk) || videoUrlOf(twinOf(desk, mobs, allDesk)),
+    areas: areasOf(pageAbs, desk) || areasOf(pageAbs, twinOf(desk, mobs, allDesk)) || [],
   };
 }
 
@@ -788,6 +878,7 @@ function saveProduct(pageAbs, p) {
         if (typeof want.label === 'string' && want.label.trim() && cleanText(a) !== want.label.trim()) { const r = innerRange(a); if (r) reps.push([r[0], r[1], escText(want.label.trim())]); }
       });
     }
+    mediaEdits(pageAbs, sec, isDesk, p, reps, setAttr);
     if (typeof p.buy === 'string') {
       const buy = find(sec, e => e.tagName === 'a' && hasClass(e, 'et_pb_button'));
       if (buy && attr(buy, 'href') !== p.buy) setAttr(buy, { href: p.buy });

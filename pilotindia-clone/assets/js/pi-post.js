@@ -110,7 +110,7 @@
 
     // 3. contents in the rail
     var rail = document.getElementById('sidebar');
-    var hs = Array.prototype.filter.call(body.querySelectorAll('h2'), function (h) { return !h.closest('.pi-acc-wrap, .pi-acc'); });
+    var hs = Array.prototype.filter.call(body.querySelectorAll('h2'), function (h) { return !h.closest('.pi-acc-wrap, .pi-acc') && h.textContent.trim(); });   // empty headings make empty entries
     if (rail && hs.length >= 2 && !rail.querySelector('.bp-toc')) {
       var box = document.createElement('div');
       box.className = 'et_pb_widget bp-toc';

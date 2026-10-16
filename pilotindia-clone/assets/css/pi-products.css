@@ -377,3 +377,9 @@
   .pp-filter { bottom: 14px; }
   .pp-filter a { padding: 8px 10px 8px 13px; font-size: 13px; gap: 6px; }
 }
+
+/* touch screens: a bigger invisible tap area (at least ~44 px) without moving anything (ui-audit 2026-10-16) */
+@media (pointer: coarse) {
+  .pp-card__go { position: relative; }
+  .pp-card__go::after { content: ""; position: absolute; inset: -10px 0; }
+}

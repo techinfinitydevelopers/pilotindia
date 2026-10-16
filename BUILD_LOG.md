@@ -2443,3 +2443,13 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 - pg-series.js: one `.pg-buy` per model row (rows found from each h1, only the row's own elements counted: power-tools has rows nested in rows). Enquire Now on all 68 desktop / 65 phone product rows; Buy Now + "Available on: amazon" only when the Divi Buy Now link is an amazon.* URL (25). Non-Amazon Buy Now buttons stay hidden.
 - Placement: in place of the old Buy Now button, else under the Download Catalogue pill, else under the technical-data table.
 - Buy Now colour: site orange gradient (#f58634 -> #e8731d) instead of the reference red.
+
+## 2026-10-16 — Full site audit (security, links, images, responsive) + fixes
+- Security: tools/security-scan.mjs clean after removing tracked pilotindia-clone/index.html.bak (server already 404ed it); npm audit 0; headers OK (nosniff, SAMEORIGIN, CSP frame-ancestors, referrer, permissions); .env/.git/serve.mjs/data/admin-backups/../ all 404; catalogue PDFs still gated.
+- Runtime: tools/site-audit.mjs, 283 pages: 0 JS errors, 0 failed same-site files, 0 links to missing pages, 0 suspicious domains.
+- New tools/ui-audit.mjs: every sitemap page at 390/768/1024/1440 - overflow, broken/distorted images, dead/unlabelled controls, clipped text, off-theme fonts, phone tap sizes.
+- Fixed: 144 image files are saved HTML error pages from the mirror; tools/fix-fake-images.mjs re-points 78 references (24 files) to the real copy of the same picture (never a smaller size). 2 photos have no copy anywhere (man-working-with-paint-gun..., master-painter-factory...): their 4 img tags in 3 blog posts carry data-missing + display:none until re-uploaded.
+- Fixed: blog tables scroll inside themselves under 1024px (pi-post.css) - 8 phone + 3 tablet pages overflowed.
+- Fixed: series-landing hero tray fillet pushed /airless /office /welding 28px wide on tablets -> .pi-sg-hero overflow-x:clip (pg-hero-coll.css).
+- Fixed: blog Contents list skipped empty h2 (empty link). Bigger invisible tap areas (pointer:coarse) for nav logo, blog crumb/All articles, products View series, home All articles.
+- Result: re-audit 0 overflow / 0 broken / 0 dead / 0 clipped at all 4 widths.

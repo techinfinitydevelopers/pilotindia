@@ -748,3 +748,9 @@ body.archive #main-content > .container { padding-top: 120px !important; }
   body.archive #main-content > .container { padding-top: 96px !important; width: 100% !important; box-sizing: border-box; padding-left: 24px; padding-right: 24px; }
   body.single-post #left-area, body.archive #left-area { padding-right: 0; }
 }
+
+/* touch screens: a bigger invisible tap area (at least ~44 px) without moving anything (ui-audit 2026-10-16) */
+@media (pointer: coarse) {
+  .framer-dyn-logo { position: relative; }
+  .framer-dyn-logo::after { content: ""; position: absolute; inset: -11px -4px; }
+}

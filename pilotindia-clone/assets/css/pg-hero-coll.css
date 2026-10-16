@@ -178,3 +178,7 @@
 }
 .pg-hero-ph::before { border-color: rgba(245, 134, 52, 0.55); }
 .pg-hero-ph__label, .pg-hero-ph__hint { color: #fff; }
+
+/* a full-width tray puts its corner fillet (.pi-coll::after, left:100%) just past the right edge: tablets scrolled sideways
+   by 28px (ui-audit 2026-10-16). Clip sideways only; nothing inside is meant to show outside the hero. */
+.pi-sg-hero { overflow-x: clip; }

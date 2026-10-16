@@ -11,7 +11,7 @@ import path from 'node:path';
 const ROOT = path.join(process.cwd(), 'pilotindia-clone');
 const file = path.join(ROOT, 'pages', 'contact-us.html');
 let html = fs.readFileSync(file, 'utf8');
-const V = 21;
+const V = 22;
 
 const PHONE = '+91 22 6604 7000', TEL = '+912266047000';
 const WA_NUM = '919930347000';

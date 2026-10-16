@@ -88,6 +88,17 @@
       if (e.target.closest('[data-change]')) { flow.classList.remove('is-picked'); setStep(1); go(purpose); }
     });
     if (form) form.addEventListener('focusin', function () { if (flow.classList.contains('is-picked')) setStep(3); });
+    // arriving from a product's "Enquire Now" (/contact-us?topic=...&product=...): the topic is picked and the
+    // message names the product, then the page goes to the form
+    var qs = new URLSearchParams(location.search), qTopic = qs.get('topic'), qProduct = (qs.get('product') || '').slice(0, 120);
+    var qBtn = qTopic && Array.prototype.filter.call(flow.querySelectorAll('.pc-pur'), function (b) { return b.getAttribute('data-topic') === qTopic; })[0];
+    if (qBtn) pick(qBtn, false);
+    // after this script has set up the form's own listeners (the character count)
+    if (qBtn || qProduct) setTimeout(function () {
+      var m = form && form.elements.message;
+      if (qProduct && m && !m.value) { m.value = 'Hello, I would like to enquire about the ' + qProduct + '. '; m.dispatchEvent(new Event('input', { bubbles: true })); }
+      go(form || next);
+    }, 300);
   }
 
   if (!form) return;

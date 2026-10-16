@@ -2432,3 +2432,9 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 - pg-series.js/.css: "Download Catalogue" is now a black pill (orange download icon, PDF tag; hover orange). Lead-gate still opens.
 - Buy Now: 24 of 64 products have an Amazon link (air-brush 7, legacy-series 8, paper-shredders 9). Note: type-59-n and type-59-s share one link.
 - Share-image audit: 14 pages use the PDF icon as og:image, 17 have none - fix in admin SEO tab.
+
+## 2026-10-16 — Buy Now products: Enquire Now + Buy Now pills, "Available on: amazon"
+- Reference: crystal-cook-production Product.html (btn-dark / btn-red 50px pills, 15px/700, red gradient #ed3338->#c0282c, "Available on:" 13px + logo).
+- pg-series.js: every product with a Buy Now link gets `.pg-buy` (Enquire Now + Buy Now + store line); the Divi button is hidden (`.pg-buy-old`), its href is reused, so admin buy-link edits still apply. Amazon logo is an inline hand-drawn SVG.
+- Enquire Now -> /contact-us?topic=<line>&product=<model>; pi-contact.js (v=22) picks the topic, pre-fills the message, scrolls to the form.
+- Count correction: 25 products have Buy Now (TYPE 68 S lives as a 2nd row inside the TYPE 68 N section) - air-brush 7, legacy-series 9, paper-shredders 9.

@@ -2418,3 +2418,8 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 ## 2026-10-16 — About Reach alignment, tighter dark bottom; shorter video preview
 - About `.pa-net`: lead paragraph top-aligned with the heading (grid align start, theme margin reset overridden); facts cards get their top gap back; bottom padding 56→28px, reach bottom 0, globe 520→470px. pi-about.css v=25.
 - Series `.pg-video--poster` 32/9 → 40/9 (1280×288 desktop, 150px min on phone).
+
+## 2026-10-16 — Product video preview: YouTube-style title bar, slightly taller
+- `.pg-video--poster` 40/9 → 36/9 (1280×320 desktop, 190px phone).
+- pg-series.js: preview shows Pilot avatar + video title (iframe title minus " | Pilot"; generic "YouTube video player" titles use the card h1) + "Pilot India", top gradient, and a "Watch on YouTube" link (new tab). Click still opens the 16:9 player in place.
+- Checked on legacy-series, gas-regulators, air-brush, electric-spray-guns at 1440 and 390.

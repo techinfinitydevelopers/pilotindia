@@ -7,11 +7,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const ROOT = path.join(process.cwd(), 'pilotindia-clone');
-const CSS_VERSION = 17;
+const CSS_VERSION = 20;
 
 const PAGES = {
   'spray-guns': {
-    file: 'spray-guns/index.html', rel: '..', photo: 'pg-hero-sg.jpg',
+    file: 'spray-guns/index.html', rel: '..', photo: 'pg-banner-spray-guns.jpg',
     eyebrow: 'Pilot Spray Guns',
     title: ['Craftsmanship in your genes?', 'Stick to your guns.', 'And our spray guns.'],
     sub: 'Six collections, from HVLP spray guns to pressure feed tanks.',
@@ -25,7 +25,7 @@ const PAGES = {
     ],
   },
   welding: {
-    file: 'welding/index.html', rel: '..', photo: 'home-pg-gas-torches-gas-regulator-11.png',
+    file: 'welding/index.html', rel: '..', photo: 'pg-banner-welding.jpg',
     eyebrow: 'Pilot Welding Equipment',
     title: ['Out to build big things?', 'Go for superior', 'build quality.'],
     sub: 'Three collections: welding &amp; brazing torches, gas cutting torches and gas regulators.',
@@ -36,7 +36,7 @@ const PAGES = {
     ],
   },
   office: {
-    file: 'office/index.html', rel: '..', photo: 'home-pg-v2.png',
+    file: 'office/index.html', rel: '..', photo: 'pg-banner-office.jpg',
     eyebrow: 'Pilot Office Equipment',
     title: ['Like peace of mind?', 'Try a piece of these', 'high-performance office equipments.'],
     sub: 'Three collections: paper shredders, currency counters and currency sorters.',
@@ -47,7 +47,7 @@ const PAGES = {
     ],
   },
   airless: {
-    file: 'airless/index.html', rel: '..', photo: 'home-pg.jpeg',
+    file: 'airless/index.html', rel: '..', photo: 'pg-banner-airless.jpg',
     eyebrow: 'Pilot Airless Spray Systems',
     title: ['Need a perfect finish ?', 'Start &amp; finish with the', 'right airless spray technology'],
     sub: 'Three series: electric, electro hydraulic and pneumatic.',
@@ -127,8 +127,9 @@ function apply(key) {
   // the page's own hero photo, as a custom property on the container (CSS falls back to the spray-guns photo)
   const open = html.slice(heroOpen, html.indexOf('>', html.indexOf('id="select-series-re"')) + 1);
   const styleAttr = ` style="--pi-hero:url('../img/${p.photo}')"`;
-  const newOpen = open.replace(/ style="[^"]*"/, '').replace(/>$/, styleAttr + '>');
-  html = html.replace(open, newOpen);
+  const newOpen = open.replace(/ data-hero-ph(="[^"]*")?/, '').replace(/ style="[^"]*"/, '').replace(/>$/, styleAttr + '>');
+  const withClass = /pg-banner/.test(newOpen) ? newOpen : newOpen.replace(/class="/, 'class="pg-banner ');
+  html = html.replace(open, withClass);
 
   const link = `<link rel="stylesheet" href="../assets/css/pg-hero-coll.css?v=${CSS_VERSION}" />`;
   if (html.includes('pg-hero-coll.css')) html = html.replace(/<link rel="stylesheet" href="\.\.\/assets\/css\/pg-hero-coll\.css[^"]*" \/>/, link);

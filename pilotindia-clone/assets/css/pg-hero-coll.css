@@ -182,3 +182,28 @@
 /* a full-width tray puts its corner fillet (.pi-coll::after, left:100%) just past the right edge: tablets scrolled sideways
    by 28px (ui-audit 2026-10-16). Clip sideways only; nothing inside is meant to show outside the hero. */
 .pi-sg-hero { overflow-x: clip; }
+
+/* ---- banner photos (2026-11-13) ----
+   Per-page 1600x674 banners (product on the right, empty dark left) on heroes with class pg-banner.
+   The photo covers exactly the visible part of the hero (top edge to the collection tray, --pg-hero-vis-h
+   from pg-hero-fit.js), anchored top-right, and fades into the black stage at its lower edge so the
+   area beside/under the tray stays clean. 2.374 = 1600/674. */
+#select-series-re.e-con.pg-banner {
+  --vis: var(--pg-hero-vis-h, 600px);
+  background-color: #0a0a0a !important;
+  background-image:
+    linear-gradient(90deg, rgba(10,10,10,.55) 0%, rgba(10,10,10,.25) 30%, rgba(10,10,10,0) 52%),
+    linear-gradient(180deg, rgba(10,10,10,0) calc(var(--vis) - 140px), #0a0a0a var(--vis)),
+    var(--pi-hero) !important;
+  background-size: 100% var(--vis), 100% 100%, max(100%, calc(var(--vis) * 2.374)) auto !important;
+  background-position: 0 0, 0 0, right top !important;
+  background-repeat: no-repeat !important;
+}
+#select-series-re.e-con.pg-banner::before { display: none; }
+@media (max-width: 767px) {
+  #select-series-re.e-con.pg-banner {
+    background-image: linear-gradient(180deg, rgba(10,10,10,.35) 0%, rgba(10,10,10,.55) 22%, #0a0a0a 46%), var(--pi-hero) !important;
+    background-size: 100% 100%, auto 50% !important;
+    background-position: 0 0, 78% top !important;
+  }
+}

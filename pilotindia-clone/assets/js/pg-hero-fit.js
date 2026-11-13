@@ -34,6 +34,11 @@
      replacement photo can be made to fit without the tray covering it. */
   var ph = null;
   function placeholder() {
+    var tray = hero.querySelector('.pi-coll');
+    var hr = hero.getBoundingClientRect();
+    var h = tray ? Math.round(tray.getBoundingClientRect().top - hr.top) : Math.round(hr.height);
+    /* the banner photo (.pg-banner) is sized to this visible height too */
+    hero.style.setProperty('--pg-hero-vis-h', Math.max(0, h) + 'px');
     if (!hero.hasAttribute('data-hero-ph')) return;
     if (!ph) {
       ph = document.createElement('div');
@@ -43,10 +48,6 @@
         '<strong>Hero image</strong><span class="pg-hero-ph__size"></span><span class="pg-hero-ph__hint">Use a 2560 &times; 1080 px photo (about 2.4 : 1), subject on the right half</span></div>';
       hero.insertBefore(ph, hero.firstChild);
     }
-    var tray = hero.querySelector('.pi-coll');
-    var hr = hero.getBoundingClientRect();
-    var h = tray ? Math.round(tray.getBoundingClientRect().top - hr.top) : Math.round(hr.height);
-    hero.style.setProperty('--pg-hero-vis-h', Math.max(0, h) + 'px');
     ph.querySelector('.pg-hero-ph__size').textContent = Math.round(hr.width) + ' × ' + h + ' px visible on this screen';
   }
 

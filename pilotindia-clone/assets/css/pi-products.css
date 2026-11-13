@@ -383,3 +383,19 @@
   .pp-card__go { position: relative; }
   .pp-card__go::after { content: ""; position: absolute; inset: -10px 0; }
 }
+
+/* ---- hero banner photo (2026-11-13): three spray guns on the right, dark left for the copy ---- */
+.pp-hero {
+  background:
+    linear-gradient(90deg, rgba(10,10,10,.82) 0%, rgba(10,10,10,.5) 38%, rgba(10,10,10,0) 62%),
+    url("../img/pg-banner-products.jpg") right center / cover no-repeat,
+    var(--pp-ink);
+}
+@media (max-width: 767px) {
+  .pp-hero {
+    background:
+      linear-gradient(180deg, rgba(10,10,10,.35) 0%, rgba(10,10,10,.6) 30%, var(--pp-ink) 58%),
+      url("../img/pg-banner-products.jpg") 80% top / auto 48% no-repeat,
+      var(--pp-ink);
+  }
+}

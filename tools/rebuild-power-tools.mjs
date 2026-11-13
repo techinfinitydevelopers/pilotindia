@@ -20,7 +20,7 @@ const requiredCss = [
   '<link rel="stylesheet" href="../assets/css/bento-trust.css?v=14" />',
   '<link rel="stylesheet" href="../assets/css/pg-marquee.css" />',
   '<link rel="stylesheet" href="../assets/css/pg-hero-fit.css?v=2" />',
-  '<link rel="stylesheet" href="../assets/css/pg-hero-coll.css?v=17" />',
+  '<link rel="stylesheet" href="../assets/css/pg-hero-coll.css?v=20" />',
   '<link rel="stylesheet" href="../assets/css/pi-nav.css" />',
   '<link rel="stylesheet" href="../assets/css/pi-footer2.css" />',
   '<link rel="stylesheet" href="../assets/css/pg-tech.css?v=9" />',
@@ -74,7 +74,7 @@ const footerMatch = html.match(/<footer class="pi-f2" id="pi-footer">[\s\S]*?<\/
 const footerHtml = footerMatch ? footerMatch[0] : '';
 
 // 6. Canonical Hero
-const heroHtml = `				<div class="elementor-element elementor-element-bf681cd e-con-full e-flex e-con e-parent" data-id="bf681cd" data-element_type="container" data-e-type="container" id="select-series-re" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}" style="--pi-hero:url('../assets/img/untitled-design.png')">
+const heroHtml = `				<div class="elementor-element elementor-element-bf681cd e-con-full e-flex e-con e-parent pg-banner" data-id="bf681cd" data-element_type="container" data-e-type="container" id="select-series-re" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}" style="--pi-hero:url('../img/pg-banner-power-tools.jpg')">
 				<!-- pi-sg-hero:start -->
 <div class="pi-sg-hero">
   <div class="pi-sg-hero__copy">
@@ -307,7 +307,7 @@ ${prodMobMatches.join('\n')}
 const scriptsHtml = `
 <script src="../assets/js/pi-nav.js" defer></script>
 <script src="../assets/js/pg-features.js" defer></script>
-<script src="../assets/js/pg-hero-fit.js" defer></script>
+<script src="../assets/js/pg-hero-fit.js?v=2" defer></script>
 <script src="../assets/js/pg-tech.js?v=9" defer></script>
 <script src="../assets/js/pg-chain.js?v=7" defer></script>
 <script src="../assets/js/pg-warm.js" defer></script>

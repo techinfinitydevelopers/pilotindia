@@ -2468,3 +2468,11 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 - pi-home.js (v=8): SVG overlay in .pi-close; quadratic arc from 30px ahead of the pointer to the padded button box, bend toward (button x, pointer y) so from above it leaves sideways and sweeps down (user screenshot); arrowhead from the end tangent; hidden near/on the button; rest after 420ms -> tail retracts + fade (520ms). Mouse only, off for reduced motion.
 - pi-home.css (v=18): .pi-close__arrow (orange dashed 6/7, 2px), .pi-close__edge (radial light at --mx/--my masked to a 1.5px ring, fades in on hover).
 - Found but NOT changed: assets/js/swiper-min.js is a saved HTML page (throws "Unexpected token <" after first interaction on 182 pages). Making it valid JS lets old Elementor code fetch chunks from pilotindia.com / pilotairless.com / pilotsprayguns.com (spam domain) - so it stays as is.
+
+## 2026-11-13 — Page banners on 7 heroes
+- New images (client-supplied, 1600x674, copied unchanged): assets/img/pg-banner-{power-tools,spray-guns,office,airless,welding,products,about-us}.jpg.
+- power-tools, spray-guns, office, airless, welding: hero placeholder (data-hero-ph) removed, hero gets class `pg-banner` + `--pi-hero`. pg-hero-coll.css (v=20) `.pg-banner`: photo covers the visible hero (top to tray, --pg-hero-vis-h), anchored top-right, fades into the black stage; mobile = photo on top behind darkened copy. pg-hero-fit.js (v=2) now sets --pg-hero-vis-h on every hero, not only placeholders.
+- products: .pp-hero gets the 3-gun banner (cover, right) under a left dark gradient. pi-products.css v=4.
+- about-us: forge photo replaced by the oil-gun banner, width-led so the whole gun stays in frame, fades to ink above the stats tray. pi-about.css v=26.
+- Generators updated so re-runs keep it: tools/product-hero.mjs (photos, class, CSS v=20), tools/rebuild-power-tools.mjs, tools/products-page.mjs, tools/about-us.mjs.
+- Checked at 1440x900 and 390x844.

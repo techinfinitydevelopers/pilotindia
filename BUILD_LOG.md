@@ -2509,3 +2509,6 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 - New tools/card-audit.mjs: every model page (64) at 390/820/1440; flags overlapping blocks, empty/cut-off titles, titles past the card, blocks sticking out. Result: 0 issues.
 - Technical Excellence capability cards (pg-tech--fan, all 5 product pages): description visually hidden (kept for SEO/screen readers), compact ~110px row (icon + title + number); IntersectionObserver plays a staggered entrance (rise, icon pop, title wipe, orange line sweep). pg-fan.css v8, pg-fan.js v6. Reduced motion: shown static.
 - "Why professionals trust Pilot" box (pg-why.css v5): black with faint grid, orange accent bar, white text, white pill CTA with orange arrow circle under the text; 4 points as a 2x2 hairline grid with outlined 01-04 numerals and orange checks; rise-in on scroll. <=1024 single column, <=640 list 1 column + full-width CTA.
+
+## 2026-11-18 — Tighter gap under the capability cards (all 5 product pages)
+- pg-fan.css v9: section bottom padding and the following pg-why top padding cut from ~86+86px to ~40+40px on desktop (24+24 on phone). Title-only animated cards were already on all 5 pages (spray-guns, airless, office, welding, power-tools). power-tools keeps its model list between the cards and the Why section.

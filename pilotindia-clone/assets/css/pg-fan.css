@@ -257,3 +257,7 @@
   .pg-tech--fan .pg-tech__cards .pg-tech__card, .pg-tech--fan .pg-tech__cards .pg-tech__icon,
   .pg-tech--fan .pg-tech__cards .pg-tech__title, .pg-tech--fan .pg-tech__cards .pg-tech__card-line { animation: none !important; opacity: 1 !important; }
 }
+
+/* ---- less empty space between the capability cards and the section below ---- */
+.pg-tech--fan { padding-bottom: clamp(24px, 3vw, 40px); }
+.pg-tech--fan + .pg-why { padding-top: clamp(24px, 3vw, 40px); }

@@ -256,3 +256,127 @@
 .pg-why__card--product { background: radial-gradient(90% 70% at 50% 34%, #4a3220 0%, #1a1511 60%, #0a0a0a 100%); }
 .pg-why__card--product img { object-fit: contain; padding: 12% 10% 40%; box-sizing: border-box; transform: none; }
 @media (hover: hover) { .pg-why__card--product:hover img, .pg-why__card--product:focus-visible img { transform: scale(1.06); } }
+
+/* ---- the trust box, as it was: plain black, all text white, a white button (2026-11-18) ---- */
+.pg-why__trust { background: #000; }
+.pg-why__trust::before { display: none; }
+.pg-why__trust h3,
+.pg-why__trust p,
+.pg-why__list li { color: #fff; }
+.pg-why__list li { border-color: rgba(255, 255, 255, 0.28); background: transparent; }
+.pg-why__cta { background: #fff; color: #000 !important; }
+.pg-why__cta:hover { background: #fff; color: #000 !important; transform: translateY(-2px); box-shadow: 0 14px 28px -14px rgba(255, 255, 255, 0.55); }
+.pg-why__cta svg { color: #000; }
+
+/* ==========================================================================
+   Trust box, redesigned (2026-11-18): black, white text, white button.
+   Left: an orange accent bar, the heading, the text and the button under it. Right: the four points as a 2 x 2 grid
+   split by hairlines, each with a large outlined number and the check. A faint engineering grid behind.
+   The two inner divs are dissolved (display: contents) so the five parts can be placed on one grid.
+   ========================================================================== */
+.pg-why__trust {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  grid-template-areas: "head list" "text list" "cta list";
+  grid-template-rows: auto auto 1fr;
+  column-gap: clamp(28px, 5vw, 80px);
+  row-gap: 0;
+  align-items: start;
+  padding: clamp(30px, 4.4vw, 60px);
+  border-radius: 30px;
+  background: #000;
+}
+.pg-why__trust::after {                    /* faint grid, fading out toward the edges */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-mask-image: radial-gradient(80% 90% at 70% 40%, #000 20%, transparent 80%);
+          mask-image: radial-gradient(80% 90% at 70% 40%, #000 20%, transparent 80%);
+  pointer-events: none;
+}
+.pg-why__trust > div { display: contents; }
+.pg-why__trust h3 {
+  grid-area: head;
+  margin: 0;
+  padding-top: 22px;
+  font-size: clamp(26px, 2.8vw, 40px);
+  line-height: 1.05;
+  color: #fff;
+}
+.pg-why__trust h3::before { content: ""; display: block; width: 44px; height: 4px; margin: -22px 0 18px; border-radius: 4px; background: var(--w-accent); }
+.pg-why__trust p { grid-area: text; margin: 18px 0 0; max-width: 52ch; font-size: 16px; line-height: 1.75; color: #fff; }
+.pg-why__trust .pg-why__cta { grid-area: cta; justify-self: start; width: auto; margin-top: 30px; padding: 8px 8px 8px 26px; gap: 16px; }
+.pg-why__cta svg { width: 40px; height: 40px; padding: 11px; border-radius: 50%; background: var(--w-accent); color: #000; box-sizing: border-box; }
+.pg-why__cta:hover svg { transform: translateX(3px) rotate(-8deg); }
+
+/* the four points: a hairline 2 x 2 grid */
+.pg-why__list {
+  grid-area: list;
+  align-self: center;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  margin: 0 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  border-left: 1px solid rgba(255, 255, 255, 0.16);
+  counter-reset: pgtrust;
+}
+.pg-why__list li {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: "num num" "chk txt";
+  align-items: center;
+  align-content: start;
+  gap: 18px 12px;
+  padding: 26px 24px 28px;
+  border: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.16);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 0;
+  background: transparent;
+  font-size: 16.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #fff;
+  counter-increment: pgtrust;
+  transition: background 0.35s ease;
+}
+.pg-why__list li::before {                 /* 01..04, outlined */
+  content: counter(pgtrust, decimal-leading-zero);
+  grid-area: num;
+  font-family: var(--pi-font-heading, system-ui, sans-serif);
+  font-style: italic;
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.4);
+  transition: -webkit-text-stroke-color 0.35s ease, color 0.35s ease;
+}
+.pg-why__list li svg { grid-area: chk; width: 24px; height: 24px; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.pg-why__list li span { grid-area: txt; }
+.pg-why__list li:hover { background: rgba(255, 255, 255, 0.05); }
+.pg-why__list li:hover::before { -webkit-text-stroke-color: var(--w-accent); }
+.pg-why__list li:hover svg { transform: scale(1.15) rotate(-8deg); }
+
+/* the points rise in, one after another, as the box scrolls into view (where the browser can tie it to scrolling) */
+@supports (animation-timeline: view()) {
+  @keyframes pgTrustIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  .pg-why__list li { animation: pgTrustIn linear both; animation-timeline: view(); animation-range: entry 10% entry 70%; }
+  .pg-why__list li:nth-child(2) { animation-range: entry 18% entry 78%; }
+  .pg-why__list li:nth-child(3) { animation-range: entry 26% entry 86%; }
+  .pg-why__list li:nth-child(4) { animation-range: entry 34% entry 94%; }
+}
+
+@media (max-width: 1024px) {
+  .pg-why__trust { grid-template-columns: 1fr; grid-template-areas: "head" "text" "list" "cta"; grid-template-rows: none; }
+  .pg-why__list { margin-top: 30px !important; }
+}
+@media (max-width: 640px) {
+  .pg-why__list { grid-template-columns: 1fr; }
+  .pg-why__list li { grid-template-areas: "chk txt"; padding: 18px 18px 18px 16px; }
+  .pg-why__list li::before { display: none; }
+  .pg-why__trust .pg-why__cta { justify-self: stretch; justify-content: space-between; }
+}
+@media (prefers-reduced-motion: reduce) { .pg-why__list li { animation: none !important; } }

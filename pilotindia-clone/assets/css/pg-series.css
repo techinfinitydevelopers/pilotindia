@@ -1607,3 +1607,28 @@ body.pg-series { overflow-x: clip !important; }
 .pg-series .pg-prod a.pg-buy__btn--buy { background: linear-gradient(135deg, var(--s-accent, #f58634) 0%, #e8731d 100%); box-shadow: 0 10px 26px -12px rgba(245, 134, 52, 0.75); }
 .pg-series .pg-prod a.pg-buy__btn--buy:hover { background: linear-gradient(135deg, #f7914a 0%, #dc6812 100%); box-shadow: 0 16px 34px -12px rgba(245, 134, 52, 0.8); }
 .pg-series .pg-prod a.pg-buy__btn--enq:hover { background: #000; }
+
+/* ---- a model name split over two <h1>s (CV-70 / UV/MG/IR, PILOT - 16 / SC, ELECTRO HYDRAULIC / AIRLESS): both were
+   placed in the same grid slot and printed on top of each other; the second one now has the row under the first (2026-11-18) ---- */
+.pg-series .pg-prod--desk .et_pb_row,
+.pg-view-model .pg-prod--desk.is-shown .et_pb_row {
+  grid-template-rows: auto auto auto 1fr;
+  grid-template-areas:
+    "img ttl"
+    "img ttl2"
+    "img sub"
+    "img dat";
+}
+.pg-series .pg-prod--desk .et_pb_column_1_5:nth-child(1) .et_pb_text_inner > h1 ~ h1 { grid-area: ttl2; align-self: start; margin: 0 !important; }
+@media (max-width: 900px) {
+  .pg-series .pg-prod--desk .et_pb_row,
+  .pg-view-model .pg-prod--desk.is-shown .et_pb_row {
+    grid-template-rows: none;
+    grid-template-areas: "img" "ttl" "ttl2" "sub" "dat";
+  }
+}
+
+/* ---- spec tables never wider than their column: one (PILOT-28 CC) carried an inline width of 390px and pushed the
+   phone card past the screen edge (card audit, 2026-11-18) ---- */
+.pg-series .pg-prod .et_pb_text_inner table { max-width: 100% !important; }
+.pg-series .pg-prod .et_pb_text_inner table[style*="height"] { height: auto !important; }

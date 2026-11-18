@@ -40,7 +40,7 @@ const PAGES = {
 
 const dry = process.argv.includes('--dry');
 const want = process.argv.slice(2).filter(a => !a.startsWith('--'));
-const CSS = '<link rel="stylesheet" href="../assets/css/pg-why.css?v=3" />';
+const CSS = '<link rel="stylesheet" href="../assets/css/pg-why.css?v=5" />';
 const CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#f58634"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#111" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const text = s => s.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();

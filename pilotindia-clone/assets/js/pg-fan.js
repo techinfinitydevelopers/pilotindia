@@ -139,3 +139,19 @@
   var roots = document.querySelectorAll('.pg-fan');
   for (var i = 0; i < roots.length; i++) init(roots[i]);
 })();
+
+// ---- capability cards (title only): they arrive one after another when the row comes into view (2026-11-18).
+// The cards are only hidden (.is-armed) once this runs, so without the script they are simply shown.
+(function () {
+  if (!('IntersectionObserver' in window) || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+  Array.prototype.forEach.call(document.querySelectorAll('.pg-tech--fan .pg-tech__cards'), function (grid) {
+    Array.prototype.forEach.call(grid.querySelectorAll('.pg-tech__card'), function (c, i) { c.style.setProperty('--i', i); });
+    grid.classList.add('is-armed');
+    var io = new IntersectionObserver(function (es) {
+      if (!es[0].isIntersecting) return;
+      grid.classList.add('is-in');
+      io.disconnect();
+    }, { threshold: 0.25 });
+    io.observe(grid);
+  });
+})();

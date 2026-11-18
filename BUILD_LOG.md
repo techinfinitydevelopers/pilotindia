@@ -2483,3 +2483,9 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 - Desktop (>=961px): section wrapped in .pg-spray-track and made sticky (centred, top >= 84px under the nav); 0.5 screen of scroll per card. Scroll drives --paint per heading (blur 5px -> 0, opacity 0 -> 1, colour #d42a20, overspray halo), so scrolling back un-paints. Gun hops from beside the title to each heading (nozzle 58px right of the text, aimed at it), sprays canvas droplets + mist only while the page is scrolling, then hops back beside the title.
 - Phone/tablet: small gun with face pops into each card (IntersectionObserver 0.6, staggered 650ms), dotted red mist cone, heading paints in.
 - Reduced motion / no script: headings unchanged. ui-audit spray-guns at 390/768/1024/1440: 0 issues.
+
+## 2026-11-18 — Spray mascot: faster, smoother, phones + tablets
+- Desktop run 3.0 -> 1.9 screens (STEP 0.32 screen per card, LEAD 0.15, SPRAY 0.6).
+- Gun, aim and paint ease toward the scroll goal with time-based easing (1 - e^(-dt/110ms) etc.), so wheel steps and flicks glide (~0.3 s) the same at 60/120 Hz; spray/droplets run while paint is changing, not on scroll timestamps.
+- Phones/tablets (<961px): same mascot ("follow" mode) instead of the per-card mini gun: the stage spans the screen width with overflow hidden, the gun (84px phone / 104px tablet) peeks in from the right edge at 42% of the screen height and sprays each heading as it rises past (paint over 150px); on 2-column tablets the right card lags 46px. CSS mini-gun rules removed.
+- v=2. ui-audit spray-guns 390/768/1024/1440: 0 issues.

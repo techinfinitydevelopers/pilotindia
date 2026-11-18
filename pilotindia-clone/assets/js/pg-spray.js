@@ -1,9 +1,11 @@
-/* Spray-gun mascot for the "Enhance Your Craft" bento (spray-guns page). See assets/css/pg-spray.css.
-   The scroll position sets where the gun should be and how far each heading is painted; every frame the gun and
-   the paint ease toward that (so wheel steps and flicks look smooth), and droplets fly while paint is going on.
+/* Product mascot for the "Enhance your craft"-style bento on the product landing pages. See assets/css/pg-spray.css.
+   The mascot is the TYPE 59 S gun (its own cut-out photo) with a face drawn on it, the same on every product page,
+   spraying red paint at the five headings. The scroll position sets where the mascot
+   should be and how far each heading is painted; every frame it and the paint ease toward that, so wheel steps and
+   flicks glide, and droplets fly while paint is going on.
    Desktop ("pin"): the section is pinned for a short run, about a third of a screen per card.
-   Phones/tablets ("follow"): the cards scroll normally; the gun rides at a fixed height on screen at the right edge
-   and sprays each heading as it passes the nozzle.
+   Phones/tablets ("follow"): the cards scroll normally; the mascot rides at a fixed height on screen at the right
+   edge and sprays each heading as it passes the nozzle.
    Reduced motion: nothing changes (headings stay as they are). 2026-11-18 */
 (function () {
   'use strict';
@@ -16,14 +18,40 @@
   if (!wrap || !title || cards.length < 2 || heads.some(function (h) { return !h; })) return;
   var N = heads.length;
 
-  var GUN = '/assets/img/type-59-s.png';
-  // the face drawn on the gun's cup, in the photo's own 300 x 500 coordinates
-  var FACE = '<svg class="pg-spray__face" viewBox="0 0 300 500"><g class="eyes">' +
-    '<circle class="eye-w" cx="160" cy="126" r="12"/><circle class="eye-w" cx="199" cy="118" r="12"/>' +
-    '<g class="pupils"><circle class="eye-p" cx="160" cy="126" r="5.5"/><circle class="eye-p" cx="199" cy="118" r="5.5"/>' +
-    '<circle class="eye-s" cx="162" cy="124" r="1.8"/><circle class="eye-s" cx="201" cy="116" r="1.8"/></g></g>' +
-    '<circle class="cheek" cx="148" cy="146" r="6"/><circle class="cheek" cx="214" cy="135" r="6"/>' +
-    '<path class="mouth" d="M171 146 Q182 156 193 143"/><ellipse class="mouth-o" cx="182" cy="148" rx="5" ry="6"/></svg>';
+  // ---- the mascot (the TYPE 59 S gun, the same on every product page). Positions are fractions of the source picture (after the flip, when flip is set):
+  // crop = [x0, y0, x1, y1] of the picture that is shown; nozzle = where the spray leaves; eyes = [x, y, white radius
+  // (0: none, the picture has its own dials), pupil radius]; cheeks = [x, y, r]; mouth = {x, y, w}; patch = a white
+  // disc [x, y, r] under the mouth (hides a logo); radii are fractions of the picture's width.
+  // width = [phone, tablet, desktop] in px.
+  var IMG = '/assets/img/';
+  var MASCOTS = {
+    'spray-guns': { src: 'type-59-s.png', w: 300, h: 500, crop: [0, 0, 1, 1], nozzle: [0.187, 0.48], width: [84, 104, 130],
+      eyes: [[0.5333, 0.252, 0.04, 0.0183], [0.6633, 0.236, 0.04, 0.0183]], cheeks: [[0.4933, 0.292, 0.02], [0.7133, 0.27, 0.02]], mouth: { x: 0.6067, y: 0.296, w: 0.0733 } },
+  };
+  var M = MASCOTS[sec.getAttribute('data-mascot')] || MASCOTS['spray-guns'];
+  var CW = M.crop[2] - M.crop[0], CH = M.crop[3] - M.crop[1];
+  var ASPECT = (CW * M.w) / (CH * M.h);                      // width / height of the shown part
+  var VH = 100 / ASPECT;                                     // the face drawing is 100 units wide and VH tall
+  var fx = function (x) { return ((x - M.crop[0]) / CW * 100).toFixed(2); };
+  var fy = function (y) { return ((y - M.crop[1]) / CH * VH).toFixed(2); };
+  var fr = function (r) { return (r / CW * 100).toFixed(2); };
+
+  // the face as SVG in box units
+  var face = '<svg class="pg-spray__face" viewBox="0 0 100 ' + VH.toFixed(2) + '" aria-hidden="true">';
+  M.cheeks.forEach(function (c) { face += '<circle class="cheek" cx="' + fx(c[0]) + '" cy="' + fy(c[1]) + '" r="' + fr(c[2]) + '"/>'; });
+  if (M.patch) face += '<circle class="patch" cx="' + fx(M.patch[0]) + '" cy="' + fy(M.patch[1]) + '" r="' + fr(M.patch[2]) + '"/>';
+  face += '<g class="eyes">';
+  M.eyes.forEach(function (e) { if (e[2]) face += '<circle class="eye-w" cx="' + fx(e[0]) + '" cy="' + fy(e[1]) + '" r="' + fr(e[2]) + '"/>'; });
+  face += '<g class="pupils">';
+  M.eyes.forEach(function (e) { face += '<circle class="eye-p" cx="' + fx(e[0]) + '" cy="' + fy(e[1]) + '" r="' + fr(e[3]) + '"/><circle class="eye-s" cx="' + (+fx(e[0]) + e[3] / CW * 25).toFixed(2) + '" cy="' + (+fy(e[1]) - e[3] / CW * 25).toFixed(2) + '" r="' + (e[3] / CW * 30).toFixed(2) + '"/>'; });
+  face += '</g></g>';
+  var mx = +fx(M.mouth.x), my = +fy(M.mouth.y), mw = M.mouth.w / CW * 100;
+  face += '<path class="mouth" d="M' + (mx - mw / 2).toFixed(2) + ' ' + my.toFixed(2) + 'Q' + mx.toFixed(2) + ' ' + (my + mw * 0.45).toFixed(2) + ' ' + (mx + mw / 2).toFixed(2) + ' ' + (my - mw * 0.08).toFixed(2) + '"/>' +
+    '<ellipse class="mouth-o" cx="' + mx.toFixed(2) + '" cy="' + (my + mw * 0.1).toFixed(2) + '" rx="' + (mw * 0.24).toFixed(2) + '" ry="' + (mw * 0.28).toFixed(2) + '"/></svg>';
+  // how far the pupils may travel, in box units
+  var TRAVEL = Math.max(0.5, (M.eyes[0][2] ? (M.eyes[0][2] - M.eyes[0][3]) * 0.7 : M.eyes[0][3] * 0.8) / CW * 100);
+  // the picture, cropped to the shown part by sizing and offsetting the whole image inside the box
+  var art = '<img src="' + IMG + M.src + '" alt="" decoding="async" style="width:' + (100 / CW).toFixed(2) + '%;height:' + (100 / CH).toFixed(2) + '%;left:' + (-M.crop[0] / CW * 100).toFixed(2) + '%;top:' + (-M.crop[1] / CH * 100).toFixed(2) + '%' + (M.flip ? ';transform:scaleX(-1)' : '') + '" />';
 
   sec.classList.add('pg-spray-on');
   var track = document.createElement('div');
@@ -33,7 +61,7 @@
   var box = document.createElement('div');
   box.className = 'pg-spray';
   box.setAttribute('aria-hidden', 'true');
-  box.innerHTML = '<canvas class="pg-spray__fx"></canvas><div class="pg-spray__gun"><img src="' + GUN + '" alt="" decoding="async" />' + FACE + '</div>';
+  box.innerHTML = '<canvas class="pg-spray__fx"></canvas><div class="pg-spray__gun"><div class="pg-spray__art">' + art + '</div>' + face + '</div>';
   wrap.appendChild(box);
   var cv = box.querySelector('canvas'), ctx = cv.getContext('2d');
   var gun = box.querySelector('.pg-spray__gun'), pupils = box.querySelector('.pupils');
@@ -41,7 +69,7 @@
   // desktop run: per card a third of a screen, 60% of it spraying; a short lead in and out
   var STEP = 0.32, LEAD = 0.15, SPRAY = 0.6;
   var wide = matchMedia('(min-width: 961px)');
-  var pin = false, vh = innerHeight, top = 0, dpr = 1, bw = 0, bh = 0, GW = 130, NOZ = { x: 24, y: 104 };
+  var pin = false, vh = innerHeight, top = 0, dpr = 1, bw = 0, bh = 0, GW = M.width[2], NOZ = { x: 24, y: 104 };
 
   function layout() {
     pin = wide.matches && window.CSS && CSS.supports('position', 'sticky');
@@ -54,10 +82,12 @@
       sec.style.top = top + 'px';
       track.style.height = Math.round(h + vh * (LEAD * 2 + STEP * N)) + 'px';
     } else { sec.style.top = ''; track.style.height = ''; }
-    // the gun: 130 px wide on desktop, smaller on phones; the nozzle sits at (56, 240) of the 300 x 500 photo
-    GW = pin ? 130 : (innerWidth < 600 ? 84 : 104);
-    var GH = Math.round(GW * 500 / 300);
-    NOZ = { x: GW * 56 / 300, y: GH * 240 / 500 };
+    // the stage reaches right of the cards (room for the mascot) but never past the screen edge, so the page cannot scroll sideways
+    var room = document.documentElement.clientWidth - wrap.getBoundingClientRect().right;
+    box.style.right = pin ? -Math.max(0, Math.min(190, room - 1)) + 'px' : '';
+    GW = pin ? M.width[2] : (innerWidth < 600 ? M.width[0] : M.width[1]);
+    var GH = Math.round(GW / ASPECT);
+    NOZ = { x: (M.nozzle[0] - M.crop[0]) / CW * GW, y: (M.nozzle[1] - M.crop[1]) / CH * GH };
     gun.style.width = GW + 'px'; gun.style.height = GH + 'px';
     gun.style.transformOrigin = NOZ.x.toFixed(1) + 'px ' + NOZ.y.toFixed(1) + 'px';
     dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -95,7 +125,7 @@
       else if (f > SPRAY) { k = ease(clamp((f - SPRAY) / 0.6, 0, 1)); hop(A, R, k); if (k > 0.5) target = R.t; }
       vis = clamp((s + 0.5) / 0.25, 0, 1);
     } else {
-      // the gun's line: 42% down the screen; a heading paints as it rises past it
+      // the mascot's line: 42% down the screen; a heading paints as it rises past it
       var line = vh * 0.42 - bRect.top, first = (rects[0].t + rects[0].b) / 2, last = (rects[N - 1].t + rects[N - 1].b) / 2;
       var best = 0, bd = 1e9;
       for (var j = 0; j < N; j++) {
@@ -118,6 +148,7 @@
   var cur = null, parts = [], raf = 0, vis = 0, last = 0;
   // time-based easing (same glide at 60 and 120 frames a second): share of the remaining distance covered in dt ms
   function lerp(dt, ms) { return 1 - Math.exp(-dt / ms); }
+  var PAPER = M.fx === 'paper';
   function frame(now) {
     raf = 0;
     var g = goal();
@@ -148,17 +179,18 @@
     gun.style.transform = 'translate(' + (cur.x - NOZ.x).toFixed(1) + 'px,' + (cur.y - NOZ.y + bob).toFixed(1) + 'px) rotate(' + (ang * 57.3 + (spraying ? (Math.random() - 0.5) * 1.2 : 0)).toFixed(2) + 'deg)';
     gun.classList.toggle('is-spraying', spraying);
     var dx = cur.tx - cur.x, dy = cur.ty - cur.y, dl = Math.hypot(dx, dy) || 1;
-    pupils.style.transform = 'translate(' + (dx / dl * 4).toFixed(1) + 'px,' + (dy / dl * 4).toFixed(1) + 'px)';
+    pupils.style.transform = 'translate(' + (dx / dl * TRAVEL).toFixed(2) + 'px,' + (dy / dl * TRAVEL).toFixed(2) + 'px)';
 
-    // droplets from the nozzle to random points on the heading, mist along the way
+    // droplets (or paper shreds) from the nozzle to random points on the heading, mist along the way
     if (spraying) {
       var nx = cur.x + Math.cos(ang + Math.PI) * 4, ny = cur.y + Math.sin(ang + Math.PI) * 4, many = pin ? 7 : 5;
       for (var n = 0; n < many; n++) {
         var gx = T.l + Math.random() * (T.r - T.l), gy = T.t + Math.random() * (T.b - T.t) + (Math.random() - 0.5) * 10;
         var L = 10 + Math.random() * 10;
-        parts.push({ x: nx, y: ny, vx: (gx - nx) / L, vy: (gy - ny) / L, life: L, land: 26 + Math.random() * 26, r: 0.7 + Math.random() * 1.6, a: 0.55 + Math.random() * 0.4 });
+        parts.push({ x: nx, y: ny, vx: (gx - nx) / L, vy: (gy - ny) / L, life: L, land: 26 + Math.random() * 26, r: 0.7 + Math.random() * 1.6, a: 0.55 + Math.random() * 0.4,
+          rot: Math.random() * 6.28, spin: (Math.random() - 0.5) * 0.5, hue: Math.random() < 0.55 ? 0 : 1 });
       }
-      if (Math.random() < 0.7) {
+      if (!PAPER && Math.random() < 0.7) {
         var q = Math.random();
         parts.push({ mist: 1, x: nx + (tx - nx) * q, y: ny + (ty - ny) * q + (Math.random() - 0.5) * 12, r: 10 + q * 20, life: 24, a: 0.07 + Math.random() * 0.05 });
       }
@@ -174,13 +206,14 @@
         if (p.life <= 0) parts.splice(j, 1);
         continue;
       }
-      if (p.life > 0) { p.x += p.vx; p.y += p.vy; p.life--; } else { p.land--; p.a *= 0.95; }   // landed: a speck that fades
-      ctx.fillStyle = 'rgba(212,42,32,' + p.a.toFixed(3) + ')';
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
+      if (p.life > 0) { p.x += p.vx; p.y += p.vy; p.life--; p.rot += p.spin; } else { p.land--; p.a *= 0.95; }   // landed: a speck that fades
+      ctx.fillStyle = p.hue ? 'rgba(245,134,52,' + p.a.toFixed(3) + ')' : 'rgba(212,42,32,' + p.a.toFixed(3) + ')';
+      if (PAPER) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillRect(-p.r * 1.6, -p.r * 0.5, p.r * 3.2, p.r); ctx.restore(); }
+      else { ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill(); }
       if (p.life <= 0 && p.land <= 0) parts.splice(j, 1);
     }
     if (parts.length > 900) parts.splice(0, parts.length - 900);
-    // keep going while anything moves, paint is in the air, or the gun is on screen (its idle bob)
+    // keep going while anything moves, paint is in the air, or the mascot is on screen (its idle bob)
     var r = sec.getBoundingClientRect();
     if (settled) last = 0;
     if (!settled || parts.length || (vis > 0.02 && r.bottom > 0 && r.top < vh)) raf = requestAnimationFrame(frame);

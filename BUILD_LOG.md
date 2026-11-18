@@ -2495,3 +2495,10 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 - Heading + intro side by side; the 4 features are 4:5 photo cards (site photos: built-for-professionals.jpg, closeup-shot-worker-protective-gloves..., betterteam-spray-painter..., the-application-of-thermal-spray-coatings-on-vintage-cars...) with number chip + title; the original paragraph opens on hover/focus (max-height), shows as a 3-line preview on touch screens.
 - "Why professionals trust Pilot" box moved below, full width: text left, 4 checklist chips + orange CTA right (same link).
 - Tablet 2x2, phone swipe row (80% cards). ui-audit 390/768/1024/1440: 0 issues.
+
+## 2026-11-18 — Spray mascot + "Why choose" photo cards on every product landing page
+- Pages: spray-guns (done earlier), airless, office, welding, power-tools. Same TYPE 59 S gun mascot on all (user request); pg-spray.js now reads data-mascot (all "spray-guns") from a one-entry MASCOTS table, so another mascot is a config entry (src, crop, nozzle, face fractions). v=5.
+- Mascot stage is limited to the viewport (right inset = room to the screen edge) - it had pushed pages 90px wide on desktop. Checked 1440/1280/1100/1024/820/390 on all 5 pages: no overflow.
+- tools/why-section.mjs (generic, per-page photo table) rebuilt the Elementor "Why choose ..." block of airless, office, welding, power-tools into pg-why (same words; heading keeps accent words in place, an accent that ends the heading drops to its own line; pg-why.css v=3 also has a product cut-out card variant for the heat gun on power-tools).
+- FOUND + FIXED (older bug): pages/power-tools.html product sheets (3 desktop + 3 phone) were missing 18 closing divs in total, so everything nested: BL-25 and BL-26VS product pages showed nothing and the Why block + FAQ never displayed (also before today). tools/fix-power-tools-nesting.mjs closes each sheet; all 3 models, Why and FAQ now show.
+- tools/ui-audit.mjs: image-shape check uses layout size (a tilted mascot read as stretched). ui-audit on the 5 pages x 390/768/1024/1440: 0 issues.

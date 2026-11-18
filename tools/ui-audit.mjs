@@ -51,7 +51,9 @@ function check(w) {
     if (!src || /^data:/.test(src)) continue;
     if (img.complete && img.naturalWidth === 0) { out.broken.push(src.slice(-70)); continue; }
     if (!img.naturalWidth) continue;
-    const c = getComputedStyle(img), r = img.getBoundingClientRect();
+    const c = getComputedStyle(img);
+    // layout size, not the on-screen box: a tilted or scaled picture (the spray-gun mascot) would read as stretched
+    const r = { width: img.offsetWidth, height: img.offsetHeight };
     if (c.objectFit === 'fill' && r.width > 30 && r.height > 30) {
       const a = (r.width / r.height) / (img.naturalWidth / img.naturalHeight);
       if (a > 1.08 || a < 0.92) out.distorted.push(src.split('/').pop().slice(0, 50) + ' x' + a.toFixed(2));

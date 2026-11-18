@@ -2476,3 +2476,10 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 - about-us: forge photo replaced by the oil-gun banner, width-led so the whole gun stays in frame, fades to ink above the stats tray. pi-about.css v=26.
 - Generators updated so re-runs keep it: tools/product-hero.mjs (photos, class, CSS v=20), tools/rebuild-power-tools.mjs, tools/products-page.mjs, tools/about-us.mjs.
 - Checked at 1440x900 and 390x844.
+
+## 2026-11-18 — Spray-gun mascot on the spray-guns "Enhance Your Craft" bento
+- assets/js/pg-spray.js + assets/css/pg-spray.css (v=1), loaded only on spray-guns/index.html.
+- Mascot = the TYPE 59 S cut-out (assets/img/type-59-s.png, transparent PNG; gun spans x56-242 / y55-450 of 300x500, nozzle at 56,240) with an SVG face on the cup (eyes follow the target and blink, cheeks, smile -> "o" while spraying).
+- Desktop (>=961px): section wrapped in .pg-spray-track and made sticky (centred, top >= 84px under the nav); 0.5 screen of scroll per card. Scroll drives --paint per heading (blur 5px -> 0, opacity 0 -> 1, colour #d42a20, overspray halo), so scrolling back un-paints. Gun hops from beside the title to each heading (nozzle 58px right of the text, aimed at it), sprays canvas droplets + mist only while the page is scrolling, then hops back beside the title.
+- Phone/tablet: small gun with face pops into each card (IntersectionObserver 0.6, staggered 650ms), dotted red mist cone, heading paints in.
+- Reduced motion / no script: headings unchanged. ui-audit spray-guns at 390/768/1024/1440: 0 issues.

@@ -1,0 +1,252 @@
+/* ==========================================================================
+   Pilot India - "Why choose a Pilot spray gun" (spray-guns page), 2026-11-18
+
+   Was: a heading, an intro and four icon + paragraph features on the left, the dark "Why professionals trust Pilot"
+   box on the right. Now: heading and intro, then the four features as photo cards (picture and title first; the
+   original paragraph slides up on hover / focus, and shows as a short preview on touch screens), then the trust
+   box full width underneath. Same words as before; the photos are the site's own.
+   ========================================================================== */
+
+.pg-why {
+  --w-ink: #111114;
+  --w-text: #4d4f55;
+  --w-accent: var(--pi-accent, #f58634);
+  padding: clamp(48px, 6vw, 88px) 16px;
+  background: #fff;
+  color: var(--w-ink);
+  font-family: var(--pi-font-body, system-ui, sans-serif);
+}
+.pg-why__wrap { max-width: 1240px; margin: 0 auto; }
+
+/* ---- heading + intro: side by side on wide screens ---- */
+.pg-why__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(20px, 4vw, 64px);
+  align-items: end;
+  margin-bottom: clamp(28px, 3.4vw, 44px);
+}
+.pg-why__h2 {
+  margin: 0;
+  font-family: var(--pi-font-heading, system-ui, sans-serif);
+  font-style: italic;
+  font-size: clamp(28px, 3.2vw, 44px);
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--w-ink);
+}
+.pg-why__h2 span { display: block; color: var(--w-accent); }
+.pg-why__lead { margin: 0; max-width: 56ch; font-size: clamp(15px, 1.15vw, 17px); line-height: 1.7; color: var(--w-text); }
+
+/* ---- the four photo cards ---- */
+.pg-why__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+.pg-why__card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 0;
+  aspect-ratio: 4 / 5;
+  margin: 0;
+  border-radius: 24px;
+  background: #0a0a0a;
+  color: #fff;
+  outline: none;
+  box-shadow: 0 24px 40px -30px rgba(17, 17, 20, 0.55);
+}
+.pg-why__card img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  object-fit: cover;
+  transform: scale(1.02);
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+}
+/* dark at the bottom so the words read on any photo */
+.pg-why__card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0) 30%, rgba(10, 10, 10, 0.55) 60%, rgba(10, 10, 10, 0.92) 100%);
+  transition: background 0.5s ease;
+}
+.pg-why__n {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: grid;
+  place-items: center;
+  min-width: 40px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(10, 10, 10, 0.55);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+.pg-why__body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 20px 20px 22px;
+}
+.pg-why__card h3 {
+  margin: 0;
+  font-family: var(--pi-font-heading, system-ui, sans-serif);
+  font-style: italic;
+  font-size: clamp(19px, 1.6vw, 23px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+.pg-why__card h3::after {                /* accent rule that grows on hover */
+  content: "";
+  display: block;
+  width: 34px;
+  height: 3px;
+  margin-top: 12px;
+  border-radius: 3px;
+  background: var(--w-accent);
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pg-why__more { max-height: 0; overflow: hidden; transition: max-height 0.6s cubic-bezier(0.16, 1, 0.3, 1); }   /* opens on hover */
+.pg-why__card p {
+  margin: 0;
+  padding-top: 12px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.86);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.4s ease 0.05s, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (hover: hover) {
+  .pg-why__card:hover img, .pg-why__card:focus-visible img { transform: scale(1.09); }
+  .pg-why__card:hover::after, .pg-why__card:focus-visible::after { background: linear-gradient(180deg, rgba(10, 10, 10, 0.15) 0%, rgba(10, 10, 10, 0.7) 45%, rgba(10, 10, 10, 0.95) 100%); }
+  .pg-why__card:hover .pg-why__more, .pg-why__card:focus-visible .pg-why__more { max-height: 14em; }
+  .pg-why__card:hover p, .pg-why__card:focus-visible p { opacity: 1; transform: none; }
+  .pg-why__card:hover h3::after, .pg-why__card:focus-visible h3::after { width: 64px; }
+}
+.pg-why__card:focus-visible { box-shadow: 0 0 0 3px var(--w-accent), 0 24px 40px -30px rgba(17, 17, 20, 0.55); }
+
+/* ---- the trust box, full width under the cards ---- */
+.pg-why__trust {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 64px);
+  align-items: center;
+  margin-top: clamp(20px, 2.4vw, 28px);
+  padding: clamp(28px, 4vw, 52px);
+  border-radius: 28px;
+  background: #0a0a0a;
+  color: #fff;
+}
+.pg-why__trust::before {                  /* a soft orange light in the corner */
+  content: "";
+  position: absolute;
+  right: -10%;
+  top: -40%;
+  width: 60%;
+  height: 160%;
+  background: radial-gradient(closest-side, rgba(245, 134, 52, 0.22), transparent);
+  pointer-events: none;
+}
+.pg-why__trust > * { position: relative; }
+.pg-why__trust h3 {
+  margin: 0 0 14px;
+  font-family: var(--pi-font-heading, system-ui, sans-serif);
+  font-style: italic;
+  font-size: clamp(24px, 2.4vw, 32px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: #fff;
+}
+.pg-why__trust p { margin: 0; font-size: 15.5px; line-height: 1.7; color: rgba(255, 255, 255, 0.72); }
+.pg-why__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0 0 22px !important; padding: 0 !important; list-style: none; }
+.pg-why__list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #fff;
+}
+.pg-why__list li::before, .pg-why__list li::marker { content: none; }
+.pg-why__list svg { flex: none; width: 20px; height: 20px; }
+.pg-why__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px 24px;
+  border-radius: 999px;
+  background: var(--w-accent);
+  color: #111 !important;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none !important;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, background 0.2s ease;
+}
+.pg-why__cta svg { width: 18px; height: 18px; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.pg-why__cta:hover { background: #ff9a4f; transform: translateY(-2px); box-shadow: 0 16px 30px -14px rgba(245, 134, 52, 0.7); }
+.pg-why__cta:hover svg { transform: translateX(3px); }
+
+/* ---- tablets: two by two ---- */
+@media (max-width: 1024px) {
+  .pg-why__head { grid-template-columns: 1fr; align-items: start; }
+  .pg-why__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pg-why__card { aspect-ratio: 5 / 4; }
+  .pg-why__trust { grid-template-columns: 1fr; }
+}
+/* touch screens: the paragraph is always there, as a short preview */
+@media (hover: none) {
+  .pg-why__more { max-height: none; }
+  .pg-why__card p { opacity: 1; transform: none; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+}
+/* ---- phones: the cards in a row to swipe through ---- */
+@media (max-width: 640px) {
+  .pg-why { padding-left: 0; padding-right: 0; }
+  .pg-why__head, .pg-why__trust { margin-left: 16px; margin-right: 16px; }
+  .pg-why__grid {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 0 16px 6px;
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0 16px;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .pg-why__grid::-webkit-scrollbar { display: none; }
+  .pg-why__card { flex: 0 0 80%; aspect-ratio: 4 / 5; scroll-snap-align: start; border-radius: 20px; }
+  .pg-why__list { grid-template-columns: 1fr; }
+  .pg-why__trust { border-radius: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-why__card img, .pg-why__more, .pg-why__card p, .pg-why__card h3::after, .pg-why__cta { transition: none !important; }
+}

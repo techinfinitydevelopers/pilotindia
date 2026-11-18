@@ -2489,3 +2489,9 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 - Gun, aim and paint ease toward the scroll goal with time-based easing (1 - e^(-dt/110ms) etc.), so wheel steps and flicks glide (~0.3 s) the same at 60/120 Hz; spray/droplets run while paint is changing, not on scroll timestamps.
 - Phones/tablets (<961px): same mascot ("follow" mode) instead of the per-card mini gun: the stage spans the screen width with overflow hidden, the gun (84px phone / 104px tablet) peeks in from the right edge at 42% of the screen height and sprays each heading as it rises past (paint over 150px); on 2-column tablets the right card lags 46px. CSS mini-gun rules removed.
 - v=2. ui-audit spray-guns 390/768/1024/1440: 0 issues.
+
+## 2026-11-18 — Spray guns: "Why choose a Pilot spray gun" revamped (photo cards, trust box below)
+- tools/why-spray-guns.mjs replaces Elementor container dc6c0dc on spray-guns/index.html (21 KB -> 5 KB) with section.pg-why; every sentence is read from the old markup (same words). Styles: assets/css/pg-why.css (v=2).
+- Heading + intro side by side; the 4 features are 4:5 photo cards (site photos: built-for-professionals.jpg, closeup-shot-worker-protective-gloves..., betterteam-spray-painter..., the-application-of-thermal-spray-coatings-on-vintage-cars...) with number chip + title; the original paragraph opens on hover/focus (max-height), shows as a 3-line preview on touch screens.
+- "Why professionals trust Pilot" box moved below, full width: text left, 4 checklist chips + orange CTA right (same link).
+- Tablet 2x2, phone swipe row (80% cards). ui-audit 390/768/1024/1440: 0 issues.

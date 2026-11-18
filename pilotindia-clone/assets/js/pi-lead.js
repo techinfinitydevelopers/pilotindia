@@ -248,7 +248,7 @@
   (function () {
     var AUTO_FILE = '/assets/media/pilot-india-catalog-2025-e-catalog-new.pdf', AUTO_MS = 60000, QUIET_MS = 3 * 24 * 3600 * 1000;
     function keep(f) { try { return f(); } catch (e) { return null; } }
-    if (window.__PI_GATE_FILE || unlocked()) return;
+    if (window.__PI_GATE_FILE || window.__PI_NOAUTO || unlocked()) return;
     var now = Date.now();
     if ((+keep(function () { return localStorage.getItem('pi_lead_auto_until'); }) || 0) > now) return;
     var t0 = +keep(function () { return sessionStorage.getItem('pi_lead_t0'); }) || 0;

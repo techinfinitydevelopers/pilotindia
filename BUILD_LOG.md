@@ -2512,3 +2512,9 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 
 ## 2026-11-18 — Tighter gap under the capability cards (all 5 product pages)
 - pg-fan.css v9: section bottom padding and the following pg-why top padding cut from ~86+86px to ~40+40px on desktop (24+24 on phone). Title-only animated cards were already on all 5 pages (spray-guns, airless, office, welding, power-tools). power-tools keeps its model list between the cards and the Why section.
+
+## 2026-11-18 — Hidden QR catalogue page (/get-catalogue)
+- New hidden page /get-catalogue (catalogue-page.mjs, route in serve.mjs): no link anywhere, not in sitemap, noindex/nofollow header + meta. Same form as the pop-up (name, email, phone with country code, optional company, consent) -> same /api/leads, same pi_dl cookie, same lead list (admin #/leads shows file "QR catalogue page", page /get-catalogue). After submit: main "Pilot India Catalogue 2025" download button + collapsible list of the other 53 catalogue PDFs. A visitor who already filled the form sees the downloads straight away. The server still refuses the PDFs without the cookie.
+- pi-lead.js/css v=10 (serve.mjs, leads.mjs gate page): `window.__PI_NOAUTO` stops the 60 s auto pop-up on this page.
+- tools/make-qr.mjs: dependency-free QR encoder (byte mode, EC level M, versions 1-6) -> qr/catalogue-qr.svg + .png for https://pilotindia-production.up.railway.app/get-catalogue (pass another URL as the first argument, e.g. a custom domain). Decoded back with OpenCV on 4 URL lengths: exact match, also at 1/4 size.
+- Tested at 390 and 1280: empty-submit errors, submit, download of the main PDF, reload shows downloads. Test leads removed from data/leads.jsonl.

@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const FILE = path.resolve('pilotindia-clone/spray-guns/index.html');
-const CSS = '<link rel="stylesheet" href="../assets/css/pg-why.css?v=2" />';
+const CSS = '<link rel="stylesheet" href="../assets/css/pg-why.css?v=7" />';
 let html = fs.readFileSync(FILE, 'utf8');
 
 const at = html.indexOf('elementor-element-dc6c0dc');
@@ -67,7 +67,7 @@ ${feats.map((f, i) => `      <article class="pg-why__card" tabindex="0">
     </div>
     <aside class="pg-why__trust">
       <div>
-        <h3>${tTitle}</h3>
+        <h3>${tTitle.replace(/\b(trust\b.*)$/i, '<span>$1</span>')}</h3>
         <p>${tText}</p>
       </div>
       <div>

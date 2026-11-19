@@ -20,7 +20,7 @@ const requiredCss = [
   '<link rel="stylesheet" href="../assets/css/bento-trust.css?v=14" />',
   '<link rel="stylesheet" href="../assets/css/pg-marquee.css" />',
   '<link rel="stylesheet" href="../assets/css/pg-hero-fit.css?v=2" />',
-  '<link rel="stylesheet" href="../assets/css/pg-hero-coll.css?v=20" />',
+  '<link rel="stylesheet" href="../assets/css/pg-hero-coll.css?v=21" />',
   '<link rel="stylesheet" href="../assets/css/pi-nav.css" />',
   '<link rel="stylesheet" href="../assets/css/pi-footer2.css" />',
   '<link rel="stylesheet" href="../assets/css/pg-tech.css?v=9" />',

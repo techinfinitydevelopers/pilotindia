@@ -207,3 +207,8 @@
     background-position: 0 0, 78% top !important;
   }
 }
+
+/* hover jitter fix (2026-11-19): a hovered card lifts 4px, so a pointer resting near its bottom edge fell outside it, the hover
+   ended, the card dropped back under the pointer and lifted again, flickering. While hovered, an invisible strip below the card
+   covers the gap the lift opens, so the pointer stays on the card. */
+.pi-coll .pi-coll__card:hover::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 8px; }

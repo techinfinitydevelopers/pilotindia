@@ -141,7 +141,9 @@
     var rg = document.createRange(); rg.selectNodeContents(title);
     var rr = rg.getClientRects(), tl = rr.length ? rel(rr[rr.length - 1]) : TT;
     // level with the last line, and past the end of the longest line, so it never sits over the words above it
-    REST = { x: Math.min(Math.max(tl.r + 38, TT.r + 26), bw - GW * 0.82), y: (tl.t + tl.b) / 2 - 2, t: tl };
+    // phones: the gun peeks in a little past the screen edge (its tail), so it is not squeezed between the text and the edge
+    var fit = innerWidth < 641 ? 0.65 : 0.82;
+    REST = { x: Math.min(Math.max(tl.r + 38, TT.r + 26), bw - GW * fit), y: (tl.t + tl.b) / 2 - 2, t: tl };
   }
 
   function layout() {

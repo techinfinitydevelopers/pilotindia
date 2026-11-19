@@ -289,3 +289,48 @@
   .pg-why__list li { animation: none !important; transition: none !important; }
   .pg-why__cta, .pg-why__cta svg { transition: none !important; }
 }
+
+/* ---- "Why professionals trust Pilot", redesign 2026-11-19 (b): a warm card with a ghost TRUST watermark; text and CTA on
+   the left, the four points as numbered tiles on the right that lift on hover. Same markup and words. ---- */
+.pg-why__trust {
+  position: relative; isolation: isolate; overflow: hidden;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(28px, 4vw, 64px); align-items: center;
+  margin-top: clamp(28px, 4vw, 48px); padding: clamp(28px, 4.4vw, 64px);
+  border: 1px solid rgba(245, 134, 52, 0.22); border-radius: 32px;
+  background: radial-gradient(120% 140% at 100% 0%, #fff3e8 0%, #fbf7f2 45%, #f7f5f1 100%);
+}
+.pg-why__trust::after {
+  content: "TRUST"; position: absolute; z-index: -1; right: -2%; bottom: -14%;
+  font-family: var(--pi-font-heading, system-ui, sans-serif); font-style: italic; font-weight: 800;
+  font-size: clamp(120px, 17vw, 260px); line-height: 1; letter-spacing: -0.04em;
+  color: transparent; -webkit-text-stroke: 1.5px rgba(245, 134, 52, 0.16); pointer-events: none;
+}
+.pg-why__trust > div { display: block; }
+.pg-why__trust > div:last-child { display: flex; flex-direction: column; gap: 22px; }
+.pg-why__trust p { margin-top: 16px; }
+.pg-why__list { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; border-top: 0 !important; }
+.pg-why__list li {
+  position: relative; display: flex !important; flex-direction: column; justify-content: flex-end; gap: 10px;
+  min-height: 132px; margin: 0 !important; padding: 20px 20px 22px !important;
+  border: 1px solid rgba(17, 17, 20, 0.08) !important; border-radius: 20px; background: #fff;
+  box-shadow: 0 18px 34px -28px rgba(17, 17, 20, 0.35);
+  font-size: 16px; font-weight: 700; line-height: 1.3; color: var(--w-ink);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.3s ease;
+}
+.pg-why__list li::before {
+  position: absolute; top: 16px; left: 20px;
+  font-family: var(--pi-font-heading, system-ui, sans-serif); font-style: italic; font-weight: 800; font-size: 34px; line-height: 1;
+  color: var(--w-accent);
+}
+.pg-why__list li::after { content: ""; position: absolute; left: 20px; right: 20px; bottom: 0; height: 3px; border-radius: 3px; background: var(--w-accent); transform: scaleX(0); transform-origin: left; transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+.pg-why__list li:hover { transform: translateY(-4px); border-color: rgba(245, 134, 52, 0.45) !important; box-shadow: 0 26px 40px -26px rgba(17, 17, 20, 0.4); }
+.pg-why__list li:hover::after { transform: scaleX(1); }
+.pg-why__cta { align-self: flex-start; }
+@media (max-width: 1024px) { .pg-why__trust { grid-template-columns: 1fr; } }
+@media (max-width: 560px) {
+  .pg-why__list { grid-template-columns: 1fr; }
+  .pg-why__list li { min-height: 0; padding: 18px 18px 18px 72px !important; justify-content: center; }
+  .pg-why__list li::before { top: 50%; transform: translateY(-50%); font-size: 28px; }
+  .pg-why__trust::after { font-size: 120px; bottom: -6%; }
+}
+@media (prefers-reduced-motion: reduce) { .pg-why__list li, .pg-why__list li::after { transition: none; } }

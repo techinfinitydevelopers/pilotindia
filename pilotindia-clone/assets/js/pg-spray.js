@@ -409,5 +409,14 @@
   addEventListener('resize', function () { layout(); kick(); });
   if (wide.addEventListener) wide.addEventListener('change', function () { layout(); kick(); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { layout(); kick(); });
+  // the letters' positions, the stage size and the canvas are measured in layout(); anything that reflows the section afterwards
+  // (a late font or image, text wrapping differently, browser zoom, the phone's address bar) would leave them stale and the
+  // spray would land away from the letters. So measure again whenever the section, its content or the title changes size
+  // (one pass per frame), and once more after the page has fully loaded.
+  var relayout = 0;
+  function again() { if (relayout) return; relayout = requestAnimationFrame(function () { relayout = 0; layout(); kick(); }); }
+  if (window.ResizeObserver) { var ro = new ResizeObserver(again); ro.observe(sec); ro.observe(wrap); ro.observe(title); }
+  addEventListener('load', again);
+  setTimeout(again, 1500);
   layout(); kick();
 })();

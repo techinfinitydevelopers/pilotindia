@@ -145,7 +145,7 @@
 .pg-tech--fan .pg-tech__cards .pg-tech__card:focus-visible {
   transform: translateY(-4px);
   border-color: var(--pi-accent, #f58634);
-  box-shadow: 0 24px 44px -28px rgba(17, 17, 20, 0.35);
+  box-shadow: 0 24px 44px -28px rgba(17, 17, 20, 0.22);
   outline: none;
 }
 .pg-tech--fan .pg-tech__card-top { display: flex; align-items: center; justify-content: space-between; margin: 0 0 22px; }

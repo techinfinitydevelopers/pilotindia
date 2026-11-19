@@ -113,7 +113,14 @@
   // before that, while the section is still scrolling into place
   var STEP = LINES ? 0.5 : 0.32, LEAD = LINES ? 0.05 : 0.15, SPRAY = LINES ? 0.72 : 0.6, EARLY = 0.42;
   var wide = matchMedia('(min-width: 961px)');
-  var pin = false, vh = innerHeight, top = 0, dpr = 1, bw = 0, bh = 0, GW = GWS[2], NOZ = { x: 24, y: 104 };
+  // phones: innerHeight changes while the address bar slides away, CSS 100vh does not, so the scroll mapping uses the latter
+  var probe = document.createElement('div');
+  probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:100vh;visibility:hidden;pointer-events:none';
+  probe.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(probe);
+  var stableVH = function () { return probe.offsetHeight || innerHeight; };
+  var lastW = 0, lastVH = 0;
+  var pin = false, vh = stableVH(), top = 0, dpr = 1, bw = 0, bh = 0, GW = GWS[2], NOZ = { x: 24, y: 104 };
 
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
   function ease(k) { return k * k * (3 - 2 * k); }
@@ -142,7 +149,14 @@
     pin = (LINES || wide.matches) && window.CSS && CSS.supports('position', 'sticky');
     track.classList.toggle('is-pin', pin);
     box.classList.toggle('pg-spray--follow', !pin);
-    vh = innerHeight;
+    vh = stableVH(); lastW = innerWidth; lastVH = vh;
+    // the theme's rule makes <body> overflow-x:hidden on phones, which turns it into a scroll container and breaks the pin;
+    // clip (or, where unsupported, visible: the stage is already kept inside the screen) does not
+    if (pin && LINES) {
+      var ox = window.CSS && CSS.supports && CSS.supports('overflow-x', 'clip') ? 'clip' : 'visible';
+      document.body.style.setProperty('overflow-x', ox, 'important'); document.body.style.setProperty('overflow-y', 'visible', 'important');
+      document.documentElement.style.setProperty('overflow-x', ox === 'clip' ? 'clip' : 'visible', 'important');
+    }
     if (pin) {
       if (LINES) sec.style.minHeight = '';
       var h = sec.offsetHeight;
@@ -180,7 +194,7 @@
 
   // ---- where everything should be for the current scroll position (reads only: no style is written before this)
   function goal() {
-    var sr = sec.getBoundingClientRect(), on = sr.bottom > -80 && sr.top < vh + 80;
+    var sr = sec.getBoundingClientRect(), on = sr.bottom > -80 && sr.top < innerHeight + 80;
     var paint = [], pos, target, vis;
     bRect = box.getBoundingClientRect();
     var rects = heads.map(textRect);
@@ -324,8 +338,8 @@
       }
     }
     // the gun sits exactly on the point computed from s (no second easing), only the aim and the face are smoothed a little
-    var sr = sec.getBoundingClientRect(), on = sr.bottom > -80 && sr.top < vh + 80;
-    var vis = clamp((vh * 0.94 - sr.top) / 160, 0, 1);
+    var sr = sec.getBoundingClientRect(), on = sr.bottom > -80 && sr.top < innerHeight + 80;
+    var vis = clamp((innerHeight * 0.94 - sr.top) / 160, 0, 1);
     lcur.x = g.pos.x; lcur.y = g.pos.y;
     var T = painting >= 0 ? caret(painting, g.paint[painting]) : g.target;
     var tx = (T.l + T.r) / 2, tyy = (T.t + T.b) / 2;
@@ -406,7 +420,7 @@
   }
   function kick() { if (!raf) raf = requestAnimationFrame(frame); }
   addEventListener('scroll', kick, { passive: true });
-  addEventListener('resize', function () { layout(); kick(); });
+  addEventListener('resize', function () { if (LINES && innerWidth === lastW && stableVH() === lastVH) { kick(); return; } layout(); kick(); });
   if (wide.addEventListener) wide.addEventListener('change', function () { layout(); kick(); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { layout(); kick(); });
   // the letters' positions, the stage size and the canvas are measured in layout(); anything that reflows the section afterwards

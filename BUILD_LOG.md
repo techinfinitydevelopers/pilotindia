@@ -2533,3 +2533,8 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 ## 2026-11-19 — Spray landed one line above the letters (stale measurements)
 - pg-spray.js measured the letters, stage and canvas once (layout()); any later reflow (late font/image, text wrapping differently, zoom, address bar) left them stale, so the droplets landed away from the letter being written. Reproduced by forcing a reflow: droplets 124 px above the letter (old) vs 0.2-0.4 px (new).
 - Fix: ResizeObserver on the section, its wrapper and the title (one re-layout per frame), plus a re-layout on window load and after 1.5 s. Verified at 1440x900 with the forced-reflow test; normal runs already measured dY < 1 px at 1440/1920/390.
+
+## 2026-11-19 — Mascot on phones/tablets hardened; lighter capability-card hover shadow
+- pg-spray.js: the scroll mapping uses a stable viewport height (a hidden 100vh probe) instead of innerHeight, which changes while a phone's address bar slides away and shifted the line mapping mid-swipe; resizes that change neither width nor that height are ignored; while the section is pinned, body/html overflow-x is forced to clip (visible where unsupported), because the theme's phone rule (overflow-x:hidden) turns <body> into a scroll container and breaks the pin on browsers without the :has()/clip support the CSS rule needed.
+- Measured per line at 390x844, 360x640, 820x1180, 1024x768 (steady swipe): nozzle on the active letter's row for every sample, droplets within 1.4 px of the letter. Real address-bar behaviour could not be emulated here.
+- pg-fan.css v10: capability-card hover shadow 0.35 -> 0.22 opacity.

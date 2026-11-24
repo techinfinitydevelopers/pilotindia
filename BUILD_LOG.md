@@ -2541,3 +2541,8 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 
 ## 2026-11-19 — Mascot resting spot on phones
 - pg-spray.js v18: below 641 px wide the resting gun sits ~10 px further right (fit 0.65 instead of 0.82 of its width), so its tail peeks past the screen edge and it is no longer squeezed between the heading and the edge (it was flush with the edge, touching the longest heading line). Tablet/desktop unchanged. Checked airless/spray-guns/welding at 390, 360, 820.
+
+## 2026-11-24 — "PILOT" preloader written by the TEX-90 spray gun
+- assets/js/pi-preload.js (self-contained: styles, font face, DOM, spray canvas) added to every page right after <head> by serve.mjs (PRELOADER_TAG, ?v=2). A beige card: the site's TEX-90 cut-out (assets/img/tex-90.png, unchanged; tex-90-v2.png is a fake HTML placeholder from the mirror) slides in from the left with a face on its cup and writes P-I-L-O-T left to right in black spray, an orange rule fills under the word; when the word is done and the page has loaded the gun leaves right and the card wipes up (~3.7 s minimum, hard stop 12 s). Click / Skip / Escape ends it.
+- Shown on every home-page load and on the first page of a visit elsewhere (sessionStorage pi_pl); never in the admin, iframes, with reduced motion, or when navigator.webdriver is true (audits/tests keep working); ?preloader=1 forces it.
+- Tested at 1440 and 390: letters appear in order, spray lands on the letter being written, the card removes itself (~4.3 s with a slow headless load), scroll lock is released, no page errors, automated run does not show it.

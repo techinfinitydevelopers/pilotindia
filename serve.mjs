@@ -61,11 +61,15 @@ const LEAD_TAGS = '<link rel="stylesheet" href="/assets/css/pi-lead.css?v=10" />
 // The two fonts the whole site uses (theme.css @font-face, font-display: swap). Without a preload the browser only finds them
 // after theme.css is parsed and text has laid out, so headlines paint in the fallback face and reflow when the real one arrives.
 const FONT_PRELOAD = '<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/pi-dm-sans-italic-latin.woff2" crossorigin>\n<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/pi-inter-latin.woff2" crossorigin>\n';
+// the "PILOT" preloader (assets/js/pi-preload.js): first thing in <head>, so its card is painted before anything else. It decides
+// by itself whether to show (home page every time, other pages once per visit; never in the admin, an iframe, with reduced
+// motion or to automated browsers), so the page file needs nothing.
+const PRELOADER_TAG = '<script src="/assets/js/pi-preload.js?v=2"></script>\n';
 function withLeadGate(buf) {
   let html = buf.toString('utf8');
   if (html.includes('pi-lead.js')) return buf;
   const head = html.match(/<head[^>]*>/i);
-  if (head) html = html.slice(0, head.index + head[0].length) + '\n' + FONT_PRELOAD + html.slice(head.index + head[0].length);
+  if (head) html = html.slice(0, head.index + head[0].length) + '\n' + PRELOADER_TAG + FONT_PRELOAD + html.slice(head.index + head[0].length);
   const at = html.search(/<\/head>/i);
   return Buffer.from(at < 0 ? LEAD_TAGS + html : html.slice(0, at) + LEAD_TAGS + html.slice(at), 'utf8');
 }

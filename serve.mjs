@@ -64,7 +64,7 @@ const FONT_PRELOAD = '<link rel="preload" as="font" type="font/woff2" href="/ass
 // the "PILOT" preloader (assets/js/pi-preload.js): first thing in <head>, so its card is painted before anything else. It decides
 // by itself whether to show (home page every time, other pages once per visit; never in the admin, an iframe, with reduced
 // motion or to automated browsers), so the page file needs nothing.
-const PRELOADER_TAG = '<script src="/assets/js/pi-preload.js?v=5"></script>\n';
+const PRELOADER_TAG = '<script src="/assets/js/pi-preload.js?v=6"></script>\n';
 function withLeadGate(buf) {
   let html = buf.toString('utf8');
   if (html.includes('pi-lead.js')) return buf;

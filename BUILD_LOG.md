@@ -2564,3 +2564,9 @@ pi-about.css v=23 (tools/about-us.mjs V=23): "12 countries / across 5 continents
 - assets/img/pilot-wing-left-1..3.png and pilot-wing-right-1..3.png: the six ribbons, each cropped (lossless) from the full-size logo's connected shapes (~25 KB each); the two whole-wing files from the previous version were removed.
 - serve.mjs tag ?v=6.
 - Test tooling note: Playwright's page.clock misbehaves with this script (progress jumped ahead); a manual rAF stepper (window.__step) gives deterministic frames.
+
+## 2026-11-24 — Preloader: graffiti pace and real spray (pi-preload.js v8)
+- Slower, hand-like: drawing minimum 3.6 s (was 2.1), 0.6 s entry/exit; every stroke eases in and out (55% linear + 45% cosine); the gun glides after the nozzle point (52 ms), leans a little into the move and has a very slight tremor while spraying.
+- Real spray: a tight jet of 22 droplets/frame plus a 30% wide overspray cone and a soft mist; droplets that land leave specks on a persistent "wall" canvas, a faint halo builds around fresh paint, and a fresh letter stroke sometimes drips (drops start at the lower edge of the paint, never run into the progress bar). Paint is black for the letters and orange for the wings (separate palettes and mist sprites). Fresh paint has a soft leading edge (blurred mask paths, filterUnits=userSpaceOnUse because objectBoundingBox filters break on straight lines).
+- Layering: logo (z1) < wall specks + spray (z2) < gun (z3).
+- Checked frame by frame at 1440 and 390 with a manual rAF stepper: wings, P (stem up, top, bowl, back), I, L (stem, foot), O (loop), T (bar, stem), drips, specks, 100% then the card wipes; no page errors.

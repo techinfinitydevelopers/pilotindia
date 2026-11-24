@@ -30,7 +30,7 @@
 
   var WORD = 'PILOT', GUN = '/assets/img/tex-90.png', FONT = '/assets/fonts/pi-dm-sans-italic-latin.woff2';
   var NOZ = [0.185, 0.553];                  // the nozzle tip, as a fraction of the 1000 x 1000 cut-out
-  var ENTER = 0.5, WRITE = 2.1, EXIT = 0.55; // seconds: gun comes in, the fastest the drawing may go, gun leaves
+  var ENTER = 0.6, WRITE = 3.6, EXIT = 0.6;  // seconds: gun comes in, the fastest the drawing may go (a hand's pace), gun leaves
   // the logo (pilot-logo-1.png, 3384 x 802): the capitals are 574 px tall; each wing picture is 802 px tall with its stripes' flat
   // edges on the capitals' rows (114-687); 66 px between the left wing and the P, 60 px between the T and the right wing.
   var CAPL = 574, WH = 802, GAPL = 66, GAPR = 60;
@@ -46,7 +46,7 @@
     '#pi-pl.is-out{clip-path:inset(0 0 100% 0)}' +
     '#pi-pl *{box-sizing:border-box}' +
     '#pi-pl .pl-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}' +
-    '#pi-pl .pl-word{position:relative;display:inline-flex;align-items:center;font-family:"PI Pre","DM Sans",system-ui,sans-serif;font-style:italic;font-weight:800;font-size:clamp(40px,11vw,128px);letter-spacing:-.035em;line-height:1;color:#111114;white-space:nowrap;padding:0 .08em}' +
+    '#pi-pl .pl-word{position:relative;z-index:1;display:inline-flex;align-items:center;font-family:"PI Pre","DM Sans",system-ui,sans-serif;font-style:italic;font-weight:800;font-size:clamp(40px,11vw,128px);letter-spacing:-.035em;line-height:1;color:#111114;white-space:nowrap;padding:0 .08em}' +
     '#pi-pl .pl-ch{display:inline-block;position:relative}' +
     '#pi-pl .pl-t{visibility:hidden}' +
     '#pi-pl .pl-let svg{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible}' +
@@ -58,8 +58,8 @@
     '#pi-pl.is-done .pl-word{animation:plPop .55s cubic-bezier(.34,1.56,.64,1)}@keyframes plPop{0%{transform:scale(1)}40%{transform:scale(1.035)}100%{transform:scale(1)}}' +
     '#pi-pl .pl-rule{position:absolute;left:0;top:0;height:5px;border-radius:5px;background:rgba(17,17,20,.08);overflow:hidden}' +
     '#pi-pl .pl-rule b{display:block;width:100%;height:100%;background:#f58634;transform:scaleX(0);transform-origin:left}' +
-    '#pi-pl .pl-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}' +
-    '#pi-pl .pl-gun{position:absolute;left:0;top:0;opacity:0;pointer-events:none;will-change:transform;filter:drop-shadow(0 16px 20px rgba(17,17,20,.22))}' +
+    '#pi-pl .pl-fx,#pi-pl .pl-wall{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}' +
+    '#pi-pl .pl-gun{position:absolute;left:0;top:0;z-index:3;opacity:0;pointer-events:none;will-change:transform;filter:drop-shadow(0 16px 20px rgba(17,17,20,.22))}' +
     '#pi-pl .pl-gun img{position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none}' +
     '#pi-pl .pl-face{position:absolute;inset:0;width:100%;height:100%}' +
     '#pi-pl .e-w{fill:#fff;stroke:#1b1b1f;stroke-width:5}#pi-pl .e-p{fill:#1b1b1f}#pi-pl .e-s{fill:#fff}' +
@@ -76,7 +76,7 @@
   var ov = d.createElement('div');
   ov.id = 'pi-pl'; ov.setAttribute('role', 'status');
   ov.innerHTML =
-    '<span class="pl-sr">Loading Pilot India</span><canvas class="pl-fx"></canvas>' +
+    '<span class="pl-sr">Loading Pilot India</span><canvas class="pl-wall"></canvas><canvas class="pl-fx"></canvas>' +
     '<div class="pl-word" aria-hidden="true"><span class="pl-ch pl-wing l">' + ribbons('left') + '</span>' +
     WORD.split('').map(function (c) { return '<span class="pl-ch pl-let"><span class="pl-t">' + c + '</span></span>'; }).join('') +
     '<span class="pl-ch pl-wing r">' + ribbons('right') + '</span></div>' +
@@ -114,7 +114,7 @@
     var NS = 'http://www.w3.org/2000/svg';
     var word = ov.querySelector('.pl-word'), chs = [].slice.call(word.querySelectorAll('.pl-ch')), n = chs.length;
     var gun = ov.querySelector('.pl-gun'), im = gun.querySelector('img'), pupils = gun.querySelector('.pupils');
-    var cv = ov.querySelector('.pl-fx'), ctx = cv.getContext('2d'), rule = ov.querySelector('.pl-rule'), bar = rule.firstChild;
+    var cv = ov.querySelector('.pl-fx'), ctx = cv.getContext('2d'), wall = ov.querySelector('.pl-wall'), wctx = wall.getContext('2d'), rule = ov.querySelector('.pl-rule'), bar = rule.firstChild;
     var meta = ov.querySelector('.pl-meta'), pct = meta.querySelector('.pl-pct');
     var u = 100, S = 120, W = 0, H = 0, oX = 0, oY = 0, gunOk = true;
 
@@ -157,7 +157,7 @@
     }
 
     // ---- everything that depends on the size: letter geometry, stroke paths, wing placement, the drawing's segments
-    var segs = [], total = 1, groups = [], rest = null;
+    var segs = [], total = 1, groups = [], rest = null, swPx = 0, ruleTop = 1e9;
     function measure() {
       W = innerWidth; H = innerHeight;
       u = parseFloat(getComputedStyle(word).fontSize) || 100; S = u * 1.2;
@@ -174,7 +174,7 @@
         if (mP.fontBoundingBoxAscent) { fa = mP.fontBoundingBoxAscent * k1; fd = mP.fontBoundingBoxDescent * k1; }
       } catch (e) { /* default proportions */ }
       WORD.split('').forEach(function (c) { if (!ink[c]) ink[c] = { L: 0, R: 0.62 * u, W: 0.62 * u }; });
-      var pr = probe(), sl = pr.s, sw = pr.sw * u;
+      var pr = probe(), sl = pr.s, sw = pr.sw * u; swPx = sw;
       var sc = cap / CAPL;
 
       // wings: size, gap from the letters (bearings from the font), vertical placement on the capitals' rows
@@ -228,7 +228,7 @@
         cfg.st.forEach(function (a, k) {
           var dir = k % 2 === 0 ? 1 : -1, y = r.top + a[4] * sc, x0 = r.left + a[0] * sc, x1 = x0 + a[2] * sc, img = imgs[k];
           out.push({
-            kind: 'stroke', w: a[2] * sc, a: { x: dir > 0 ? x0 : x1, y: y }, b: { x: dir > 0 ? x1 : x0, y: y },
+            kind: 'stroke', wing: true, w: a[2] * sc, a: { x: dir > 0 ? x0 : x1, y: y }, b: { x: dir > 0 ? x1 : x0, y: y },
             set: function (f) { var v = ((1 - f) * 100).toFixed(2); img.style.clipPath = dir > 0 ? 'inset(0 ' + v + '% 0 0)' : 'inset(0 0 0 ' + v + '%)'; }
           });
         });
@@ -241,16 +241,18 @@
         var r = sp.getBoundingClientRect(), ox = r.left, oy = r.top + baseOff;
         var svg = el('svg', {}, sp); svg.style.top = baseOff + 'px';
         var defs = el('defs', {}, svg), mask = el('mask', { id: 'plm' + li, maskUnits: 'userSpaceOnUse', x: -u, y: -2 * u, width: 4 * u, height: 4 * u }, defs);
+        var flt = el('filter', { id: 'plf' + li, filterUnits: 'userSpaceOnUse', x: -u, y: -2 * u, width: 4 * u, height: 4 * u }, defs);   // soft edge: paint builds up, it does not cut in
+        el('feGaussianBlur', { stdDeviation: (0.011 * u).toFixed(2) }, flt);
         var safety = el('rect', { x: -u, y: -2 * u, width: 4 * u, height: 4 * u, fill: '#fff', opacity: 0 }, mask);   // shows the whole letter once it is drawn
         var text = el('text', { x: 0, y: 0, 'font-family': '"PI Pre","DM Sans",system-ui,sans-serif', 'font-style': 'italic', 'font-weight': 800, 'font-size': u, fill: '#111114', mask: 'url(#plm' + li + ')' }, svg);
         text.textContent = ch;
         var grp = { rect: safety, segs: [], done: false }; groups.push(grp);
         strokesOf[ch]().forEach(function (pts) {
-          var p = el('path', { d: pathD(pts), fill: 'none', stroke: '#fff', 'stroke-width': ch === 'O' ? bw * 1.05 : bw, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, mask);
+          var p = el('path', { d: pathD(pts), fill: 'none', stroke: '#fff', 'stroke-width': ch === 'O' ? bw * 1.05 : bw, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', filter: 'url(#plf' + li + ')' }, mask);
           var len = p.getTotalLength() || 1, N = 40, sp2 = [];
           for (var j = 0; j <= N; j++) { var q1 = p.getPointAtLength(len * j / N); sp2.push({ x: ox + q1.x, y: oy + q1.y }); }
           p.setAttribute('stroke-dasharray', len + ' ' + (len + 2)); p.setAttribute('stroke-dashoffset', len); p.style.display = 'none';
-          var seg = { kind: 'stroke', w: len, pts: sp2, grp: grp, set: function (f) { p.style.display = f <= 0 ? 'none' : ''; p.setAttribute('stroke-dashoffset', (len * (1 - f)).toFixed(2)); } };
+          var seg = { kind: 'stroke', wing: false, w: len, pts: sp2, grp: grp, set: function (f) { p.style.display = f <= 0 ? 'none' : ''; p.setAttribute('stroke-dashoffset', (len * (1 - f)).toFixed(2)); } };
           grp.segs.push(seg); all.push(seg);
         });
       }
@@ -271,33 +273,44 @@
       rest = { first: first(segs[0]), last: lastPt(segs[segs.length - 1]) };
       groups.forEach(function (g) { g.done = false; g.rect.setAttribute('opacity', 0); });
 
-      var wrect = word.getBoundingClientRect();
+      var wrect = word.getBoundingClientRect(); ruleTop = wrect.bottom + u * 0.12;
       rule.style.left = (wrect.left + u * 0.08) + 'px'; rule.style.top = (wrect.bottom + u * 0.12) + 'px'; rule.style.width = (wrect.width - u * 0.16) + 'px';
       meta.style.left = rule.style.left; meta.style.top = (wrect.bottom + u * 0.12 + 15) + 'px'; meta.style.width = rule.style.width;
       var dpr = Math.min(1.5, w.devicePixelRatio || 1);
-      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      cv.width = wall.width = Math.round(W * dpr); cv.height = wall.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); wctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
     // the nozzle sits a little right of and below the point being drawn, so the spray goes left and up onto it
     var OFFX = 0.10, OFFY = 0.12;
     var nz = function (p) { return { x: p.x + OFFX * u, y: p.y + OFFY * u }; };
 
-    // ---- the spray: fine dark droplets in a short jet, and a soft mist that widens toward the point
-    var PAL = ['#17171b', '#202026', '#2a2a31', '#34343c'], parts = [];
-    var MIST = d.createElement('canvas'); MIST.width = MIST.height = 64;
-    (function () { var m = MIST.getContext('2d'), g = m.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(40,40,46,1)'); g.addColorStop(0.4, 'rgba(40,40,46,.42)'); g.addColorStop(1, 'rgba(40,40,46,0)'); m.fillStyle = g; m.fillRect(0, 0, 64, 64); })();
+    // ---- the spray, like a can on a wall: a tight jet of fine droplets, a wide cone of overspray and a soft mist. Droplets that land
+    // leave specks on the card, the mist leaves a faint halo around fresh paint, and a fresh stroke sometimes drips. Black paint
+    // for the letters, orange for the wings.
+    var PAL_INK = ['#17171b', '#202026', '#2a2a31', '#34343c'], PAL_ORG = ['#e8741f', '#f58634', '#f9974a', '#d9661a'], parts = [], drips = [];
+    function sprite(rgb) {
+      var c = d.createElement('canvas'); c.width = c.height = 64;
+      var m = c.getContext('2d'), g = m.createRadialGradient(32, 32, 0, 32, 32, 32);
+      g.addColorStop(0, 'rgba(' + rgb + ',1)'); g.addColorStop(0.4, 'rgba(' + rgb + ',.42)'); g.addColorStop(1, 'rgba(' + rgb + ',0)');
+      m.fillStyle = g; m.fillRect(0, 0, 64, 64); return c;
+    }
+    var MIST_INK = sprite('40,40,46'), MIST_ORG = sprite('245,134,52');
     function gauss() { return (Math.random() + Math.random() + Math.random() - 1.5) / 1.5; }
-    function emit(nx, ny, T, F) {
-      var tx = (T.l + T.r) / 2, ty = (T.t + T.b) / 2, dist = Math.hypot(tx - nx, ty - ny) || 1, spread = 1.2 + dist * 0.03, i;
-      for (i = 0; i < Math.round(13 * F); i++) {
-        var gx2 = T.l + (T.r - T.l) * Math.random() + gauss() * spread, gy2 = T.t + (T.b - T.t) * Math.random() + gauss() * spread * 0.7;
-        var big = Math.random() < 0.04, L = (big ? 9 : 4.5) + Math.random() * 4;
-        parts.push({ x: nx + gauss() * 0.8, y: ny + gauss() * 0.8, vx: (gx2 - nx) / L, vy: (gy2 - ny) / L, life: L, r: big ? 1.4 + Math.random() * 1.1 : 0.35 + Math.random() * Math.random() * 1.4, a: 0.4 + Math.random() * 0.5, c: PAL[(Math.random() * PAL.length) | 0] });
+    function emit(nx, ny, T, F, org) {
+      var pal = org ? PAL_ORG : PAL_INK, mist = org ? MIST_ORG : MIST_INK;
+      var tx = (T.l + T.r) / 2, ty = (T.t + T.b) / 2, dist = Math.hypot(tx - nx, ty - ny) || 1, spread = 1.2 + dist * 0.03, i, cnt = Math.round(22 * F);
+      for (i = 0; i < cnt; i++) {
+        var wide = Math.random() < 0.3, sg = wide ? 0.075 * u : spread;           // 30% of the droplets are overspray in a wide cone
+        var gx2 = (wide ? tx : T.l + (T.r - T.l) * Math.random()) + gauss() * sg, gy2 = (wide ? ty : T.t + (T.b - T.t) * Math.random()) + gauss() * sg * 0.8;
+        var big = Math.random() < (wide ? 0.03 : 0.04), L = (big ? 9 : 4.5) + Math.random() * 4 + (wide ? 2 : 0);
+        parts.push({ x: nx + gauss() * 0.8, y: ny + gauss() * 0.8, vx: (gx2 - nx) / L, vy: (gy2 - ny) / L, life: L, r: big ? 1.4 + Math.random() * 1.1 : 0.35 + Math.random() * Math.random() * 1.4, a: 0.4 + Math.random() * 0.5, c: pal[(Math.random() * pal.length) | 0], sp: org ? 0.35 : 0.5 });
       }
-      for (i = 0; i < Math.max(1, Math.round(3 * F)); i++) {
-        var uu = Math.pow(Math.random(), 0.7), life = 16 + Math.random() * 12;
-        parts.push({ mist: 1, x: nx + (tx - nx) * uu + gauss() * spread * uu * 0.5, y: ny + (ty - ny) * uu + gauss() * spread * uu * 0.4, r: 3 + uu * (9 + spread * 0.9), vx: (tx - nx) / dist * 0.5, vy: (ty - ny) / dist * 0.5 - 0.06, life: life, max: life, a: 0.05 + 0.06 * uu });
+      for (i = 0; i < Math.max(1, Math.round(4 * F)); i++) {
+        var uu = Math.pow(Math.random(), 0.7), life = 18 + Math.random() * 14;
+        parts.push({ mist: 1, spr: mist, x: nx + (tx - nx) * uu + gauss() * spread * uu * 0.6, y: ny + (ty - ny) * uu + gauss() * spread * uu * 0.5, r: 4 + uu * (11 + spread), vx: (tx - nx) / dist * 0.5, vy: (ty - ny) / dist * 0.5 - 0.06, life: life, max: life, a: 0.06 + 0.07 * uu });
       }
+      var hr = (0.06 + Math.random() * 0.07) * u;                                 // the faint halo that builds up on the card around fresh paint
+      wctx.globalAlpha = (org ? 0.03 : 0.035) * Math.min(F, 2); wctx.drawImage(mist, tx - hr, ty - hr, hr * 2, hr * 2); wctx.globalAlpha = 1;
     }
     function draw(F) {
       ctx.clearRect(0, 0, W, H);
@@ -306,14 +319,38 @@
         if (p.mist) {
           p.life -= F; p.r += 0.5 * F; p.x += p.vx * F; p.y += p.vy * F;
           if (p.life <= 0) { parts.splice(j, 1); continue; }
-          ctx.globalAlpha = p.a * (p.life / p.max); ctx.drawImage(MIST, p.x - p.r, p.y - p.r, p.r * 2, p.r * 2); continue;
+          ctx.globalAlpha = p.a * (p.life / p.max); ctx.drawImage(p.spr, p.x - p.r, p.y - p.r, p.r * 2, p.r * 2); continue;
         }
-        if (p.life <= 0) { parts.splice(j, 1); continue; }
-        var s = Math.min(F, p.life); p.x += p.vx * s; p.y += p.vy * s; p.life -= F;
+        if (p.life <= 0) {                                                        // landed: some leave a speck on the card
+          if (Math.random() < p.sp) { wctx.globalAlpha = p.a * 0.6; wctx.fillStyle = p.c; wctx.beginPath(); wctx.arc(p.x, p.y, p.r * 0.9, 0, 6.283); wctx.fill(); wctx.globalAlpha = 1; }
+          parts.splice(j, 1); continue;
+        }
+        var st2 = Math.min(F, p.life); p.x += p.vx * st2; p.y += p.vy * st2; p.life -= F;
         ctx.globalAlpha = p.a; ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
       }
       ctx.globalAlpha = 1;
-      if (parts.length > 900) parts.splice(0, parts.length - 900);
+      if (parts.length > 1200) parts.splice(0, parts.length - 1200);
+    }
+    function spawnDrip(sg) {                      // a drop of paint runs down from the lowest point of a fresh letter stroke
+      if (Math.random() > 0.6) return;
+      var lo = sg.pts[0], j, flat = true;
+      for (j = 1; j < sg.pts.length; j++) { if (sg.pts[j].y > lo.y) lo = sg.pts[j]; if (Math.abs(sg.pts[j].y - sg.pts[0].y) > 2) flat = false; }
+      var y0 = lo.y;
+      if (flat) { lo = sg.pts[Math.round((0.2 + Math.random() * 0.6) * (sg.pts.length - 1))]; y0 = lo.y + swPx * 0.5; }   // a bar: from its lower edge, somewhere along it
+      var room = ruleTop - 6 - y0;
+      if (room < 0.06 * u) return;
+      drips.push({ x: lo.x + gauss() * 0.01 * u, y: y0, v: 0.6 + Math.random() * 0.6, w: (0.012 + Math.random() * 0.011) * u, max: Math.min((0.16 + Math.random() * 0.3) * u, room), len: 0, wait: 10 + Math.random() * 25 });
+    }
+    function runDrips(F) {
+      for (var j = drips.length - 1; j >= 0; j--) {
+        var dp = drips[j];
+        if (dp.wait > 0) { dp.wait -= F; continue; }
+        var step = dp.v * F, y0 = dp.y;
+        dp.y += step; dp.len += step; dp.v *= Math.pow(0.986, F);
+        wctx.strokeStyle = 'rgba(23,23,27,.85)'; wctx.lineWidth = dp.w; wctx.lineCap = 'round';
+        wctx.beginPath(); wctx.moveTo(dp.x, y0); wctx.lineTo(dp.x, dp.y); wctx.stroke();
+        if (dp.v < 0.04 || dp.len >= dp.max) { wctx.fillStyle = 'rgba(23,23,27,.9)'; wctx.beginPath(); wctx.arc(dp.x, dp.y, dp.w * 0.85, 0, 6.283); wctx.fill(); drips.splice(j, 1); }
+      }
     }
 
     // ---- the timeline
@@ -335,7 +372,8 @@
       var pos = prog * total, cur = segs[segs.length - 1], i, s;
       for (i = 0; i < segs.length; i++) {
         s = segs[i]; var f = clamp((pos - s.s0) / s.w, 0, 1);
-        if (f !== s.lf) { s.lf = f; if (s.set) s.set(f); }
+        if (s.kind === 'stroke') f = f * 0.55 + (0.5 - 0.5 * Math.cos(Math.PI * f)) * 0.45;       // a hand speeds up and slows down along a stroke
+        if (f !== s.lf) { if (f === 1 && s.pts && !s.wing) spawnDrip(s); s.lf = f; if (s.set) s.set(f); }
         if (pos >= s.s0 && pos < s.s0 + s.w && cur === segs[segs.length - 1]) cur = s;
       }
       if (prog >= 0.9995) cur = segs[segs.length - 1];
@@ -355,22 +393,25 @@
       // the gun: in from the left, following the nozzle point (smoothed a little), then away to the right
       var x, y;
       if (t < ENTER) { var e = 1 - Math.pow(1 - clamp(t / ENTER, 0, 1), 3), N0 = nz(rest.first); x = lerp(-S * 0.5, N0.x, e); y = N0.y + (1 - e) * -0.25 * u; gx = x; gy = y; }
-      else if (!exitAt) { if (gx === null) { gx = Nn.x; gy = Nn.y; } gx += (Nn.x - gx) * glide(dt, 38); gy += (Nn.y - gy) * glide(dt, 38); x = gx; y = gy; }
+      else if (!exitAt) { if (gx === null) { gx = Nn.x; gy = Nn.y; } gx += (Nn.x - gx) * glide(dt, 52); gy += (Nn.y - gy) * glide(dt, 52); x = gx; y = gy; }
       else { var qq = clamp((now - exitAt) / (EXIT * 1000), 0, 1), N1 = nz(rest.last); x = lerp(N1.x, W + S, qq * qq); y = N1.y - Math.sin(qq * Math.PI) * 0.18 * u; }
       var spraying = !exitAt && t > ENTER && rate > 0.0003 && cur.kind === 'stroke' && prog < 0.9995;     // waiting for the page, or hopping: the gun idles
-      var bob = spraying ? Math.sin(now / 26) * 0.5 : Math.sin(now / 500) * 2.5, rot = -2 + (spraying ? Math.sin(now / 37) * 0.4 : 0);
+      if (spraying) { x += Math.sin(now / 57) * 0.5 + Math.sin(now / 23) * 0.25; y += Math.cos(now / 63) * 0.5; }   // a hand is never perfectly still
+      var tilt = gx === null ? 0 : clamp((Nn.y - gy) * 0.12, -3, 3);                                     // it leans a little into the move
+      var bob = spraying ? Math.sin(now / 26) * 0.4 : Math.sin(now / 500) * 2.5, rot = -2 + tilt + (spraying ? Math.sin(now / 37) * 0.4 : 0);
       if (gunOk) {
         gun.style.opacity = '1';
         gun.style.transform = 'translate(' + (x - oX).toFixed(1) + 'px,' + (y - oY + bob).toFixed(1) + 'px) rotate(' + rot.toFixed(2) + 'deg)';
         gun.classList.toggle('is-spraying', spraying);
         pupils.style.transform = 'translate(' + (-9 * (spraying ? 1 : 0.4)).toFixed(1) + 'px,' + (spraying ? 3 : 0) + 'px)';
       }
-      if (spraying) emit(x - 2, y + bob, { l: P.x - 0.05 * u, r: P.x + 0.015 * u, t: P.y - 0.045 * u, b: P.y + 0.045 * u }, F);
+      if (spraying) emit(x - 2, y + bob, { l: P.x - 0.05 * u, r: P.x + 0.015 * u, t: P.y - 0.045 * u, b: P.y + 0.045 * u }, F, cur.wing === true);
+      runDrips(F);
       draw(F);
       // done drawing (so the page has loaded): the logo pops, the gun leaves and the card wipes up
       if (!exitAt && !skipped && prog >= 0.999) {
         if (!doneAt) { doneAt = now; ov.classList.add('is-done'); }
-        else if (now - doneAt > 420) { exitAt = now; later(function () { ov.classList.add('is-out'); }, 240); later(finish, 1150); }
+        else if (now - doneAt > 500) { exitAt = now; later(function () { ov.classList.add('is-out'); }, 260); later(finish, 1250); }
       }
       raf = requestAnimationFrame(frame);
     }

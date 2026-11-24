@@ -1,7 +1,10 @@
 /* Pilot India preloader (2026-11-24). A full-screen card that opens every visit to the home page, and the first page of any other
    visit: the TEX-90 spray gun (assets/img/tex-90.png, the product's own cut-out) slides in from the left and writes the logo's
    left wing, P-I-L-O-T and the right wing (assets/img/pilot-wing-*.png, cut from the full-size logo), left to right,
-   spraying each part on as it passes; when the word is finished and the page has loaded, the gun leaves to
+   spraying each part on as it passes; the writing is tied to the page's real loading (loadTarget): the gun goes only as fast as the page loads, never faster
+   than a short minimum, and the percentage under the bar is that progress. The wings are placed from the logo's own proportions
+   (stripes as tall as the capitals, the same gap to the letters), measured against the rendered letters. When the word is
+   finished and the page has loaded, the gun leaves to
    the right and the card wipes up to show the page.
    Added to every page by serve.mjs, right after <head>, so no page file carries it. Self-contained: its own styles and font face.
    Not shown: in an iframe, in the admin editor, with reduced motion, or to automated browsers (audits); ?preloader=1 forces it.
@@ -23,20 +26,25 @@
 
   var WORD = 'PILOT', GUN = '/assets/img/tex-90.png', WINGL = '/assets/img/pilot-wing-left.png', WINGR = '/assets/img/pilot-wing-right.png', FONT = '/assets/fonts/pi-dm-sans-italic-latin.woff2';
   var NOZ = [0.185, 0.553];                 // the nozzle tip, as a fraction of the 1000 x 1000 cut-out
-  var ENTER = 0.5, WRITE = 2.0, EXIT = 0.55; // seconds
+  var ENTER = 0.5, WRITE = 1.7, EXIT = 0.55; // seconds
 
   var CSS =
     'html.pi-pl-on{overflow:hidden!important}' +
     '@font-face{font-family:"PI Pre";font-style:italic;font-weight:300 800;font-display:block;src:url(' + FONT + ') format("woff2")}' +
-    '#pi-pl{position:fixed;inset:0;z-index:2147483600;display:grid;place-items:center;background:#f7f5f1;overflow:hidden;clip-path:inset(0);transition:clip-path .8s cubic-bezier(.76,0,.24,1);-webkit-font-smoothing:antialiased;cursor:pointer}' +
+    '#pi-pl{position:fixed;inset:0;z-index:2147483600;display:grid;place-items:center;background:radial-gradient(ellipse 60% 50% at 50% 46%,#fff 0,#f7f5f1 72%);overflow:hidden;clip-path:inset(0);transition:clip-path .8s cubic-bezier(.76,0,.24,1);-webkit-font-smoothing:antialiased;cursor:pointer}' +
     '#pi-pl.is-out{clip-path:inset(0 0 100% 0)}' +
     '#pi-pl *{box-sizing:border-box}' +
     '#pi-pl .pl-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}' +
     '#pi-pl .pl-word{position:relative;display:inline-flex;align-items:center;font-family:"PI Pre","DM Sans",system-ui,sans-serif;font-style:italic;font-weight:800;font-size:clamp(40px,11vw,128px);letter-spacing:-.035em;line-height:1;color:#111114;white-space:nowrap;padding:0 .08em}' +
     '#pi-pl .pl-ch{display:inline-block;opacity:var(--p,0);filter:blur(calc((1 - var(--p,0)) * 6px));text-shadow:0 0 calc((1 - var(--p,0)) * 14px) rgba(60,60,67,.6);will-change:opacity,filter}' +
-    '#pi-pl .pl-wing img{display:block;height:.98em;width:auto;max-width:none}#pi-pl .pl-wing.l{margin-right:.07em}#pi-pl .pl-wing.r{margin-left:.07em}' +
+    '#pi-pl .pl-wing{opacity:1;filter:none;text-shadow:none;will-change:auto}' +
+    '#pi-pl .pl-wing img{display:block;height:.98em;width:auto;max-width:none;clip-path:inset(0 calc((1 - var(--p,0)) * 100%) 0 0)}#pi-pl .pl-wing.l{margin-right:.07em}#pi-pl .pl-wing.r{margin-left:.07em}' +
     '#pi-pl .pl-ch.d{filter:none;text-shadow:none;will-change:auto}' +
     '#pi-pl .pl-rule{position:absolute;left:0;top:0;height:5px;border-radius:5px;background:rgba(17,17,20,.08);overflow:hidden}' +
+    '#pi-pl .pl-meta{position:absolute;left:0;top:0;display:flex;justify-content:space-between;font:600 12px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#6b6d74;font-variant-numeric:tabular-nums}' +
+    '#pi-pl .pl-meta b{color:#111114;font-weight:700}' +
+    '#pi-pl .pl-rule,#pi-pl .pl-meta{animation:plIn .5s cubic-bezier(.16,1,.3,1) both}@keyframes plIn{from{opacity:0;transform:translateY(8px)}}' +
+    '#pi-pl.is-done .pl-word{animation:plPop .55s cubic-bezier(.34,1.56,.64,1)}@keyframes plPop{0%{transform:scale(1)}40%{transform:scale(1.035)}100%{transform:scale(1)}}' +
     '#pi-pl .pl-rule b{display:block;width:100%;height:100%;background:#f58634;transform:scaleX(0);transform-origin:left}' +
     '#pi-pl .pl-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}' +
     '#pi-pl .pl-gun{position:absolute;left:0;top:0;opacity:0;pointer-events:none;will-change:transform;filter:drop-shadow(0 16px 20px rgba(17,17,20,.22))}' +
@@ -60,6 +68,7 @@
     WORD.split('').map(function (c) { return '<span class="pl-ch">' + c + '</span>'; }).join('') +
     '<span class="pl-ch pl-wing r"><img alt="" draggable="false" src="' + WINGR + '"></span></div>' +
     '<i class="pl-rule" aria-hidden="true"><b></b></i>' +
+    '<div class="pl-meta" aria-hidden="true"><span>Loading</span><b class="pl-pct">0%</b></div>' +
     '<div class="pl-gun" aria-hidden="true"><img alt="" draggable="false" src="' + GUN + '">' +
     '<svg class="pl-face" viewBox="0 0 1000 1000"><circle class="cheek" cx="402" cy="712" r="15"/><circle class="cheek" cx="582" cy="712" r="15"/>' +
     '<g class="eyes"><circle class="e-w" cx="448" cy="650" r="27"/><circle class="e-w" cx="536" cy="650" r="27"/>' +
@@ -93,20 +102,57 @@
     var gun = ov.querySelector('.pl-gun'), im = gun.querySelector('img'), pupils = gun.querySelector('.pupils');
     var cv = ov.querySelector('.pl-fx'), ctx = cv.getContext('2d'), rule = ov.querySelector('.pl-rule'), bar = rule.firstChild;
     var u = 100, S = 135, W = 0, H = 0, G = [], oX = 0, oY = 0, gunOk = true;
-    var loaded = d.readyState === 'complete';
-    if (!loaded) w.addEventListener('load', function () { loaded = true; });
-    later(function () { loaded = true; }, 7000);
+    var meta = ov.querySelector('.pl-meta'), pct = meta.querySelector('.pl-pct');
+    // How far the page really is: parsing (creeps up while the HTML arrives), then the images already on the page (visible,
+    // non-lazy ones), then 100% at the load event. After 7 s it counts as done whatever is pending, so one slow third-party
+    // file can never keep the card up.
+    // The site's script-delay loader fakes document.readyState (it stays "loading" after the page has loaded), so the real
+    // DOMContentLoaded and load events are listened for instead.
+    var capped = false, imgCache = 0, imgAt = -1e9, domReady = false, winLoaded = false;
+    d.addEventListener('DOMContentLoaded', function () { domReady = true; });
+    w.addEventListener('load', function () { winLoaded = true; });
+    later(function () { capped = true; }, 7000);
+    function loadTarget(now, tStart) {
+      if (capped || winLoaded) return 1;
+      if (!domReady) return 0.1 + 0.3 * Math.min(1, (now - tStart) / 3000);
+      if (now - imgAt > 120) {
+        var im = d.images, tot = 0, done = 0;
+        for (var i = 0; i < im.length; i++) { if (ov.contains(im[i]) || im[i].loading === 'lazy') continue; tot++; if (im[i].complete) done++; }
+        imgCache = tot ? done / tot : 1; imgAt = now;
+      }
+      return 0.5 + 0.45 * imgCache;
+    }
 
     function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
     function lerp(a, b, k) { return a + (b - a) * k; }
+    function glide(dt, ms) { return 1 - Math.exp(-dt / ms); }          // share of the remaining distance covered in dt ms (same glide at 60 and 120 Hz)
     function measure() {
       W = innerWidth; H = innerHeight;
       u = parseFloat(getComputedStyle(word).fontSize) || 100; S = u * 1.2;
       oX = NOZ[0] * S; oY = NOZ[1] * S;
       gun.style.width = gun.style.height = S + 'px'; gun.style.transformOrigin = oX + 'px ' + oY + 'px';
-      G = chs.map(function (c) { var r = c.getBoundingClientRect(); return { l: r.left, r: r.right, t: r.top, b: r.bottom }; });
+      // the real letter geometry from the font: capital height, line metrics, the P's left and the T's right side bearing
+      var mc = d.createElement('canvas').getContext('2d'), k1 = u / 1000, cap = 0.7 * u, fa = 0.992 * u, fd = 0.31 * u, bl = 0, br = 0;
+      try {
+        mc.font = 'italic 800 1000px "PI Pre","DM Sans",system-ui,sans-serif';
+        var mP = mc.measureText('P'), mT = mc.measureText('T');
+        if (mP.actualBoundingBoxAscent) cap = mP.actualBoundingBoxAscent * k1;
+        if (mP.fontBoundingBoxAscent) { fa = mP.fontBoundingBoxAscent * k1; fd = mP.fontBoundingBoxDescent * k1; }
+        bl = -(mP.actualBoundingBoxLeft || 0) * k1; br = (mT.width - (mT.actualBoundingBoxRight || mT.width)) * k1;
+      } catch (e) { /* default proportions */ }
+      // The logo: the stripes' flat edges span the capitals exactly (574 logo px); each wing image is 802 px tall with its flat
+      // edges at rows 114-687; the gap from the left wing's crop edge to the P is 66 px, from the T to the right wing's is 60 px.
+      var sc = cap / 574, wl = chs[0], wrr = chs[n - 1], il = wl.firstChild, ir = wrr.firstChild;
+      il.style.transform = ir.style.transform = '';
+      il.style.height = ir.style.height = (802 * sc) + 'px';
+      wl.style.marginRight = (66 * sc - bl) + 'px';
+      wrr.style.marginLeft = (60 * sc - br + 0.035 * u) + 'px';        // 0.035u: the letter-spacing after the T
+      var Pr = chs[1].getBoundingClientRect(), base = Pr.top + (Pr.height - (fa + fd)) / 2 + fa, capTop = base - cap;
+      [il, ir].forEach(function (im2) { var r0 = im2.getBoundingClientRect(); im2.style.transform = 'translateY(' + ((capTop - 114 * sc) - r0.top).toFixed(2) + 'px)'; });
+      G = chs.map(function (c) { var r = c.getBoundingClientRect(); return { l: r.left, r: r.right, t: capTop, b: base }; });   // the writing happens on the capitals' band
       var wr = word.getBoundingClientRect();
       rule.style.left = (wr.left + u * 0.08) + 'px'; rule.style.top = (wr.bottom + u * 0.12) + 'px'; rule.style.width = (wr.width - u * 0.16) + 'px';
+      meta.style.left = rule.style.left; meta.style.top = (wr.bottom + u * 0.12 + 15) + 'px'; meta.style.width = rule.style.width;
       var dpr = Math.min(1.5, w.devicePixelRatio || 1);
       cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
@@ -155,13 +201,18 @@
     }
 
     // ---- the timeline
-    var t0 = 0, last = 0, exitAt = 0, shown = chs.map(function () { return -1; });
+    var t0 = 0, last = 0, exitAt = 0, doneAt = 0, prog = 0, lastPct = -1, shown = chs.map(function () { return -1; });
     function frame(now) {
       raf = 0; if (finished) return;
       if (!t0) t0 = now;
       var dt = last ? Math.min(50, now - last) : 16.7; last = now; var F = dt / 16.7;
       var t = (now - t0) / 1000;
-      var k = clamp((t - ENTER) / WRITE, 0, 1); k = 0.5 - 0.5 * Math.cos(Math.PI * k);        // eased 0..1 across the word
+      // the schedule is the fastest the writing may go; the page's real progress can only slow it down
+      var sched = clamp((t - ENTER) / WRITE, 0, 1); sched = 0.5 - 0.5 * Math.cos(Math.PI * sched);
+      var tgt = Math.min(loadTarget(now, t0), sched), prev = prog;
+      prog += (tgt - prog) * glide(dt, 120); if (Math.abs(tgt - prog) < 0.0008) prog = tgt;
+      var k = prog, rate = (prog - prev) / F;          // rate: progress per 60 fps frame, > 0 while paint is going on
+      var pc = Math.round(k * 100); if (pc !== lastPct) { pct.textContent = pc + '%'; lastPct = pc; }
       var ty = typed(k);
       for (var i = 0; i < n; i++) {
         var p = clamp((ty - i) / 1.5, 0, 1);
@@ -173,7 +224,7 @@
       if (t < ENTER) { var e = 1 - Math.pow(1 - clamp(t / ENTER, 0, 1), 3); x = lerp(G[0].l - S * 0.9, N0.x, e); y = N0.y + (1 - e) * -0.25 * u; }
       else if (!exitAt) { x = cur.x; y = cur.y; }
       else { var q = clamp((now - exitAt) / (EXIT * 1000), 0, 1), qe = q * q; x = lerp(N1.x, W + S, qe); y = N1.y - Math.sin(q * Math.PI) * 0.18 * u; }
-      var spraying = !exitAt && t > ENTER + 0.02 && t < ENTER + WRITE + 0.06;
+      var spraying = !exitAt && t > ENTER && rate > 0.0003 && k < 0.9995;     // waiting for the page: the gun idles instead
       var bob = spraying ? Math.sin(now / 26) * 0.6 : Math.sin(now / 500) * 2.5, rot = -2 + (spraying ? Math.sin(now / 37) * 0.45 : 0);
       if (gunOk) {
         gun.style.opacity = '1';
@@ -183,9 +234,10 @@
       }
       if (spraying) emit(x - 2, y + bob, cur.c, F);
       draw(F);
-      // done writing and the page is loaded: the gun leaves and the card wipes up
-      if (!exitAt && !skipped && t > ENTER + WRITE + 0.3 && loaded) {
-        exitAt = now; later(function () { ov.classList.add('is-out'); }, 260); later(finish, 1150);
+      // done writing (so the page has loaded): the logo pops, the gun leaves and the card wipes up
+      if (!exitAt && !skipped && k >= 0.999) {
+        if (!doneAt) { doneAt = now; ov.classList.add('is-done'); }                                  // the finished logo pops
+        else if (now - doneAt > 420) { exitAt = now; later(function () { ov.classList.add('is-out'); }, 240); later(finish, 1150); }
       }
       raf = requestAnimationFrame(frame);
     }

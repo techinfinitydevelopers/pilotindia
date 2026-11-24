@@ -1,6 +1,7 @@
 /* Pilot India preloader (2026-11-24). A full-screen card that opens every visit to the home page, and the first page of any other
-   visit: the TEX-90 spray gun (assets/img/tex-90.png, the product's own cut-out) slides in from the left and writes P-I-L-O-T
-   from left to right, spraying each letter on as it passes; when the word is finished and the page has loaded, the gun leaves to
+   visit: the TEX-90 spray gun (assets/img/tex-90.png, the product's own cut-out) slides in from the left and writes the logo's
+   left wing, P-I-L-O-T and the right wing (assets/img/pilot-wing-*.png, cut from the full-size logo), left to right,
+   spraying each part on as it passes; when the word is finished and the page has loaded, the gun leaves to
    the right and the card wipes up to show the page.
    Added to every page by serve.mjs, right after <head>, so no page file carries it. Self-contained: its own styles and font face.
    Not shown: in an iframe, in the admin editor, with reduced motion, or to automated browsers (audits); ?preloader=1 forces it.
@@ -20,9 +21,9 @@
     } catch (e) { /* storage blocked: show it */ }
   }
 
-  var WORD = 'PILOT', GUN = '/assets/img/tex-90.png', FONT = '/assets/fonts/pi-dm-sans-italic-latin.woff2';
+  var WORD = 'PILOT', GUN = '/assets/img/tex-90.png', WINGL = '/assets/img/pilot-wing-left.png', WINGR = '/assets/img/pilot-wing-right.png', FONT = '/assets/fonts/pi-dm-sans-italic-latin.woff2';
   var NOZ = [0.185, 0.553];                 // the nozzle tip, as a fraction of the 1000 x 1000 cut-out
-  var ENTER = 0.5, WRITE = 1.7, EXIT = 0.55; // seconds
+  var ENTER = 0.5, WRITE = 2.0, EXIT = 0.55; // seconds
 
   var CSS =
     'html.pi-pl-on{overflow:hidden!important}' +
@@ -31,8 +32,9 @@
     '#pi-pl.is-out{clip-path:inset(0 0 100% 0)}' +
     '#pi-pl *{box-sizing:border-box}' +
     '#pi-pl .pl-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}' +
-    '#pi-pl .pl-word{position:relative;font-family:"PI Pre","DM Sans",system-ui,sans-serif;font-style:italic;font-weight:800;font-size:clamp(56px,18vw,200px);letter-spacing:-.035em;line-height:1;color:#111114;white-space:nowrap;padding:0 .08em}' +
+    '#pi-pl .pl-word{position:relative;display:inline-flex;align-items:center;font-family:"PI Pre","DM Sans",system-ui,sans-serif;font-style:italic;font-weight:800;font-size:clamp(40px,11vw,128px);letter-spacing:-.035em;line-height:1;color:#111114;white-space:nowrap;padding:0 .08em}' +
     '#pi-pl .pl-ch{display:inline-block;opacity:var(--p,0);filter:blur(calc((1 - var(--p,0)) * 6px));text-shadow:0 0 calc((1 - var(--p,0)) * 14px) rgba(60,60,67,.6);will-change:opacity,filter}' +
+    '#pi-pl .pl-wing img{display:block;height:.98em;width:auto;max-width:none}#pi-pl .pl-wing.l{margin-right:.07em}#pi-pl .pl-wing.r{margin-left:.07em}' +
     '#pi-pl .pl-ch.d{filter:none;text-shadow:none;will-change:auto}' +
     '#pi-pl .pl-rule{position:absolute;left:0;top:0;height:5px;border-radius:5px;background:rgba(17,17,20,.08);overflow:hidden}' +
     '#pi-pl .pl-rule b{display:block;width:100%;height:100%;background:#f58634;transform:scaleX(0);transform-origin:left}' +
@@ -47,14 +49,16 @@
     '@keyframes plBlink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}' +
     '#pi-pl .pl-skip{position:absolute;right:20px;bottom:18px;padding:8px 14px;border:0;border-radius:999px;background:transparent;color:#4d4f55;font:600 13px/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}' +
     '#pi-pl .pl-skip:hover,#pi-pl .pl-skip:focus-visible{background:rgba(17,17,20,.07);outline:0}' +
-    '@media(max-width:640px){#pi-pl .pl-word{font-size:22vw}}';
+    '@media(max-width:640px){#pi-pl .pl-word{font-size:15vw}}';
 
   var st = d.createElement('style'); st.id = 'pi-pl-css'; st.textContent = CSS; (d.head || de).appendChild(st);
   var ov = d.createElement('div');
   ov.id = 'pi-pl'; ov.setAttribute('role', 'status');
   ov.innerHTML =
     '<span class="pl-sr">Loading Pilot India</span><canvas class="pl-fx"></canvas>' +
-    '<div class="pl-word" aria-hidden="true">' + WORD.split('').map(function (c) { return '<span class="pl-ch">' + c + '</span>'; }).join('') + '</div>' +
+    '<div class="pl-word" aria-hidden="true"><span class="pl-ch pl-wing l"><img alt="" draggable="false" src="' + WINGL + '"></span>' +
+    WORD.split('').map(function (c) { return '<span class="pl-ch">' + c + '</span>'; }).join('') +
+    '<span class="pl-ch pl-wing r"><img alt="" draggable="false" src="' + WINGR + '"></span></div>' +
     '<i class="pl-rule" aria-hidden="true"><b></b></i>' +
     '<div class="pl-gun" aria-hidden="true"><img alt="" draggable="false" src="' + GUN + '">' +
     '<svg class="pl-face" viewBox="0 0 1000 1000"><circle class="cheek" cx="402" cy="712" r="15"/><circle class="cheek" cx="582" cy="712" r="15"/>' +
@@ -97,7 +101,7 @@
     function lerp(a, b, k) { return a + (b - a) * k; }
     function measure() {
       W = innerWidth; H = innerHeight;
-      u = parseFloat(getComputedStyle(word).fontSize) || 100; S = u * 1.35;
+      u = parseFloat(getComputedStyle(word).fontSize) || 100; S = u * 1.2;
       oX = NOZ[0] * S; oY = NOZ[1] * S;
       gun.style.width = gun.style.height = S + 'px'; gun.style.transformOrigin = oX + 'px ' + oY + 'px';
       G = chs.map(function (c) { var r = c.getBoundingClientRect(); return { l: r.left, r: r.right, t: r.top, b: r.bottom }; });
